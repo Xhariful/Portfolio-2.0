@@ -192,6 +192,24 @@ export const AdminDashboard: React.FC = () => {
   });
   const [serviceTagInput, setServiceTagInput] = useState('');
 
+  // Skill Category & Skill Item State
+  const [isAddingCategory, setIsAddingCategory] = useState(false);
+  const [editingCategoryId, setEditingCategoryId] = useState<string | null>(null);
+  const [categoryForm, setCategoryForm] = useState<{ id: string; title: string; highlight: string }>({
+    id: '',
+    title: '',
+    highlight: '',
+  });
+
+  // Adding skill item modal/inline state
+  const [addingSkillToCatId, setAddingSkillToCatId] = useState<string | null>(null);
+  const [editingSkillInfo, setEditingSkillInfo] = useState<{ catId: string; sIdx: number } | null>(null);
+  const [skillItemForm, setSkillItemForm] = useState<{ name: string; level: number; years: number }>({
+    name: '',
+    level: 85,
+    years: 3,
+  });
+
   // JSON Import state
   const [jsonInput, setJsonInput] = useState('');
 
@@ -287,6 +305,144 @@ export const AdminDashboard: React.FC = () => {
       ...prev,
       highlights: prev.highlights.filter((_, i) => i !== index),
     }));
+  };
+
+  // Skill Category & Skill Item Helpers
+  const startAddCategory = () => {
+    setCategoryForm({
+      id: `cat-${Date.now()}`,
+      title: '',
+      highlight: 'Specialization',
+    });
+    setIsAddingCategory(true);
+    setEditingCategoryId(null);
+  };
+
+  const startEditCategory = (cat: SkillCategory) => {
+    setCategoryForm({
+      id: cat.id,
+      title: cat.title,
+      highlight: cat.highlight,
+    });
+    setEditingCategoryId(cat.id);
+    setIsAddingCategory(false);
+  };
+
+  const saveCategory = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!categoryForm.title.trim()) {
+      showToast('Please enter a category title.');
+      return;
+    }
+
+    if (isAddingCategory) {
+      const newCategory: SkillCategory = {
+        id: categoryForm.id || `cat-${Date.now()}`,
+        title: categoryForm.title.trim(),
+        highlight: categoryForm.highlight.trim() || 'CORE EXPERTISE',
+        skills: [],
+      };
+      updateSkillCategories([...data.skillCategories, newCategory]);
+      setIsAddingCategory(false);
+      showToast(`Category "${newCategory.title}" created!`);
+    } else if (editingCategoryId) {
+      const nextCategories = data.skillCategories.map((c) =>
+        c.id === editingCategoryId
+          ? { ...c, title: categoryForm.title.trim(), highlight: categoryForm.highlight.trim() }
+          : c
+      );
+      updateSkillCategories(nextCategories);
+      setEditingCategoryId(null);
+      showToast('Category updated!');
+    }
+  };
+
+  const deleteCategory = (catId: string) => {
+    const cat = data.skillCategories.find((c) => c.id === catId);
+    const confirmed = window.confirm(`Are you sure you want to delete the category "${cat?.title || ''}" and all its skills?`);
+    if (confirmed) {
+      const nextCategories = data.skillCategories.filter((c) => c.id !== catId);
+      updateSkillCategories(nextCategories);
+      showToast('Skill category deleted.');
+    }
+  };
+
+  // Skill Items inside Category Helpers
+  const startAddSkillItem = (catId: string) => {
+    setAddingSkillToCatId(catId);
+    setEditingSkillInfo(null);
+    setSkillItemForm({
+      name: '',
+      level: 85,
+      years: 3,
+    });
+  };
+
+  const startEditSkillItem = (catId: string, sIdx: number, item: { name: string; level: number; years: number }) => {
+    setEditingSkillInfo({ catId, sIdx });
+    setAddingSkillToCatId(null);
+    setSkillItemForm({ ...item });
+  };
+
+  const saveSkillItem = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!skillItemForm.name.trim()) {
+      showToast('Please enter a skill name.');
+      return;
+    }
+
+    if (addingSkillToCatId) {
+      const nextCategories = data.skillCategories.map((cat) => {
+        if (cat.id === addingSkillToCatId) {
+          return {
+            ...cat,
+            skills: [
+              ...cat.skills,
+              {
+                name: skillItemForm.name.trim(),
+                level: Number(skillItemForm.level) || 80,
+                years: Number(skillItemForm.years) || 1,
+              },
+            ],
+          };
+        }
+        return cat;
+      });
+      updateSkillCategories(nextCategories);
+      setAddingSkillToCatId(null);
+      showToast(`Skill "${skillItemForm.name.trim()}" added!`);
+    } else if (editingSkillInfo) {
+      const { catId, sIdx } = editingSkillInfo;
+      const nextCategories = data.skillCategories.map((cat) => {
+        if (cat.id === catId) {
+          const updatedSkills = [...cat.skills];
+          updatedSkills[sIdx] = {
+            name: skillItemForm.name.trim(),
+            level: Number(skillItemForm.level) || 80,
+            years: Number(skillItemForm.years) || 1,
+          };
+          return { ...cat, skills: updatedSkills };
+        }
+        return cat;
+      });
+      updateSkillCategories(nextCategories);
+      setEditingSkillInfo(null);
+      showToast('Skill updated!');
+    }
+  };
+
+  const deleteSkillItem = (catId: string, sIdx: number) => {
+    const nextCategories = data.skillCategories.map((cat) => {
+      if (cat.id === catId) {
+        return {
+          ...cat,
+          skills: cat.skills.filter((_, i) => i !== sIdx),
+        };
+      }
+      return cat;
+    });
+    updateSkillCategories(nextCategories);
+    showToast('Skill deleted.');
   };
 
   // Export JSON file download
@@ -404,6 +560,7 @@ export const AdminDashboard: React.FC = () => {
               onClick={() => setActiveTab('skills')}
               icon={<Cpu className="w-4 h-4" />}
               label="Skills & Tech Matrix"
+              badge={data.skillCategories.length}
             />
             <TabButton
               active={activeTab === 'services'}
@@ -1468,74 +1625,324 @@ export const AdminDashboard: React.FC = () => {
             {/* 4. SKILLS TAB */}
             {activeTab === 'skills' && (
               <div className="space-y-6 max-w-4xl">
-                <div className="flex items-center justify-between border-b border-slate-200 dark:border-zinc-800 pb-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-zinc-800 pb-4">
                   <div>
                     <h3 className="text-xl font-bold text-slate-900 dark:text-white">Skills & Proficiency Matrix</h3>
-                    <p className="text-xs text-slate-500 dark:text-zinc-400">Adjust percentages, experience years, and skill category definitions.</p>
+                    <p className="text-xs text-slate-500 dark:text-zinc-400">Add new categories, add individual skills, edit levels, years of experience, or delete items.</p>
                   </div>
+                  {!isAddingCategory && !editingCategoryId && (
+                    <button
+                      onClick={startAddCategory}
+                      className="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-sm transition-all cursor-pointer w-fit"
+                    >
+                      <Plus className="w-4 h-4" />
+                      <span>Add New Category</span>
+                    </button>
+                  )}
                 </div>
 
-                <div className="space-y-6">
-                  {data.skillCategories.map((cat, catIdx) => (
-                    <div
-                      key={cat.id}
-                      className="p-6 rounded-2xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 space-y-4"
-                    >
-                      <div className="flex items-center justify-between border-b border-slate-200 dark:border-zinc-800 pb-2">
-                        <div>
-                          <span className="text-[10px] font-mono uppercase text-purple-600 dark:text-purple-400 font-bold">
-                            {cat.highlight}
+                {/* Category Add/Edit Form */}
+                {(isAddingCategory || editingCategoryId) && (
+                  <motion.form
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    onSubmit={saveCategory}
+                    className="p-6 rounded-2xl bg-purple-50/50 dark:bg-purple-950/20 border border-purple-200 dark:border-purple-800/60 space-y-4 shadow-sm"
+                  >
+                    <div className="flex items-center justify-between border-b border-purple-200/60 dark:border-purple-800/40 pb-3">
+                      <h4 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                        <Cpu className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                        <span>{isAddingCategory ? 'Add New Skill Domain / Category' : 'Edit Skill Category'}</span>
+                      </h4>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsAddingCategory(false);
+                          setEditingCategoryId(null);
+                        }}
+                        className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-sm cursor-pointer"
+                      >
+                        ✕
+                      </button>
+                    </div>
+
+                    <div className="grid sm:grid-cols-2 gap-4">
+                      <FormField label="Category Title (e.g. Shopify & Liquid, Frontend & UI)">
+                        <input
+                          type="text"
+                          required
+                          value={categoryForm.title}
+                          onChange={(e) => setCategoryForm({ ...categoryForm, title: e.target.value })}
+                          className="input-field"
+                          placeholder="e.g. Full-Stack & Python"
+                        />
+                      </FormField>
+
+                      <FormField label="Highlight Badge (e.g. CORE EXPERTISE, MODERN STACK)">
+                        <input
+                          type="text"
+                          value={categoryForm.highlight}
+                          onChange={(e) => setCategoryForm({ ...categoryForm, highlight: e.target.value })}
+                          className="input-field"
+                          placeholder="e.g. HIGH PERFORMANCE"
+                        />
+                      </FormField>
+                    </div>
+
+                    <div className="flex items-center gap-3 pt-2">
+                      <button
+                        type="submit"
+                        className="px-6 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold tracking-wide uppercase cursor-pointer"
+                      >
+                        {isAddingCategory ? 'Create Category' : 'Save Category'}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsAddingCategory(false);
+                          setEditingCategoryId(null);
+                        }}
+                        className="px-4 py-2.5 rounded-xl bg-slate-200 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 text-xs font-semibold cursor-pointer"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </motion.form>
+                )}
+
+                {/* Skill Item Add / Edit Modal / Inline Form */}
+                {(addingSkillToCatId || editingSkillInfo) && (
+                  <motion.form
+                    initial={{ opacity: 0, scale: 0.98 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    onSubmit={saveSkillItem}
+                    className="p-5 rounded-2xl bg-white dark:bg-zinc-900 border-2 border-purple-500 shadow-md space-y-4"
+                  >
+                    <div className="flex items-center justify-between border-b border-slate-200 dark:border-zinc-800 pb-2">
+                      <h5 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+                        <Zap className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                        <span>
+                          {addingSkillToCatId ? 'Add Individual Skill' : 'Edit Skill Details'}
+                        </span>
+                      </h5>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setAddingSkillToCatId(null);
+                          setEditingSkillInfo(null);
+                        }}
+                        className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-sm cursor-pointer"
+                      >
+                        ✕
+                      </button>
+                    </div>
+
+                    <div className="grid sm:grid-cols-3 gap-4">
+                      <div className="sm:col-span-1">
+                        <label className="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1">
+                          Skill Name
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={skillItemForm.name}
+                          onChange={(e) => setSkillItemForm({ ...skillItemForm, name: e.target.value })}
+                          className="input-field"
+                          placeholder="e.g. Liquid, Python, React.js"
+                        />
+                      </div>
+
+                      <div className="sm:col-span-1">
+                        <label className="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1">
+                          Proficiency ({skillItemForm.level}%)
+                        </label>
+                        <div className="flex items-center gap-3 pt-1">
+                          <input
+                            type="range"
+                            min="20"
+                            max="100"
+                            value={skillItemForm.level}
+                            onChange={(e) =>
+                              setSkillItemForm({
+                                ...skillItemForm,
+                                level: parseInt(e.target.value, 10),
+                              })
+                            }
+                            className="w-full accent-purple-600 cursor-pointer"
+                          />
+                          <span className="text-xs font-mono font-bold text-purple-600 w-10 text-right">
+                            {skillItemForm.level}%
                           </span>
-                          <h4 className="text-lg font-bold text-slate-900 dark:text-white">{cat.title}</h4>
                         </div>
                       </div>
 
-                      <div className="grid sm:grid-cols-2 gap-4">
-                        {cat.skills.map((skill, sIdx) => (
-                          <div
-                            key={sIdx}
-                            className="p-4 rounded-xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 space-y-2"
+                      <div className="sm:col-span-1">
+                        <label className="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1">
+                          Experience (Years)
+                        </label>
+                        <input
+                          type="number"
+                          min="0.5"
+                          step="0.5"
+                          max="25"
+                          value={skillItemForm.years}
+                          onChange={(e) =>
+                            setSkillItemForm({
+                              ...skillItemForm,
+                              years: parseFloat(e.target.value) || 1,
+                            })
+                          }
+                          className="input-field"
+                          placeholder="e.g. 4"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-3 pt-1">
+                      <button
+                        type="submit"
+                        className="px-5 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold uppercase tracking-wider cursor-pointer"
+                      >
+                        {addingSkillToCatId ? 'Add Skill' : 'Update Skill'}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setAddingSkillToCatId(null);
+                          setEditingSkillInfo(null);
+                        }}
+                        className="px-4 py-2 rounded-xl bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 text-xs font-semibold cursor-pointer"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </motion.form>
+                )}
+
+                {/* Categories & Skills List */}
+                <div className="space-y-6">
+                  {data.skillCategories.map((cat, catIdx) => (
+                    <div
+                      key={cat.id || catIdx}
+                      className="p-6 rounded-2xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 space-y-4 shadow-xs"
+                    >
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 dark:border-zinc-800 pb-3">
+                        <div>
+                          <span className="text-[10px] font-mono uppercase text-purple-600 dark:text-purple-400 font-bold tracking-wider">
+                            {cat.highlight}
+                          </span>
+                          <h4 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                            <span>{cat.title}</span>
+                            <span className="px-2 py-0.5 rounded-full bg-slate-200/80 dark:bg-zinc-800 text-[11px] font-mono text-slate-600 dark:text-zinc-400">
+                              {cat.skills.length} skills
+                            </span>
+                          </h4>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => startAddSkillItem(cat.id)}
+                            className="px-3 py-1.5 rounded-xl bg-purple-100 dark:bg-purple-950/60 hover:bg-purple-200 dark:hover:bg-purple-900/60 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800/60 text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
+                            title="Add skill to this category"
                           >
-                            <div className="flex items-center justify-between">
-                              <span className="text-xs font-bold text-slate-900 dark:text-white">{skill.name}</span>
-                              <span className="text-xs font-mono text-purple-600 dark:text-purple-400 font-bold">
-                                {skill.level}%
-                              </span>
-                            </div>
+                            <Plus className="w-3.5 h-3.5" />
+                            <span>Add Skill</span>
+                          </button>
 
-                            <input
-                              type="range"
-                              min="30"
-                              max="100"
-                              value={skill.level}
-                              onChange={(e) => {
-                                const newLevel = parseInt(e.target.value, 10);
-                                const nextCategories = [...data.skillCategories];
-                                nextCategories[catIdx].skills[sIdx].level = newLevel;
-                                updateSkillCategories(nextCategories);
-                              }}
-                              className="w-full accent-purple-600 cursor-pointer"
-                            />
+                          <button
+                            onClick={() => startEditCategory(cat)}
+                            className="p-1.5 rounded-lg bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 hover:border-purple-400 text-slate-700 dark:text-zinc-300 hover:text-purple-600 cursor-pointer"
+                            title="Edit Category Title"
+                          >
+                            <Edit2 className="w-3.5 h-3.5" />
+                          </button>
 
-                            <div className="flex items-center justify-between text-[11px] text-slate-500 font-mono">
-                              <span>Experience:</span>
+                          <button
+                            onClick={() => deleteCategory(cat.id)}
+                            className="p-1.5 rounded-lg bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 hover:border-rose-400 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 cursor-pointer"
+                            title="Delete Category"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Skills inside this category */}
+                      {cat.skills.length === 0 ? (
+                        <div className="py-6 text-center text-xs text-slate-400 dark:text-zinc-500 border border-dashed border-slate-200 dark:border-zinc-800 rounded-xl">
+                          No skills added yet in this category. Click &quot;Add Skill&quot; above to add one.
+                        </div>
+                      ) : (
+                        <div className="grid sm:grid-cols-2 gap-4">
+                          {cat.skills.map((skill, sIdx) => (
+                            <div
+                              key={sIdx}
+                              className="p-4 rounded-xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 space-y-2.5 shadow-xs"
+                            >
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                  <span className="text-xs font-bold text-slate-900 dark:text-white">{skill.name}</span>
+                                </div>
+                                <div className="flex items-center gap-1.5">
+                                  <span className="text-xs font-mono text-purple-600 dark:text-purple-400 font-bold">
+                                    {skill.level}%
+                                  </span>
+                                  <button
+                                    onClick={() => startEditSkillItem(cat.id, sIdx, skill)}
+                                    className="p-1 rounded text-slate-400 hover:text-purple-600 dark:hover:text-purple-400 cursor-pointer"
+                                    title="Edit skill details"
+                                  >
+                                    <Edit2 className="w-3.5 h-3.5" />
+                                  </button>
+                                  <button
+                                    onClick={() => deleteSkillItem(cat.id, sIdx)}
+                                    className="p-1 rounded text-slate-400 hover:text-rose-500 cursor-pointer"
+                                    title="Delete skill"
+                                  >
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                  </button>
+                                </div>
+                              </div>
+
+                              {/* Interactive Quick Slider */}
                               <input
-                                type="number"
-                                min="1"
-                                max="20"
-                                value={skill.years}
+                                type="range"
+                                min="20"
+                                max="100"
+                                value={skill.level}
                                 onChange={(e) => {
-                                  const years = parseInt(e.target.value, 10) || 1;
+                                  const newLevel = parseInt(e.target.value, 10);
                                   const nextCategories = [...data.skillCategories];
-                                  nextCategories[catIdx].skills[sIdx].years = years;
+                                  nextCategories[catIdx].skills[sIdx].level = newLevel;
                                   updateSkillCategories(nextCategories);
                                 }}
-                                className="w-16 px-2 py-0.5 rounded border border-slate-200 dark:border-zinc-700 bg-slate-50 dark:bg-zinc-950 text-right"
+                                className="w-full accent-purple-600 cursor-pointer"
                               />
+
+                              <div className="flex items-center justify-between text-[11px] text-slate-500 font-mono">
+                                <span>Experience:</span>
+                                <div className="flex items-center gap-1">
+                                  <input
+                                    type="number"
+                                    min="0.5"
+                                    step="0.5"
+                                    max="25"
+                                    value={skill.years}
+                                    onChange={(e) => {
+                                      const years = parseFloat(e.target.value) || 1;
+                                      const nextCategories = [...data.skillCategories];
+                                      nextCategories[catIdx].skills[sIdx].years = years;
+                                      updateSkillCategories(nextCategories);
+                                    }}
+                                    className="w-16 px-2 py-0.5 rounded border border-slate-200 dark:border-zinc-700 bg-slate-50 dark:bg-zinc-950 text-right text-slate-800 dark:text-zinc-200"
+                                  />
+                                  <span>yrs</span>
+                                </div>
+                              </div>
                             </div>
-                          </div>
-                        ))}
-                      </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
