@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   X,
@@ -41,9 +41,12 @@ import {
   Search,
   Bell,
   Cloud,
-  CloudCheck
+  CloudCheck,
+  CheckCircle,
+  Loader2
 } from 'lucide-react';
 import { usePortfolio } from '../context/PortfolioContext';
+import { compressImageFile } from '../lib/imageCompressor';
 import {
   ProfileData,
   EducationItem,
@@ -130,26 +133,52 @@ export const AdminDashboard: React.FC = () => {
   const [newKeyLabel, setNewKeyLabel] = useState('');
   const [customKeyInput, setCustomKeyInput] = useState('');
 
-  // Helper for uploading image files to DataURL
-  const handleImageFilePick = (file: File | null, onLoaded: (url: string) => void) => {
+  // Helper for uploading image files with automatic optimization & cloud-ready compression
+  const [isProcessingImage, setIsProcessingImage] = useState(false);
+
+  const handleImageFilePick = async (
+    file: File | null,
+    onLoaded: (url: string) => void,
+    compressOpts?: { maxWidth?: number; maxHeight?: number; quality?: number }
+  ) => {
     if (!file) return;
-    if (!file.type.startsWith('image/')) {
-      showToast('Please select a valid image file (.png, .jpg, .svg, .webp)');
+    if (!file.type.startsWith('image/') && !file.name.endsWith('.ico') && !file.name.endsWith('.svg')) {
+      showToast('Please select a valid image file (.png, .jpg, .svg, .webp, .ico)');
       return;
     }
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const res = e.target?.result as string;
-      if (res) {
-        onLoaded(res);
-        showToast('Image loaded successfully! Make sure to save.');
-      }
-    };
-    reader.readAsDataURL(file);
+
+    try {
+      setIsProcessingImage(true);
+      showToast('Processing & optimizing image...');
+      const optimizedUrl = await compressImageFile(file, {
+        maxWidth: compressOpts?.maxWidth || 1280,
+        maxHeight: compressOpts?.maxHeight || 1280,
+        quality: compressOpts?.quality || 0.82,
+        mimeType: file.type === 'image/png' ? 'image/webp' : 'image/webp',
+      });
+      onLoaded(optimizedUrl);
+      showToast('Image ready! Click "Save" to sync to Database.');
+    } catch (err) {
+      console.warn('Image compression fallback to standard reader:', err);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const res = e.target?.result as string;
+        if (res) {
+          onLoaded(res);
+          showToast('Image loaded! Click "Save" to sync.');
+        }
+      };
+      reader.readAsDataURL(file);
+    } finally {
+      setIsProcessingImage(false);
+    }
   };
 
   // Local form states for editing items
   const [profileForm, setProfileForm] = useState<ProfileData>(data.profile);
+  const isProfileDirty = useRef(false);
+  const isSeoDirty = useRef(false);
+  const isPopupDirty = useRef(false);
   const [editingEduId, setEditingEduId] = useState<string | null>(null);
   const [eduForm, setEduForm] = useState<EducationItem>({
     id: '',
@@ -254,11 +283,17 @@ export const AdminDashboard: React.FC = () => {
     showTimeGreeting: true,
   });
 
-  // Synchronize forms if data changes externally
+  // Synchronize forms if data changes externally (only if user hasn't made unsaved edits)
   React.useEffect(() => {
-    setProfileForm(data.profile);
-    if (data.seo) setSeoForm(data.seo);
-    if (data.welcomePopup) setPopupForm(data.welcomePopup);
+    if (!isProfileDirty.current) {
+      setProfileForm(data.profile);
+    }
+    if (!isSeoDirty.current && data.seo) {
+      setSeoForm(data.seo);
+    }
+    if (!isPopupDirty.current && data.welcomePopup) {
+      setPopupForm(data.welcomePopup);
+    }
   }, [data.profile, data.seo, data.welcomePopup]);
 
   if (!isDashboardOpen) return null;
@@ -266,18 +301,21 @@ export const AdminDashboard: React.FC = () => {
   // Handle Profile Save
   const handleSaveProfile = (e: React.FormEvent) => {
     e.preventDefault();
+    isProfileDirty.current = false;
     updateProfile(profileForm);
   };
 
   // Handle SEO & Favicon Save
   const handleSaveSeo = (e: React.FormEvent) => {
     e.preventDefault();
+    isSeoDirty.current = false;
     updateSeo(seoForm);
   };
 
   // Handle Welcome Popup Save
   const handleSavePopup = (e: React.FormEvent) => {
     e.preventDefault();
+    isPopupDirty.current = false;
     updateWelcomePopup(popupForm);
   };
 

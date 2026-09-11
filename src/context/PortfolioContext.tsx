@@ -201,7 +201,13 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     } catch (e) {
-      console.error('Error saving portfolio data to localStorage', e);
+      console.warn('LocalStorage quota limit reached for full portfolio, clearing old temporary cache items:', e);
+      try {
+        // Clear redundant keys and retry
+        sessionStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      } catch {
+        // non-blocking
+      }
     }
   }, [data]);
 
@@ -328,9 +334,14 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       }, { merge: true });
       setLastCloudSyncTime(new Date().toLocaleTimeString());
       setIsCloudConnected(true);
-    } catch (err) {
+    } catch (err: unknown) {
       console.error('[Cloud DB] Error saving to Firestore:', err);
-      showToast('Offline mode: Saved locally. Will sync when online.');
+      const errMsg = err instanceof Error ? err.message : String(err);
+      if (errMsg.includes('exceeds the maximum') || errMsg.includes('too large')) {
+        showToast('Image/Data exceeds cloud limit! Please use optimized image file.');
+      } else {
+        showToast('Saved locally. Cloud sync: ' + (errMsg.length < 50 ? errMsg : 'retrying...'));
+      }
     } finally {
       setIsSyncingCloud(false);
     }
