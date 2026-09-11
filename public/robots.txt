@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://sharif-ul-islam.vercel.app/sitemap.xml

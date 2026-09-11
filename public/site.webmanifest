@@ -1,0 +1,16 @@
+{
+  "name": "Shariful Islam - Senior Full-Stack Developer & Shopify Architect",
+  "short_name": "Shariful Portfolio",
+  "description": "Portfolio of Shariful Islam, Senior Full-Stack Developer and Shopify Architect specializing in high-converting Shopify stores, Python backends, and React web applications.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#09090b",
+  "theme_color": "#7c3aed",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/svg+xml"
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="siGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#9333ea" />
+      <stop offset="50%" stop-color="#7c3aed" />
+      <stop offset="100%" stop-color="#4f46e5" />
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#7c3aed" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+
+  <!-- Background container with rounded corners -->
+  <rect x="2" y="2" width="60" height="60" rx="16" fill="#09090b" stroke="#27272a" stroke-width="1.5" />
+
+  <!-- Code bracket accent Left < -->
+  <path d="M16 23 L9 32 L16 41" fill="none" stroke="#a855f7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.85" />
+  
+  <!-- Code bracket accent Right > -->
+  <path d="M48 23 L55 32 L48 41" fill="none" stroke="#818cf8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.85" />
+
+  <!-- Stylized Monogram S / Code Flow -->
+  <g filter="url(#shadow)">
+    <!-- Letter S with vibrant gradient -->
+    <path d="M37 23.5 C35.5 21.5 32.5 20.5 29 20.5 C24 20.5 20.5 23.5 20.5 27.5 C20.5 33 27 33.5 30 35 C34 36.8 35.5 39 35.5 42 C35.5 46.5 31.5 49.5 26.5 49.5 C22.5 49.5 19 47.5 18 45" 
+          fill="none" 
+          stroke="url(#siGradient)" 
+          stroke-width="4" 
+          stroke-linecap="round" />
+
+    <!-- Terminal Prompt Dot / Diamond Accent -->
+    <circle cx="43" cy="27" r="2.5" fill="#38bdf8" />
+  </g>
+</svg>
