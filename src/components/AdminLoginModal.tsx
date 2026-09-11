@@ -11,7 +11,8 @@ import {
   EyeOff,
   X,
   Sparkles,
-  Info
+  Info,
+  Cloud
 } from 'lucide-react';
 import { usePortfolio } from '../context/PortfolioContext';
 
@@ -22,6 +23,7 @@ export const AdminLoginModal: React.FC = () => {
     login,
     securityConfig,
     showToast,
+    isCloudConnected,
   } = usePortfolio();
 
   const [usernameInput, setUsernameInput] = useState('');
@@ -45,12 +47,12 @@ export const AdminLoginModal: React.FC = () => {
 
   if (!isLoginModalOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg(null);
     setIsLoading(true);
 
-    setTimeout(() => {
+    try {
       let result;
       if (activeTab === 'admin') {
         if (!usernameInput.trim() || !passwordInput) {
@@ -58,14 +60,14 @@ export const AdminLoginModal: React.FC = () => {
           setIsLoading(false);
           return;
         }
-        result = login(usernameInput.trim(), passwordInput, rememberDevice);
+        result = await login(usernameInput.trim(), passwordInput, rememberDevice);
       } else {
         if (!accessKeyInput.trim()) {
           setErrorMsg('Please enter a valid access key.');
           setIsLoading(false);
           return;
         }
-        result = login('', accessKeyInput.trim(), rememberDevice);
+        result = await login('', accessKeyInput.trim(), rememberDevice);
       }
 
       setIsLoading(false);
@@ -75,7 +77,10 @@ export const AdminLoginModal: React.FC = () => {
       } else {
         setErrorMsg(result.message || 'Invalid credentials. Access denied.');
       }
-    }, 400);
+    } catch (err) {
+      setIsLoading(false);
+      setErrorMsg('An error occurred during authentication. Please try again.');
+    }
   };
 
   const handleQuickFillDefaults = () => {
@@ -126,9 +131,15 @@ export const AdminLoginModal: React.FC = () => {
                 <Lock className="w-6 h-6" />
               </div>
               <div>
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-purple-500/20 border border-purple-400/30 text-[10px] font-mono font-bold tracking-wider text-purple-200 uppercase mb-1">
-                  <ShieldCheck className="w-3 h-3 text-emerald-400" />
-                  <span>Admin Access Protected</span>
+                <div className="flex items-center gap-2 mb-1 flex-wrap">
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-purple-500/20 border border-purple-400/30 text-[10px] font-mono font-bold tracking-wider text-purple-200 uppercase">
+                    <ShieldCheck className="w-3 h-3 text-emerald-400" />
+                    <span>Admin Access Protected</span>
+                  </div>
+                  <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/10 text-[10px] font-mono text-purple-200">
+                    <Cloud className="w-2.5 h-2.5 text-emerald-300" />
+                    <span>{isCloudConnected ? 'Cloud Synced' : 'Connecting...'}</span>
+                  </div>
                 </div>
                 <h3 className="text-lg font-bold text-white tracking-tight">
                   Portfolio Security Gateway

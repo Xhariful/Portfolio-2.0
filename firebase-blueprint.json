@@ -1,0 +1,45 @@
+{
+  "entities": {
+    "PortfolioConfig": {
+      "title": "Portfolio Configuration",
+      "description": "Global portfolio profile, projects, stats, experience, education, skills, services, SEO, and popup settings.",
+      "type": "object",
+      "properties": {
+        "profile": { "type": "object", "description": "Profile data" },
+        "stats": { "type": "array", "description": "Quick achievements and metrics" },
+        "skills": { "type": "array", "description": "Technical and design skills" },
+        "projects": { "type": "array", "description": "Showcase portfolio projects" },
+        "experience": { "type": "array", "description": "Work experiences and timeline" },
+        "education": { "type": "array", "description": "Educational credentials" },
+        "services": { "type": "array", "description": "Professional services offered" },
+        "certifications": { "type": "array", "description": "Certifications" },
+        "testimonials": { "type": "array", "description": "Client reviews and feedback" },
+        "achievements": { "type": "array", "description": "Key milestone achievements" },
+        "seo": { "type": "object", "description": "SEO, favicon, and meta tags" },
+        "welcomePopup": { "type": "object", "description": "Greeting popup settings" },
+        "updatedAt": { "type": "string", "description": "ISO timestamp of last update" }
+      }
+    },
+    "AdminCredentials": {
+      "title": "Admin Credentials",
+      "description": "Hashed or secured admin authentication credentials for cross-device synchronization.",
+      "type": "object",
+      "properties": {
+        "username": { "type": "string", "description": "Admin username" },
+        "passwordHash": { "type": "string", "description": "Hashed password" },
+        "authKey": { "type": "string", "description": "Secondary authorization key" },
+        "updatedAt": { "type": "string", "description": "ISO timestamp of last update" }
+      }
+    }
+  },
+  "firestore": {
+    "/portfolio/global_content": {
+      "schema": "PortfolioConfig",
+      "description": "The global live portfolio content shown to all visitors on any device."
+    },
+    "/admin_auth/master_credentials": {
+      "schema": "AdminCredentials",
+      "description": "Master credentials enabling admin dashboard access across any computer."
+    }
+  }
+}

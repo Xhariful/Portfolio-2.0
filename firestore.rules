@@ -1,0 +1,23 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Allow public reading of portfolio content so every user/device can see it globally.
+    // Allow writes for updating portfolio content.
+    match /portfolio/{documentId} {
+      allow read: if true;
+      allow write: if true;
+    }
+
+    // Master credentials storage for cross-PC login synchronization.
+    match /admin_auth/{documentId} {
+      allow read: if true;
+      allow write: if true;
+    }
+
+    // Diagnostics / health connection test document
+    match /test/{documentId} {
+      allow read, write: if true;
+    }
+  }
+}

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import {
   PortfolioData,
   ProfileData,
@@ -17,10 +17,18 @@ import {
   AuthenticatedUser,
 } from '../types';
 import { initialPortfolioData } from '../data/content';
+import { db, testFirestoreConnection } from '../lib/firebase';
+import { doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore';
 
 const STORAGE_KEY = 'shariful_portfolio_dynamic_data_v3';
 const SECURITY_STORAGE_KEY = 'shariful_portfolio_security_auth_v3';
 const AUTH_SESSION_KEY = 'shariful_portfolio_session_token_v3';
+
+// Firestore collection & document identifiers
+const FIRESTORE_PORTFOLIO_DOC = 'global_content';
+const FIRESTORE_PORTFOLIO_COLLECTION = 'portfolio';
+const FIRESTORE_AUTH_DOC = 'master_credentials';
+const FIRESTORE_AUTH_COLLECTION = 'admin_auth';
 
 const DEFAULT_SECURITY_CONFIG: SecurityConfig = {
   credentials: {
@@ -49,13 +57,19 @@ interface PortfolioContextType {
   setIsLoginModalOpen: (open: boolean) => void;
   openAdminPortal: () => void;
   
+  // Cloud Database Sync Status
+  isCloudConnected: boolean;
+  isSyncingCloud: boolean;
+  lastCloudSyncTime: string | null;
+  syncToCloudNow: () => Promise<void>;
+
   // Security & Auth
   securityConfig: SecurityConfig;
   currentUser: AuthenticatedUser | null;
   isAuthenticated: boolean;
-  login: (usernameOrKey: string, password?: string, remember?: boolean) => { success: boolean; message?: string };
+  login: (usernameOrKey: string, password?: string, remember?: boolean) => Promise<{ success: boolean; message?: string }>;
   logout: () => void;
-  updateAdminCredentials: (oldPass: string, newUsername: string, newPass: string) => { success: boolean; message?: string };
+  updateAdminCredentials: (oldPass: string, newUsername: string, newPass: string) => Promise<{ success: boolean; message?: string }>;
   addCollaboratorKey: (label: string, customKey?: string) => string;
   toggleCollaboratorKey: (id: string) => void;
   deleteCollaboratorKey: (id: string) => void;
@@ -107,7 +121,7 @@ interface PortfolioContextType {
 const PortfolioContext = createContext<PortfolioContextType | undefined>(undefined);
 
 export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // 1. Portfolio Dynamic Content Data
+  // 1. Portfolio Dynamic Content Data (Initialized from localStorage fallback or initial content)
   const [data, setData] = useState<PortfolioData>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
@@ -167,25 +181,13 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
+  // Cloud Database Sync Indicators
+  const [isCloudConnected, setIsCloudConnected] = useState(false);
+  const [isSyncingCloud, setIsSyncingCloud] = useState(false);
+  const [lastCloudSyncTime, setLastCloudSyncTime] = useState<string | null>(null);
+
   const isAuthenticated = Boolean(currentUser);
-
-  // Sync data with LocalStorage
-  useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-    } catch (e) {
-      console.error('Error saving portfolio data to localStorage', e);
-    }
-  }, [data]);
-
-  // Sync security configuration
-  useEffect(() => {
-    try {
-      localStorage.setItem(SECURITY_STORAGE_KEY, JSON.stringify(securityConfig));
-    } catch (e) {
-      console.error('Error saving security config', e);
-    }
-  }, [securityConfig]);
+  const hasInitializedFromCloud = useRef(false);
 
   const showToast = useCallback((msg: string) => {
     setToastMessage(msg);
@@ -194,7 +196,182 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }, 3200);
   }, []);
 
-  // Open Admin Entry point (Routes either to dashboard if logged in, or login popup if not)
+  // Save to LocalStorage cache
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    } catch (e) {
+      console.error('Error saving portfolio data to localStorage', e);
+    }
+  }, [data]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(SECURITY_STORAGE_KEY, JSON.stringify(securityConfig));
+    } catch (e) {
+      console.error('Error saving security config', e);
+    }
+  }, [securityConfig]);
+
+  // Firestore Real-Time Listener & Initial Cloud Fetch
+  useEffect(() => {
+    let unsubscribePortfolio: (() => void) | null = null;
+    let unsubscribeAuth: (() => void) | null = null;
+
+    async function initCloudSync() {
+      try {
+        await testFirestoreConnection();
+        setIsCloudConnected(true);
+
+        const portfolioDocRef = doc(db, FIRESTORE_PORTFOLIO_COLLECTION, FIRESTORE_PORTFOLIO_DOC);
+        const authDocRef = doc(db, FIRESTORE_AUTH_COLLECTION, FIRESTORE_AUTH_DOC);
+
+        // 1. Fetch initial portfolio content from cloud
+        const portfolioSnap = await getDoc(portfolioDocRef);
+        if (portfolioSnap.exists()) {
+          const cloudData = portfolioSnap.data() as Partial<PortfolioData>;
+          console.log('[Cloud DB] Loaded remote portfolio data from Firestore');
+          setData((prev) => ({
+            ...prev,
+            ...cloudData,
+            profile: { ...prev.profile, ...(cloudData.profile || {}) },
+            seo: { ...prev.seo, ...(cloudData.seo || {}) },
+            welcomePopup: { ...prev.welcomePopup, ...(cloudData.welcomePopup || {}) },
+          }));
+          setLastCloudSyncTime(new Date().toLocaleTimeString());
+        } else {
+          // If cloud document is not seeded yet, push current master portfolio to cloud so it's globally live
+          console.log('[Cloud DB] Seeding initial portfolio content to Cloud Firestore...');
+          await setDoc(portfolioDocRef, {
+            ...initialPortfolioData,
+            updatedAt: new Date().toISOString(),
+          });
+          setLastCloudSyncTime(new Date().toLocaleTimeString());
+        }
+
+        // 2. Fetch remote master credentials & access keys from cloud
+        const authSnap = await getDoc(authDocRef);
+        if (authSnap.exists()) {
+          const cloudAuth = authSnap.data() as Partial<SecurityConfig>;
+          console.log('[Cloud DB] Loaded master credentials from Firestore');
+          setSecurityConfig((prev) => ({
+            ...prev,
+            ...cloudAuth,
+            credentials: {
+              ...prev.credentials,
+              ...(cloudAuth.credentials || {}),
+            },
+            collaboratorKeys: cloudAuth.collaboratorKeys || prev.collaboratorKeys,
+          }));
+        } else {
+          // Seed default master credentials to cloud
+          console.log('[Cloud DB] Seeding default credentials to Cloud Firestore...');
+          await setDoc(authDocRef, {
+            ...DEFAULT_SECURITY_CONFIG,
+            updatedAt: new Date().toISOString(),
+          });
+        }
+
+        hasInitializedFromCloud.current = true;
+
+        // 3. Setup real-time listener for multi-device sync
+        unsubscribePortfolio = onSnapshot(portfolioDocRef, (snap) => {
+          if (snap.exists()) {
+            const remoteData = snap.data() as Partial<PortfolioData>;
+            setData((prev) => ({
+              ...prev,
+              ...remoteData,
+              profile: { ...prev.profile, ...(remoteData.profile || {}) },
+              seo: { ...prev.seo, ...(remoteData.seo || {}) },
+              welcomePopup: { ...prev.welcomePopup, ...(remoteData.welcomePopup || {}) },
+            }));
+            setLastCloudSyncTime(new Date().toLocaleTimeString());
+          }
+        });
+
+        unsubscribeAuth = onSnapshot(authDocRef, (snap) => {
+          if (snap.exists()) {
+            const remoteAuth = snap.data() as Partial<SecurityConfig>;
+            setSecurityConfig((prev) => ({
+              ...prev,
+              ...remoteAuth,
+              credentials: {
+                ...prev.credentials,
+                ...(remoteAuth.credentials || {}),
+              },
+              collaboratorKeys: remoteAuth.collaboratorKeys || prev.collaboratorKeys,
+            }));
+          }
+        });
+
+      } catch (err) {
+        console.warn('[Cloud DB] Could not sync with Firestore at startup, falling back to cached local storage:', err);
+      }
+    }
+
+    initCloudSync();
+
+    return () => {
+      if (unsubscribePortfolio) unsubscribePortfolio();
+      if (unsubscribeAuth) unsubscribeAuth();
+    };
+  }, []);
+
+  // Sync state changes to Cloud Firestore
+  const persistToCloud = useCallback(async (newData: PortfolioData) => {
+    try {
+      setIsSyncingCloud(true);
+      const portfolioDocRef = doc(db, FIRESTORE_PORTFOLIO_COLLECTION, FIRESTORE_PORTFOLIO_DOC);
+      await setDoc(portfolioDocRef, {
+        ...newData,
+        updatedAt: new Date().toISOString(),
+      }, { merge: true });
+      setLastCloudSyncTime(new Date().toLocaleTimeString());
+      setIsCloudConnected(true);
+    } catch (err) {
+      console.error('[Cloud DB] Error saving to Firestore:', err);
+      showToast('Offline mode: Saved locally. Will sync when online.');
+    } finally {
+      setIsSyncingCloud(false);
+    }
+  }, [showToast]);
+
+  const persistSecurityToCloud = useCallback(async (newSec: SecurityConfig) => {
+    try {
+      setIsSyncingCloud(true);
+      const authDocRef = doc(db, FIRESTORE_AUTH_COLLECTION, FIRESTORE_AUTH_DOC);
+      await setDoc(authDocRef, {
+        ...newSec,
+        updatedAt: new Date().toISOString(),
+      }, { merge: true });
+      setLastCloudSyncTime(new Date().toLocaleTimeString());
+      setIsCloudConnected(true);
+    } catch (err) {
+      console.error('[Cloud DB] Error saving security to Firestore:', err);
+    } finally {
+      setIsSyncingCloud(false);
+    }
+  }, []);
+
+  // Manual explicit cloud sync trigger
+  const syncToCloudNow = useCallback(async () => {
+    setIsSyncingCloud(true);
+    try {
+      const portfolioDocRef = doc(db, FIRESTORE_PORTFOLIO_COLLECTION, FIRESTORE_PORTFOLIO_DOC);
+      const authDocRef = doc(db, FIRESTORE_AUTH_COLLECTION, FIRESTORE_AUTH_DOC);
+      await setDoc(portfolioDocRef, { ...data, updatedAt: new Date().toISOString() });
+      await setDoc(authDocRef, { ...securityConfig, updatedAt: new Date().toISOString() });
+      setLastCloudSyncTime(new Date().toLocaleTimeString());
+      showToast('☁️ Cloud database synchronized successfully!');
+    } catch (e) {
+      console.error('Manual sync failed:', e);
+      showToast('Sync failed. Please check internet connection.');
+    } finally {
+      setIsSyncingCloud(false);
+    }
+  }, [data, securityConfig, showToast]);
+
+  // Open Admin Entry point
   const openAdminPortal = useCallback(() => {
     if (currentUser) {
       setIsDashboardOpen(true);
@@ -213,7 +390,6 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       const search = window.location.search.toLowerCase();
 
       if (path.includes('/admin') || hash === '#admin' || search.includes('admin=true')) {
-        // Clean URL to keep standard presentation if desired
         if (hash === '#admin') {
           window.history.replaceState(null, '', window.location.pathname + window.location.search);
         }
@@ -221,14 +397,10 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       }
     };
 
-    // Run on mount
     checkAdminPath();
-
-    // Listen for hash changes or popstate
     window.addEventListener('hashchange', checkAdminPath);
     window.addEventListener('popstate', checkAdminPath);
 
-    // Keyboard shortcut fallback (Ctrl + Shift + A)
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'A' || e.key === 'a')) {
         e.preventDefault();
@@ -244,20 +416,33 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     };
   }, [openAdminPortal]);
 
-  // Login handler
+  // Cross-PC Real-Time Login Handler
   const login = useCallback(
-    (usernameOrKey: string, password?: string, remember: boolean = true): { success: boolean; message?: string } => {
+    async (usernameOrKey: string, password?: string, remember: boolean = true): Promise<{ success: boolean; message?: string }> => {
       const cleanUsernameOrKey = usernameOrKey.trim();
       const cleanPassword = password ? password.trim() : '';
 
+      // Check remote cloud credentials first if available
+      let currentSecurity = securityConfig;
+      try {
+        const authDocRef = doc(db, FIRESTORE_AUTH_COLLECTION, FIRESTORE_AUTH_DOC);
+        const authSnap = await getDoc(authDocRef);
+        if (authSnap.exists()) {
+          currentSecurity = authSnap.data() as SecurityConfig;
+          setSecurityConfig(currentSecurity);
+        }
+      } catch (err) {
+        console.warn('Could not fetch cloud credentials during login, using local config:', err);
+      }
+
       // 1. Check Master Admin Credentials
       if (cleanPassword) {
-        const expectedUser = securityConfig.credentials.adminUsername.toLowerCase();
-        const expectedPass = securityConfig.credentials.adminPasswordHash;
+        const expectedUser = currentSecurity.credentials.adminUsername.toLowerCase();
+        const expectedPass = currentSecurity.credentials.adminPasswordHash;
 
         if (cleanUsernameOrKey.toLowerCase() === expectedUser && cleanPassword === expectedPass) {
           const userObj: AuthenticatedUser = {
-            username: securityConfig.credentials.adminUsername,
+            username: currentSecurity.credentials.adminUsername,
             role: 'admin',
             keyLabel: 'Master Administrator',
             authenticatedAt: new Date().toISOString(),
@@ -277,7 +462,7 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       }
 
       // 2. Check Collaborator / Access Key
-      const keyMatch = securityConfig.collaboratorKeys.find(
+      const keyMatch = (currentSecurity.collaboratorKeys || []).find(
         (k) => k.key.toUpperCase() === cleanUsernameOrKey.toUpperCase() || k.key.toUpperCase() === cleanPassword.toUpperCase()
       );
 
@@ -305,7 +490,7 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         return { success: true };
       }
 
-      return { success: false, message: 'Invalid username or password. Please try again.' };
+      return { success: false, message: 'Invalid username or password. Please check your credentials.' };
     },
     [securityConfig]
   );
@@ -319,10 +504,22 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     showToast('You have been logged out securely.');
   }, [showToast]);
 
-  // Update Master Credentials (Username & Password)
+  // Update Master Credentials (Synced live to Cloud Firestore)
   const updateAdminCredentials = useCallback(
-    (oldPass: string, newUsername: string, newPass: string): { success: boolean; message?: string } => {
-      if (oldPass !== securityConfig.credentials.adminPasswordHash) {
+    async (oldPass: string, newUsername: string, newPass: string): Promise<{ success: boolean; message?: string }> => {
+      // Re-verify against latest cloud config
+      let currentSecurity = securityConfig;
+      try {
+        const authDocRef = doc(db, FIRESTORE_AUTH_COLLECTION, FIRESTORE_AUTH_DOC);
+        const authSnap = await getDoc(authDocRef);
+        if (authSnap.exists()) {
+          currentSecurity = authSnap.data() as SecurityConfig;
+        }
+      } catch (err) {
+        console.warn('Using local security config for validation:', err);
+      }
+
+      if (oldPass !== currentSecurity.credentials.adminPasswordHash) {
         return { success: false, message: 'Current master password does not match.' };
       }
 
@@ -334,24 +531,25 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         return { success: false, message: 'New password must be at least 6 characters.' };
       }
 
-      setSecurityConfig((prev) => ({
-        ...prev,
+      const updatedSecurity: SecurityConfig = {
+        ...currentSecurity,
         credentials: {
-          ...prev.credentials,
+          ...currentSecurity.credentials,
           adminUsername: newUsername.trim(),
           adminPasswordHash: newPass,
           isCredentialsCustomized: true,
           updatedAt: new Date().toISOString(),
         },
-      }));
+      };
 
-      // Update current user session if currently logged in
+      setSecurityConfig(updatedSecurity);
+      await persistSecurityToCloud(updatedSecurity);
+
       setCurrentUser((prev) => (prev ? { ...prev, username: newUsername.trim() } : null));
-
-      showToast('Admin credentials updated successfully!');
+      showToast('Master credentials updated & synced to Cloud across all PCs!');
       return { success: true };
     },
-    [securityConfig, showToast]
+    [securityConfig, persistSecurityToCloud, showToast]
   );
 
   // Add Collaborator Key
@@ -365,271 +563,350 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       active: true,
     };
 
-    setSecurityConfig((prev) => ({
-      ...prev,
-      collaboratorKeys: [newKey, ...prev.collaboratorKeys],
-    }));
+    setSecurityConfig((prev) => {
+      const updated = {
+        ...prev,
+        collaboratorKeys: [newKey, ...prev.collaboratorKeys],
+      };
+      persistSecurityToCloud(updated);
+      return updated;
+    });
 
-    showToast(`Access Key [${key}] created!`);
+    showToast(`Access Key [${key}] created & saved to Cloud!`);
     return key;
-  }, [showToast]);
+  }, [persistSecurityToCloud, showToast]);
 
   const toggleCollaboratorKey = useCallback((id: string) => {
-    setSecurityConfig((prev) => ({
-      ...prev,
-      collaboratorKeys: prev.collaboratorKeys.map((k) => (k.id === id ? { ...k, active: !k.active } : k)),
-    }));
-    showToast('Key status toggled.');
-  }, [showToast]);
+    setSecurityConfig((prev) => {
+      const updated = {
+        ...prev,
+        collaboratorKeys: prev.collaboratorKeys.map((k) => (k.id === id ? { ...k, active: !k.active } : k)),
+      };
+      persistSecurityToCloud(updated);
+      return updated;
+    });
+    showToast('Key status toggled & synced to Cloud.');
+  }, [persistSecurityToCloud, showToast]);
 
   const deleteCollaboratorKey = useCallback((id: string) => {
-    setSecurityConfig((prev) => ({
-      ...prev,
-      collaboratorKeys: prev.collaboratorKeys.filter((k) => k.id !== id),
-    }));
-    showToast('Key deleted permanently.');
-  }, [showToast]);
+    setSecurityConfig((prev) => {
+      const updated = {
+        ...prev,
+        collaboratorKeys: prev.collaboratorKeys.filter((k) => k.id !== id),
+      };
+      persistSecurityToCloud(updated);
+      return updated;
+    });
+    showToast('Key deleted permanently from Cloud.');
+  }, [persistSecurityToCloud, showToast]);
 
-  // Content Updaters
+  // Content Updaters (Each update automatically persists to Cloud Firestore)
   const updateProfile = (updatedProfile: Partial<ProfileData>) => {
-    setData((prev) => ({
-      ...prev,
-      profile: { ...prev.profile, ...updatedProfile },
-    }));
-    showToast('Profile updated successfully!');
+    setData((prev) => {
+      const updated = { ...prev, profile: { ...prev.profile, ...updatedProfile } };
+      persistToCloud(updated);
+      return updated;
+    });
+    showToast('Profile updated & synced to Cloud!');
   };
 
   const updateStats = (stats: StatItem[]) => {
-    setData((prev) => ({ ...prev, stats }));
-    showToast('Key statistics updated!');
+    setData((prev) => {
+      const updated = { ...prev, stats };
+      persistToCloud(updated);
+      return updated;
+    });
+    showToast('Key statistics updated & synced to Cloud!');
   };
 
   const updateSkillCategories = (skillCategories: SkillCategory[]) => {
-    setData((prev) => ({ ...prev, skillCategories }));
-    showToast('Skills matrix updated!');
+    setData((prev) => {
+      const updated = { ...prev, skillCategories };
+      persistToCloud(updated);
+      return updated;
+    });
+    showToast('Skills matrix updated & synced to Cloud!');
   };
 
   const updateServices = (services: ServiceItem[]) => {
-    setData((prev) => ({ ...prev, services }));
-    showToast('Services updated!');
+    setData((prev) => {
+      const updated = { ...prev, services };
+      persistToCloud(updated);
+      return updated;
+    });
+    showToast('Services updated & synced to Cloud!');
   };
 
   const updateProjects = (projects: ProjectItem[]) => {
-    setData((prev) => ({ ...prev, projects }));
-    showToast('Projects updated!');
+    setData((prev) => {
+      const updated = { ...prev, projects };
+      persistToCloud(updated);
+      return updated;
+    });
+    showToast('Projects updated & synced to Cloud!');
   };
 
   const updateEducation = (education: EducationItem[]) => {
-    setData((prev) => ({ ...prev, education }));
-    showToast('Education background updated!');
+    setData((prev) => {
+      const updated = { ...prev, education };
+      persistToCloud(updated);
+      return updated;
+    });
+    showToast('Education background updated & synced to Cloud!');
   };
 
   const updateWorkTimeline = (workTimeline: WorkExperienceItem[]) => {
-    setData((prev) => ({ ...prev, workTimeline }));
-    showToast('Work experience updated!');
+    setData((prev) => {
+      const updated = { ...prev, workTimeline };
+      persistToCloud(updated);
+      return updated;
+    });
+    showToast('Work experience updated & synced to Cloud!');
   };
 
   const updateCertifications = (certifications: CertificationItem[]) => {
-    setData((prev) => ({ ...prev, certifications }));
-    showToast('Certifications updated!');
+    setData((prev) => {
+      const updated = { ...prev, certifications };
+      persistToCloud(updated);
+      return updated;
+    });
+    showToast('Certificates updated & synced to Cloud!');
   };
 
   const updateTestimonials = (testimonials: TestimonialItem[]) => {
-    setData((prev) => ({ ...prev, testimonials }));
-    showToast('Testimonials updated!');
+    setData((prev) => {
+      const updated = { ...prev, testimonials };
+      persistToCloud(updated);
+      return updated;
+    });
+    showToast('Reviews updated & synced to Cloud!');
   };
 
   const updateAchievements = (achievements: AchievementItem[]) => {
-    setData((prev) => ({ ...prev, achievements }));
-    showToast('Achievements updated!');
+    setData((prev) => {
+      const updated = { ...prev, achievements };
+      persistToCloud(updated);
+      return updated;
+    });
+    showToast('Achievements updated & synced to Cloud!');
   };
 
   const updateSeo = (seoUpdate: Partial<SeoConfig>) => {
-    setData((prev) => ({
-      ...prev,
-      seo: { ...prev.seo, ...(prev.seo || initialPortfolioData.seo!), ...seoUpdate },
-    }));
-    showToast('SEO & Favicon configurations updated live!');
+    setData((prev) => {
+      const updated = {
+        ...prev,
+        seo: { ...prev.seo, ...(prev.seo || initialPortfolioData.seo!), ...seoUpdate },
+      };
+      persistToCloud(updated);
+      return updated;
+    });
+    showToast('SEO & Favicon updated & synced to Cloud!');
   };
 
   const updateWelcomePopup = (popupUpdate: Partial<WelcomePopupConfig>) => {
-    setData((prev) => ({
-      ...prev,
-      welcomePopup: { ...prev.welcomePopup, ...(prev.welcomePopup || initialPortfolioData.welcomePopup!), ...popupUpdate },
-    }));
-    showToast('Greeting Popup settings updated!');
+    setData((prev) => {
+      const updated = {
+        ...prev,
+        welcomePopup: { ...prev.welcomePopup, ...(prev.welcomePopup || initialPortfolioData.welcomePopup!), ...popupUpdate },
+      };
+      persistToCloud(updated);
+      return updated;
+    });
+    showToast('Greeting Popup settings updated & synced to Cloud!');
   };
 
-  // Sync SEO metadata, title, and favicon dynamically with the document head
+  // Sync SEO metadata, title, and favicon dynamically with document head
   useEffect(() => {
     if (typeof document === 'undefined') return;
-
     const seo = data.seo || initialPortfolioData.seo!;
 
-    // 1. Document Title
-    if (seo.metaTitle) {
-      document.title = seo.metaTitle;
-    }
+    if (seo.metaTitle) document.title = seo.metaTitle;
 
-    // 2. Meta Description
     let descTag = document.querySelector('meta[name="description"]');
-    if (descTag && seo.metaDescription) {
-      descTag.setAttribute('content', seo.metaDescription);
-    }
+    if (descTag && seo.metaDescription) descTag.setAttribute('content', seo.metaDescription);
 
-    // 3. Meta Keywords
     let keywordsTag = document.querySelector('meta[name="keywords"]');
-    if (keywordsTag && seo.keywords) {
-      keywordsTag.setAttribute('content', seo.keywords);
-    }
+    if (keywordsTag && seo.keywords) keywordsTag.setAttribute('content', seo.keywords);
 
-    // 4. OpenGraph Title & Description
     let ogTitle = document.querySelector('meta[property="og:title"]');
-    if (ogTitle && seo.metaTitle) {
-      ogTitle.setAttribute('content', seo.metaTitle);
-    }
-    let ogDesc = document.querySelector('meta[property="og:description"]');
-    if (ogDesc && seo.metaDescription) {
-      ogDesc.setAttribute('content', seo.metaDescription);
-    }
-    let ogImage = document.querySelector('meta[property="og:image"]');
-    if (ogImage && seo.ogImage) {
-      ogImage.setAttribute('content', seo.ogImage);
-    }
+    if (ogTitle && seo.metaTitle) ogTitle.setAttribute('content', seo.metaTitle);
 
-    // 5. Dynamic Favicon Link
+    let ogDesc = document.querySelector('meta[property="og:description"]');
+    if (ogDesc && seo.metaDescription) ogDesc.setAttribute('content', seo.metaDescription);
+
+    let ogImage = document.querySelector('meta[property="og:image"]');
+    if (ogImage && seo.ogImage) ogImage.setAttribute('content', seo.ogImage);
+
     if (seo.faviconUrl) {
       let faviconLink = document.querySelector<HTMLLinkElement>('link[rel="icon"]');
-      if (faviconLink) {
-        faviconLink.href = seo.faviconUrl;
-      }
+      if (faviconLink) faviconLink.href = seo.faviconUrl;
       let appleLink = document.querySelector<HTMLLinkElement>('link[rel="apple-touch-icon"]');
-      if (appleLink) {
-        appleLink.href = seo.faviconUrl;
-      }
+      if (appleLink) appleLink.href = seo.faviconUrl;
     }
   }, [data.seo]);
 
   // Education Helpers
   const addEducation = (item: EducationItem) => {
-    setData((prev) => ({
-      ...prev,
-      education: [item, ...prev.education],
-    }));
-    showToast('New degree added!');
+    const newItem = { ...item, id: item.id || `edu-${Date.now()}` };
+    setData((prev) => {
+      const updated = { ...prev, education: [newItem, ...(prev.education || [])] };
+      persistToCloud(updated);
+      return updated;
+    });
+    showToast('Education credential added!');
   };
 
-  const editEducation = (id: string, updated: Partial<EducationItem>) => {
-    setData((prev) => ({
-      ...prev,
-      education: prev.education.map((edu) => (edu.id === id ? { ...edu, ...updated } : edu)),
-    }));
-    showToast('Degree details saved!');
+  const editEducation = (id: string, updatedFields: Partial<EducationItem>) => {
+    setData((prev) => {
+      const updated = {
+        ...prev,
+        education: (prev.education || []).map((edu) =>
+          edu.id === id || edu.institution === id ? { ...edu, ...updatedFields } : edu
+        ),
+      };
+      persistToCloud(updated);
+      return updated;
+    });
+    showToast('Education updated!');
   };
 
   const deleteEducation = (id: string) => {
-    setData((prev) => ({
-      ...prev,
-      education: prev.education.filter((edu) => edu.id !== id),
-    }));
-    showToast('Degree removed.');
+    setData((prev) => {
+      const updated = {
+        ...prev,
+        education: (prev.education || []).filter((edu) => edu.id !== id && edu.institution !== id),
+      };
+      persistToCloud(updated);
+      return updated;
+    });
+    showToast('Education removed.');
   };
 
   // Project Helpers
   const addProject = (item: ProjectItem) => {
-    setData((prev) => ({
-      ...prev,
-      projects: [item, ...prev.projects],
-    }));
-    showToast('Project added to portfolio!');
+    const newItem = {
+      ...item,
+      slug: item.slug || `project-${Date.now()}`,
+    };
+    setData((prev) => {
+      const updated = { ...prev, projects: [newItem, ...prev.projects] };
+      persistToCloud(updated);
+      return updated;
+    });
+    showToast('Project created!');
   };
 
   const editProject = (slug: string, updated: Partial<ProjectItem>) => {
-    setData((prev) => ({
-      ...prev,
-      projects: prev.projects.map((p) => (p.slug === slug ? { ...p, ...updated } : p)),
-    }));
+    setData((prev) => {
+      const updatedData = {
+        ...prev,
+        projects: prev.projects.map((p) => (p.slug === slug ? { ...p, ...updated } : p)),
+      };
+      persistToCloud(updatedData);
+      return updatedData;
+    });
     showToast('Project updated!');
   };
 
   const deleteProject = (slug: string) => {
-    setData((prev) => ({
-      ...prev,
-      projects: prev.projects.filter((p) => p.slug !== slug),
-    }));
-    showToast('Project deleted.');
+    setData((prev) => {
+      const updated = {
+        ...prev,
+        projects: prev.projects.filter((p) => p.slug !== slug),
+      };
+      persistToCloud(updated);
+      return updated;
+    });
+    showToast('Project removed.');
   };
 
   // Service Helpers
   const addService = (item: ServiceItem) => {
-    setData((prev) => ({
-      ...prev,
-      services: [...prev.services, item],
-    }));
-    showToast('New service created!');
+    const newItem = { ...item, id: item.id || `svc-${Date.now()}` };
+    setData((prev) => {
+      const updated = { ...prev, services: [newItem, ...prev.services] };
+      persistToCloud(updated);
+      return updated;
+    });
+    showToast('Service added!');
   };
 
   const editService = (id: string, updated: Partial<ServiceItem>) => {
-    setData((prev) => ({
-      ...prev,
-      services: prev.services.map((s) => (s.id === id ? { ...s, ...updated } : s)),
-    }));
-    showToast('Service saved!');
+    setData((prev) => {
+      const updatedData = {
+        ...prev,
+        services: prev.services.map((s) => (s.id === id || s.title === id ? { ...s, ...updated } : s)),
+      };
+      persistToCloud(updatedData);
+      return updatedData;
+    });
+    showToast('Service updated!');
   };
 
   const deleteService = (id: string) => {
-    setData((prev) => ({
-      ...prev,
-      services: prev.services.filter((s) => s.id !== id),
-    }));
+    setData((prev) => {
+      const updated = {
+        ...prev,
+        services: prev.services.filter((s) => s.id !== id),
+      };
+      persistToCloud(updated);
+      return updated;
+    });
     showToast('Service removed.');
   };
 
   // Experience Helpers
   const addExperience = (item: WorkExperienceItem) => {
     const newItem = { ...item, id: item.id || `exp-${Date.now()}` };
-    setData((prev) => ({
-      ...prev,
-      workTimeline: [newItem, ...prev.workTimeline],
-    }));
+    setData((prev) => {
+      const updated = { ...prev, workTimeline: [newItem, ...prev.workTimeline] };
+      persistToCloud(updated);
+      return updated;
+    });
     showToast('Experience added!');
   };
 
   const editExperience = (id: string, updated: Partial<WorkExperienceItem>) => {
-    setData((prev) => ({
-      ...prev,
-      workTimeline: prev.workTimeline.map((exp) => (exp.id === id || exp.role === id ? { ...exp, ...updated } : exp)),
-    }));
+    setData((prev) => {
+      const updatedData = {
+        ...prev,
+        workTimeline: prev.workTimeline.map((exp) => (exp.id === id || exp.role === id ? { ...exp, ...updated } : exp)),
+      };
+      persistToCloud(updatedData);
+      return updatedData;
+    });
     showToast('Experience updated!');
   };
 
   const deleteExperience = (id: string) => {
-    setData((prev) => ({
-      ...prev,
-      workTimeline: prev.workTimeline.filter((exp) => exp.id !== id && exp.role !== id),
-    }));
+    setData((prev) => {
+      const updated = {
+        ...prev,
+        workTimeline: prev.workTimeline.filter((exp) => exp.id !== id && exp.role !== id),
+      };
+      persistToCloud(updated);
+      return updated;
+    });
     showToast('Experience removed.');
   };
 
   const resetToDefault = () => {
     setData(initialPortfolioData);
-    try {
-      localStorage.removeItem(STORAGE_KEY);
-    } catch (e) {
-      console.error(e);
-    }
-    showToast('All data reset to defaults!');
+    persistToCloud(initialPortfolioData);
+    showToast('All data reset to defaults & synced to Cloud!');
   };
 
   const importData = (jsonData: string): boolean => {
     try {
       const parsed = JSON.parse(jsonData);
       if (parsed && typeof parsed === 'object' && parsed.profile) {
-        setData({
+        const fullData = {
           ...initialPortfolioData,
           ...parsed,
-        });
-        showToast('Backup data imported successfully!');
+        };
+        setData(fullData);
+        persistToCloud(fullData);
+        showToast('Backup data imported & synced to Cloud!');
         return true;
       }
     } catch (e) {
@@ -652,6 +929,10 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         isLoginModalOpen,
         setIsLoginModalOpen,
         openAdminPortal,
+        isCloudConnected,
+        isSyncingCloud,
+        lastCloudSyncTime,
+        syncToCloudNow,
         securityConfig,
         currentUser,
         isAuthenticated,
