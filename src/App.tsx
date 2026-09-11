@@ -11,6 +11,7 @@ import { ProjectsSection } from './components/ProjectsSection';
 import { TestimonialsSection } from './components/TestimonialsSection';
 import { ContactSection } from './components/ContactSection';
 import { Footer } from './components/Footer';
+import { BackToTop } from './components/BackToTop';
 import { AdminDashboard } from './components/AdminDashboard';
 import { AdminLoginModal } from './components/AdminLoginModal';
 import { CheckCircle2 } from 'lucide-react';
@@ -18,7 +19,13 @@ import { motion, AnimatePresence } from 'motion/react';
 
 function PortfolioApp() {
   const [activeSection, setActiveSection] = useState('hero');
-  const [isDark, setIsDark] = useState(true);
+  const [isDark, setIsDark] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('portfolio_theme');
+      if (saved) return saved === 'dark';
+    }
+    return true;
+  });
   const { toastMessage } = usePortfolio();
 
   // Toggle Theme Class on HTML root
@@ -28,18 +35,27 @@ function PortfolioApp() {
       if (nextState) {
         document.documentElement.classList.remove('light');
         document.documentElement.classList.add('dark');
+        localStorage.setItem('portfolio_theme', 'dark');
       } else {
         document.documentElement.classList.remove('dark');
         document.documentElement.classList.add('light');
+        localStorage.setItem('portfolio_theme', 'light');
       }
       return nextState;
     });
   };
 
   useEffect(() => {
-    // Default to dark theme
-    document.documentElement.classList.add('dark');
-    document.documentElement.classList.remove('light');
+    const saved = localStorage.getItem('portfolio_theme');
+    const prefersDark = saved ? saved === 'dark' : true;
+    setIsDark(prefersDark);
+    if (prefersDark) {
+      document.documentElement.classList.add('dark');
+      document.documentElement.classList.remove('light');
+    } else {
+      document.documentElement.classList.remove('dark');
+      document.documentElement.classList.add('light');
+    }
   }, []);
 
   // Section Observer for Active Nav
@@ -118,6 +134,9 @@ function PortfolioApp() {
 
       {/* Footer */}
       <Footer onNavigate={scrollToSection} />
+
+      {/* Floating Back To Top Button (Shows on scroll at bottom right) */}
+      <BackToTop />
 
       {/* Admin Login Popup (Triggered when accessing /admin, #admin, or ?admin=true) */}
       <AdminLoginModal />

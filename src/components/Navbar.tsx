@@ -69,7 +69,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   return (
     <header className="fixed top-0 left-0 right-0 z-50 px-4 sm:px-6 lg:px-8 pt-4">
       <div className="max-w-7xl mx-auto">
-        <div className="flex items-center justify-between px-5 py-3 rounded-2xl bg-white/85 dark:bg-zinc-900/85 backdrop-blur-xl border border-slate-200/80 dark:border-zinc-800/80 shadow-lg shadow-slate-200/20 dark:shadow-none transition-all">
+        <div className="flex items-center justify-between px-5 py-3 rounded-2xl bg-white/90 dark:bg-zinc-900/85 backdrop-blur-xl border border-slate-200/90 dark:border-zinc-800/80 shadow-md shadow-slate-900/5 dark:shadow-none transition-all">
           
           {/* Brand Logo */}
           <button
@@ -89,7 +89,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             ) : (
               <>
                 {hasCustomLogoImg ? (
-                  <div className="w-9 h-9 rounded-xl overflow-hidden bg-purple-50 dark:bg-purple-950/60 border border-purple-200 dark:border-purple-800/60 flex items-center justify-center shadow-sm transition-transform group-hover:scale-105 p-1">
+                  <div className="w-9 h-9 rounded-xl overflow-hidden bg-purple-50 dark:bg-purple-950/60 border border-purple-200 dark:border-purple-800/60 flex items-center justify-center shadow-xs transition-transform group-hover:scale-105 p-1">
                     <img
                       src={profile.logoUrl}
                       alt={profile.logoText || profile.name}
@@ -98,7 +98,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     />
                   </div>
                 ) : (
-                  <div className="w-9 h-9 rounded-xl bg-purple-600 dark:bg-purple-600/20 border border-purple-600 dark:border-purple-500/30 flex items-center justify-center text-white dark:text-purple-300 shadow-sm transition-transform group-hover:scale-105">
+                  <div className="w-9 h-9 rounded-xl bg-purple-600 dark:bg-purple-600/20 border border-purple-600 dark:border-purple-500/30 flex items-center justify-center text-white dark:text-purple-300 shadow-xs transition-transform group-hover:scale-105">
                     {renderLogoIcon(profile.logoIcon)}
                   </div>
                 )}
@@ -106,7 +106,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   <span className="text-sm font-bold tracking-tight text-slate-900 dark:text-white">
                     {profile.logoText || profile.name}
                   </span>
-                  <span className="text-[11px] font-mono text-purple-600 dark:text-purple-400 line-clamp-1 max-w-[140px] sm:max-w-[200px]">
+                  <span className="text-[11px] font-mono font-semibold text-purple-600 dark:text-purple-400 line-clamp-1 max-w-[140px] sm:max-w-[200px]">
                     {profile.role.split('&')[0] || profile.role}
                   </span>
                 </div>
@@ -115,7 +115,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           </button>
 
           {/* Desktop Navigation Links */}
-          <nav className="hidden lg:flex items-center gap-1 bg-slate-100/80 dark:bg-zinc-950/60 p-1.5 rounded-xl border border-slate-200 dark:border-zinc-800">
+          <nav className="hidden lg:flex items-center gap-1 bg-slate-100/90 dark:bg-zinc-950/60 p-1.5 rounded-xl border border-slate-200/90 dark:border-zinc-800">
             {navItems.map((item) => {
               const isActive = activeSection === item.id;
               return (
@@ -125,13 +125,13 @@ export const Navbar: React.FC<NavbarProps> = ({
                   className={`relative px-3 py-1.5 rounded-lg text-xs font-semibold tracking-wide transition-all duration-200 cursor-pointer ${
                     isActive
                       ? 'text-white'
-                      : 'text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-100 hover:bg-slate-200/50 dark:hover:bg-zinc-800/50'
+                      : 'text-slate-700 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-100 hover:bg-white/80 dark:hover:bg-zinc-800/50'
                   }`}
                 >
                   {isActive && (
                     <motion.div
                       layoutId="activeNavIndicator"
-                      className="absolute inset-0 bg-purple-600 rounded-lg -z-10 shadow-sm"
+                      className="absolute inset-0 bg-purple-600 rounded-lg -z-10 shadow-xs"
                       transition={{ type: 'spring', stiffness: 380, damping: 30 }}
                     />
                   )}
@@ -147,7 +147,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               onClick={onToggleTheme}
               aria-label="Toggle Dark/Light Mode"
-              className="p-2.5 rounded-xl bg-slate-100 dark:bg-zinc-800/80 border border-slate-200 dark:border-zinc-700/60 text-slate-700 dark:text-zinc-300 hover:text-purple-600 dark:hover:text-purple-300 transition-colors cursor-pointer"
+              className="p-2.5 rounded-xl bg-slate-100 dark:bg-zinc-800/80 border border-slate-200/90 dark:border-zinc-700/60 text-slate-700 dark:text-zinc-300 hover:text-purple-600 dark:hover:text-purple-300 transition-colors cursor-pointer shadow-xs"
               title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
             >
               {isDark ? (
@@ -160,7 +160,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             {/* Quick Contact CTA */}
             <button
               onClick={() => handleNav('contact')}
-              className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-semibold text-xs tracking-wide shadow-sm hover:shadow-md transition-all cursor-pointer"
+              className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-semibold text-xs tracking-wide shadow-xs hover:shadow-sm transition-all cursor-pointer"
             >
               <span>Contact</span>
               <ArrowUpRight className="w-3.5 h-3.5" />
@@ -170,7 +170,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               aria-label="Open Navigation Menu"
-              className="lg:hidden p-2.5 rounded-xl bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-800 dark:text-zinc-200 cursor-pointer"
+              className="lg:hidden p-2.5 rounded-xl bg-slate-100 dark:bg-zinc-800 border border-slate-200/90 dark:border-zinc-700 text-slate-800 dark:text-zinc-200 cursor-pointer shadow-xs"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>

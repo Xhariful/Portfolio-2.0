@@ -39,12 +39,12 @@ export const EducationSection: React.FC = () => {
   };
 
   return (
-    <section id="education" className="py-24 px-4 sm:px-6 lg:px-8 relative border-t border-slate-200/60 dark:border-zinc-800/60 bg-slate-100/30 dark:bg-zinc-950/30">
+    <section id="education" className="py-24 px-4 sm:px-6 lg:px-8 relative border-t border-slate-200/80 dark:border-zinc-800/80 bg-slate-50/70 dark:bg-zinc-950/60">
       <div className="max-w-7xl mx-auto space-y-12">
         
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto space-y-3">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-purple-500/20 bg-purple-500/10 text-purple-700 dark:text-purple-300 text-xs font-mono">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-purple-200 dark:border-purple-800/60 bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 text-xs font-mono">
             <GraduationCap className="w-3.5 h-3.5" />
             <span>ACADEMIC BACKGROUND & QUALIFICATIONS</span>
           </div>
@@ -66,7 +66,7 @@ export const EducationSection: React.FC = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.4, delay: idx * 0.1 }}
-                className="p-7 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 hover:border-purple-400 dark:hover:border-purple-600 transition-all flex flex-col justify-between shadow-sm dark:shadow-none space-y-5"
+                className="p-7 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/90 dark:border-zinc-800 hover:border-purple-300 dark:hover:border-purple-600 transition-all flex flex-col justify-between shadow-xs dark:shadow-none space-y-5"
               >
                 <div className="space-y-4">
                   {/* Top Metadata Badge */}
@@ -77,7 +77,7 @@ export const EducationSection: React.FC = () => {
                     </span>
 
                     {edu.grade && (
-                      <span className="px-2.5 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 font-mono text-xs font-semibold">
+                      <span className="px-2.5 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800/50 text-emerald-700 dark:text-emerald-300 font-mono text-xs font-semibold">
                         {edu.grade}
                       </span>
                     )}
@@ -146,7 +146,7 @@ export const EducationSection: React.FC = () => {
 
           {/* Load More / Show Less Controls & Counter */}
           {education.length > INITIAL_COUNT && (
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-sm">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/90 dark:border-zinc-800 shadow-xs">
               {/* Counter */}
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-xl bg-purple-50 dark:bg-purple-950/60 border border-purple-200 dark:border-purple-800/60 text-purple-600 dark:text-purple-400 flex items-center justify-center flex-shrink-0">
@@ -170,7 +170,7 @@ export const EducationSection: React.FC = () => {
                 {hasMore && (
                   <button
                     onClick={handleLoadMore}
-                    className="px-5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold tracking-wide uppercase flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer flex-1 sm:flex-initial"
+                    className="px-5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold tracking-wide uppercase flex items-center justify-center gap-2 shadow-xs transition-all cursor-pointer flex-1 sm:flex-initial"
                   >
                     <span>Load More (+{Math.min(STEP, education.length - visibleCount)})</span>
                     <ChevronDown className="w-4 h-4" />
@@ -201,7 +201,7 @@ export const EducationSection: React.FC = () => {
         </div>
 
         {/* Certifications and Professional Accreditations Banner */}
-        <div className="p-6 sm:p-8 rounded-3xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 space-y-6 shadow-sm dark:shadow-none">
+        <div className="p-6 sm:p-8 rounded-3xl bg-white dark:bg-zinc-900 border border-slate-200/90 dark:border-zinc-800 space-y-6 shadow-xs dark:shadow-none">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 dark:border-zinc-800 pb-5">
             <div className="flex items-center gap-3">
               <div className="p-2.5 rounded-xl bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 border border-purple-200 dark:border-purple-800/60">
@@ -226,7 +226,7 @@ export const EducationSection: React.FC = () => {
             {certifications.map((cert, idx) => (
               <div
                 key={idx}
-                className="p-4 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 space-y-1.5 shadow-sm dark:shadow-none"
+                className="p-4 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200/80 dark:border-zinc-800 space-y-1.5 shadow-xs dark:shadow-none"
               >
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] font-mono uppercase text-purple-600 dark:text-purple-400 font-semibold">

@@ -17,12 +17,12 @@ export const AboutSection: React.FC<{ onContactClick: () => void }> = ({ onConta
   const { profile, workTimeline, achievements } = data;
 
   return (
-    <section id="about" className="py-24 px-4 sm:px-6 lg:px-8 relative border-t border-slate-200/60 dark:border-zinc-800/60">
+    <section id="about" className="py-24 px-4 sm:px-6 lg:px-8 relative border-t border-slate-200/80 dark:border-zinc-800/80 bg-white dark:bg-zinc-900/30">
       <div className="max-w-7xl mx-auto space-y-16">
         
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto space-y-3">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-purple-500/20 bg-purple-500/10 text-purple-700 dark:text-purple-300 text-xs font-mono">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-purple-200 dark:border-purple-800/60 bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 text-xs font-mono">
             <User className="w-3.5 h-3.5" />
             <span>BACKGROUND & EXPERIENCE</span>
           </div>
@@ -39,8 +39,8 @@ export const AboutSection: React.FC<{ onContactClick: () => void }> = ({ onConta
           
           {/* Left Column: Portrait & Stats (5 Cols) */}
           <div className="lg:col-span-5 space-y-4">
-            <div className="rounded-3xl overflow-hidden border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-2.5 shadow-lg dark:shadow-2xl">
-              <div className="aspect-[4/5] rounded-2xl overflow-hidden bg-slate-100 dark:bg-zinc-950 relative border border-slate-200 dark:border-zinc-800">
+            <div className="rounded-3xl overflow-hidden border border-slate-200/90 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-2.5 shadow-md shadow-slate-900/5 dark:shadow-2xl">
+              <div className="aspect-[4/5] rounded-2xl overflow-hidden bg-slate-100 dark:bg-zinc-950 relative border border-slate-200/80 dark:border-zinc-800">
                 <img
                   src={profile.aboutImage && profile.aboutImage.trim().length > 0 ? profile.aboutImage : (sharifulFull || sharifulAlt)}
                   alt={profile.name}
@@ -51,9 +51,9 @@ export const AboutSection: React.FC<{ onContactClick: () => void }> = ({ onConta
                 />
                 
                 {/* Overlay Badge */}
-                <div className="absolute bottom-3 left-3 right-3 p-3.5 rounded-xl bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border border-slate-200/80 dark:border-zinc-700/80 space-y-0.5">
+                <div className="absolute bottom-3 left-3 right-3 p-3.5 rounded-xl bg-white/95 dark:bg-zinc-900/90 backdrop-blur-md border border-slate-200/90 dark:border-zinc-700/80 shadow-xs space-y-0.5">
                   <p className="text-sm font-bold text-slate-900 dark:text-white">{profile.name}</p>
-                  <p className="text-xs text-purple-600 dark:text-purple-400 font-mono">{profile.role}</p>
+                  <p className="text-xs text-purple-600 dark:text-purple-400 font-mono font-semibold">{profile.role}</p>
                   <p className="text-xs text-slate-500 dark:text-zinc-400 mt-1">{profile.location}</p>
                 </div>
               </div>
@@ -61,11 +61,11 @@ export const AboutSection: React.FC<{ onContactClick: () => void }> = ({ onConta
 
             {/* Quick Stat Blocks */}
             <div className="grid grid-cols-2 gap-3">
-              <div className="p-4 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-sm dark:shadow-none text-center">
+              <div className="p-4 rounded-2xl bg-slate-50 dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 shadow-xs dark:shadow-none text-center">
                 <p className="text-2xl font-extrabold text-slate-900 dark:text-white">150+</p>
                 <p className="text-xs text-slate-500 dark:text-zinc-400 font-mono mt-0.5">Projects Delivered</p>
               </div>
-              <div className="p-4 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-sm dark:shadow-none text-center">
+              <div className="p-4 rounded-2xl bg-slate-50 dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 shadow-xs dark:shadow-none text-center">
                 <p className="text-2xl font-extrabold text-emerald-600 dark:text-emerald-400">99%</p>
                 <p className="text-xs text-slate-500 dark:text-zinc-400 font-mono mt-0.5">Client Satisfaction</p>
               </div>
@@ -78,7 +78,7 @@ export const AboutSection: React.FC<{ onContactClick: () => void }> = ({ onConta
               <h3 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
                 Focused on clean architecture, lightning store speed, and scalable workflows.
               </h3>
-              <p className="text-sm sm:text-base text-slate-600 dark:text-zinc-300 leading-relaxed">
+              <p className="text-sm sm:text-base text-slate-700 dark:text-zinc-300 leading-relaxed">
                 {profile.bio}
               </p>
               <p className="text-sm sm:text-base text-slate-600 dark:text-zinc-400 leading-relaxed">
@@ -88,8 +88,8 @@ export const AboutSection: React.FC<{ onContactClick: () => void }> = ({ onConta
 
             {/* Value Pillars */}
             <div className="grid sm:grid-cols-2 gap-4 pt-1">
-              <div className="p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 space-y-2 shadow-sm dark:shadow-none">
-                <div className="p-2 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20 w-fit">
+              <div className="p-5 rounded-2xl bg-slate-50 dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 space-y-2 shadow-xs dark:shadow-none">
+                <div className="p-2 rounded-xl bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 border border-purple-200 dark:border-purple-800/60 w-fit">
                   <Zap className="w-4 h-4" />
                 </div>
                 <h4 className="text-sm font-bold text-slate-900 dark:text-white">Store Speed & Conversion</h4>
@@ -98,8 +98,8 @@ export const AboutSection: React.FC<{ onContactClick: () => void }> = ({ onConta
                 </p>
               </div>
 
-              <div className="p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 space-y-2 shadow-sm dark:shadow-none">
-                <div className="p-2 rounded-xl bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/20 w-fit">
+              <div className="p-5 rounded-2xl bg-slate-50 dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 space-y-2 shadow-xs dark:shadow-none">
+                <div className="p-2 rounded-xl bg-sky-50 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400 border border-sky-200 dark:border-sky-800/60 w-fit">
                   <Globe className="w-4 h-4" />
                 </div>
                 <h4 className="text-sm font-bold text-slate-900 dark:text-white">International Standards</h4>
@@ -113,7 +113,7 @@ export const AboutSection: React.FC<{ onContactClick: () => void }> = ({ onConta
             <div className="pt-2 flex items-center gap-4">
               <button
                 onClick={onContactClick}
-                className="px-6 py-3 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-semibold text-xs tracking-wide uppercase transition-all shadow-sm hover:shadow-md cursor-pointer flex items-center gap-2"
+                className="px-6 py-3 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-semibold text-xs tracking-wide uppercase transition-all shadow-xs hover:shadow-sm cursor-pointer flex items-center gap-2"
               >
                 <span>Discuss Your Project</span>
                 <ArrowUpRight className="w-3.5 h-3.5" />
@@ -124,7 +124,7 @@ export const AboutSection: React.FC<{ onContactClick: () => void }> = ({ onConta
         </div>
 
         {/* Career Timeline Section */}
-        <div className="pt-8 border-t border-slate-200 dark:border-zinc-800 space-y-6">
+        <div className="pt-8 border-t border-slate-200/80 dark:border-zinc-800 space-y-6">
           <div className="space-y-1">
             <h3 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">Career Experience</h3>
             <p className="text-sm text-slate-600 dark:text-zinc-400">Engineering history and technical milestones</p>
@@ -138,7 +138,7 @@ export const AboutSection: React.FC<{ onContactClick: () => void }> = ({ onConta
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.4, delay: idx * 0.1 }}
-                className="p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 space-y-3 shadow-sm dark:shadow-none hover:border-purple-400 dark:hover:border-purple-600 transition-colors"
+                className="p-6 rounded-2xl bg-slate-50 dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 space-y-3 shadow-xs dark:shadow-none hover:border-purple-300 dark:hover:border-purple-600 transition-colors"
               >
                 <div className="flex items-center justify-between">
                   <span className="px-2.5 py-1 rounded-lg bg-purple-50 dark:bg-purple-950/60 border border-purple-200 dark:border-purple-800/50 text-purple-700 dark:text-purple-300 font-mono text-xs font-semibold">
@@ -160,7 +160,7 @@ export const AboutSection: React.FC<{ onContactClick: () => void }> = ({ onConta
                   {item.skills.map((s, sIdx) => (
                     <span
                       key={sIdx}
-                      className="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-zinc-950 text-slate-700 dark:text-zinc-400 border border-slate-200 dark:border-zinc-800 text-[10px] font-mono"
+                      className="px-2 py-0.5 rounded-md bg-white dark:bg-zinc-950 text-slate-700 dark:text-zinc-400 border border-slate-200/80 dark:border-zinc-800 text-[10px] font-mono"
                     >
                       {s}
                     </span>
@@ -172,9 +172,9 @@ export const AboutSection: React.FC<{ onContactClick: () => void }> = ({ onConta
         </div>
 
         {/* Recognitions & Key Accomplishments */}
-        <div className="p-6 sm:p-8 rounded-3xl bg-slate-100 dark:bg-zinc-900/80 border border-slate-200 dark:border-zinc-800 space-y-5 shadow-sm dark:shadow-none">
+        <div className="p-6 sm:p-8 rounded-3xl bg-slate-50 dark:bg-zinc-900/80 border border-slate-200/80 dark:border-zinc-800 space-y-5 shadow-xs dark:shadow-none">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20">
+            <div className="p-2 rounded-xl bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 border border-purple-200 dark:border-purple-800/60">
               <Award className="w-5 h-5" />
             </div>
             <div>
@@ -185,7 +185,7 @@ export const AboutSection: React.FC<{ onContactClick: () => void }> = ({ onConta
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {achievements.map((ach, idx) => (
-              <div key={idx} className="p-4 rounded-xl bg-white dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 space-y-1.5 shadow-sm dark:shadow-none">
+              <div key={idx} className="p-4 rounded-xl bg-white dark:bg-zinc-950 border border-slate-200/80 dark:border-zinc-800 space-y-1.5 shadow-xs dark:shadow-none">
                 <span className="text-[10px] font-mono uppercase text-purple-600 dark:text-purple-400 font-semibold tracking-wider">
                   {ach.category}
                 </span>

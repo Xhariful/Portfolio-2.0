@@ -85,7 +85,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onContactClick, onProj
               transition={{ duration: 0.4 }}
               className="flex flex-wrap items-center gap-2.5"
             >
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 text-xs font-semibold">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-emerald-200 dark:border-emerald-800/60 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 text-xs font-semibold shadow-xs">
                 <span className="relative flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
@@ -93,12 +93,12 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onContactClick, onProj
                 <span>{profile.badge || "AVAILABLE FOR FREELANCE & CONTRACTS"}</span>
               </div>
 
-              <div className="inline-flex items-center gap-1.5 text-xs text-slate-500 dark:text-zinc-400 px-3 py-1 rounded-full border border-slate-200 dark:border-zinc-800 bg-white/60 dark:bg-zinc-900/60 backdrop-blur-sm">
+              <div className="inline-flex items-center gap-1.5 text-xs text-slate-600 dark:text-zinc-400 px-3 py-1 rounded-full border border-slate-200/90 dark:border-zinc-800 bg-white dark:bg-zinc-900/60 shadow-xs">
                 <Clock className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
                 <span>{profile.responseTime ? `Fast ${profile.responseTime} Response` : 'Fast Response'}</span>
               </div>
 
-              <div className="hidden sm:inline-flex items-center gap-1.5 text-xs text-slate-500 dark:text-zinc-400 px-3 py-1 rounded-full border border-slate-200 dark:border-zinc-800 bg-white/60 dark:bg-zinc-900/60 backdrop-blur-sm">
+              <div className="hidden sm:inline-flex items-center gap-1.5 text-xs text-slate-600 dark:text-zinc-400 px-3 py-1 rounded-full border border-slate-200/90 dark:border-zinc-800 bg-white dark:bg-zinc-900/60 shadow-xs">
                 <MapPin className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
                 <span>{profile.timezone || 'Dhaka (UTC+6)'}</span>
               </div>
@@ -129,7 +129,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onContactClick, onProj
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
-              className="text-base sm:text-lg text-slate-600 dark:text-zinc-300 leading-relaxed max-w-2xl"
+              className="text-base sm:text-lg text-slate-700 dark:text-zinc-300 leading-relaxed max-w-2xl"
             >
               {profile.tagline || profile.bio}
             </motion.p>
@@ -143,7 +143,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onContactClick, onProj
             >
               <button
                 onClick={onContactClick}
-                className="px-7 py-3.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-semibold text-sm shadow-md hover:shadow-lg transition-all flex items-center gap-2 cursor-pointer hover:scale-[1.02]"
+                className="px-7 py-3.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-semibold text-sm shadow-sm hover:shadow-md transition-all flex items-center gap-2 cursor-pointer hover:scale-[1.02]"
               >
                 <span>Hire Me / Start Project</span>
                 <ArrowUpRight className="w-4 h-4" />
@@ -151,7 +151,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onContactClick, onProj
 
               <button
                 onClick={onProjectsClick}
-                className="px-6 py-3.5 rounded-xl border border-slate-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-slate-800 dark:text-zinc-200 hover:bg-slate-50 dark:hover:bg-zinc-800 text-sm font-semibold transition-all flex items-center gap-2 cursor-pointer shadow-sm"
+                className="px-6 py-3.5 rounded-xl border border-slate-300/90 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-slate-800 dark:text-zinc-200 hover:bg-slate-50 dark:hover:bg-zinc-800 text-sm font-semibold transition-all flex items-center gap-2 cursor-pointer shadow-xs"
               >
                 <Layers className="w-4 h-4 text-purple-600 dark:text-purple-400" />
                 <span>View Portfolio</span>
@@ -162,7 +162,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onContactClick, onProj
                   href={profile.socials.whatsapp}
                   target="_blank"
                   rel="noreferrer"
-                  className="p-3.5 rounded-xl border border-emerald-500/30 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 transition-colors flex items-center justify-center cursor-pointer"
+                  className="p-3.5 rounded-xl border border-emerald-200 dark:border-emerald-800/50 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 transition-colors flex items-center justify-center cursor-pointer shadow-xs"
                   title="WhatsApp Quick Chat"
                 >
                   <MessageSquare className="w-5 h-5" />
@@ -206,10 +206,10 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onContactClick, onProj
               transition={{ duration: 0.6, delay: 0.2 }}
               className="w-full max-w-sm"
             >
-              <div className="rounded-3xl p-3 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-xl shadow-slate-200/50 dark:shadow-2xl space-y-4">
+              <div className="rounded-3xl p-3 bg-white dark:bg-zinc-900 border border-slate-200/90 dark:border-zinc-800 shadow-xl shadow-slate-900/5 dark:shadow-2xl space-y-4">
                 
                 {/* Clean Photo Container */}
-                <div className="aspect-[4/5] rounded-2xl overflow-hidden bg-slate-100 dark:bg-zinc-950 relative border border-slate-200 dark:border-zinc-800">
+                <div className="aspect-[4/5] rounded-2xl overflow-hidden bg-slate-100 dark:bg-zinc-950 relative border border-slate-200/80 dark:border-zinc-800">
                   <img
                     src={profile.heroImage && profile.heroImage.trim().length > 0 ? profile.heroImage : (sharifulImg || portraitBackup)}
                     alt={profile.name}
@@ -220,13 +220,13 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onContactClick, onProj
                   />
                   
                   {/* Bottom Minimal Info Overlay */}
-                  <div className="absolute bottom-3 left-3 right-3 p-3 rounded-xl bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border border-slate-200/80 dark:border-zinc-700/80 shadow-md">
+                  <div className="absolute bottom-3 left-3 right-3 p-3 rounded-xl bg-white/95 dark:bg-zinc-900/90 backdrop-blur-md border border-slate-200/90 dark:border-zinc-700/80 shadow-sm">
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-sm font-bold text-slate-900 dark:text-white leading-tight">{profile.name}</p>
-                        <p className="text-xs text-purple-600 dark:text-purple-400 font-mono line-clamp-1">{profile.role}</p>
+                        <p className="text-xs text-purple-600 dark:text-purple-400 font-mono font-semibold line-clamp-1">{profile.role}</p>
                       </div>
-                      <span className="px-2.5 py-1 rounded-lg bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 font-mono text-[11px] font-semibold flex-shrink-0">
+                      <span className="px-2.5 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/50 font-mono text-[11px] font-semibold flex-shrink-0">
                         {profile.experienceYears} Yrs Exp
                       </span>
                     </div>
@@ -235,7 +235,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onContactClick, onProj
 
                 {/* Direct Capability Tags */}
                 <div className="grid grid-cols-2 gap-2 pt-1">
-                  <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-center">
+                  <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200/80 dark:border-zinc-800 text-center">
                     <p className="text-xs font-bold text-slate-800 dark:text-zinc-200 flex items-center justify-center gap-1.5">
                       <ShoppingBag className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
                       <span>Shopify 2.0</span>
@@ -243,7 +243,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onContactClick, onProj
                     <p className="text-[10px] text-slate-500 dark:text-zinc-400 font-mono mt-0.5">Liquid & Themes</p>
                   </div>
 
-                  <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-center">
+                  <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200/80 dark:border-zinc-800 text-center">
                     <p className="text-xs font-bold text-slate-800 dark:text-zinc-200 flex items-center justify-center gap-1.5">
                       <Code2 className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
                       <span>Python/Django</span>
@@ -263,13 +263,13 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onContactClick, onProj
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.5 }}
-          className="pt-8 border-t border-slate-200 dark:border-zinc-800"
+          className="pt-8 border-t border-slate-200/80 dark:border-zinc-800"
         >
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
             {stats.map((item, idx) => (
               <div
                 key={idx}
-                className="p-5 rounded-2xl bg-white dark:bg-zinc-900/60 border border-slate-200 dark:border-zinc-800 shadow-sm dark:shadow-none transition-all hover:border-purple-400 dark:hover:border-purple-600"
+                className="p-5 rounded-2xl bg-white dark:bg-zinc-900/60 border border-slate-200/90 dark:border-zinc-800 shadow-xs dark:shadow-none transition-all hover:border-purple-300 dark:hover:border-purple-600"
               >
                 <div className="flex items-baseline gap-1">
                   <span className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
