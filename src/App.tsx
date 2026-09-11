@@ -12,6 +12,7 @@ import { TestimonialsSection } from './components/TestimonialsSection';
 import { ContactSection } from './components/ContactSection';
 import { Footer } from './components/Footer';
 import { BackToTop } from './components/BackToTop';
+import { WelcomeGreetingModal } from './components/WelcomeGreetingModal';
 import { AdminDashboard } from './components/AdminDashboard';
 import { AdminLoginModal } from './components/AdminLoginModal';
 import { CheckCircle2 } from 'lucide-react';
@@ -137,6 +138,9 @@ function PortfolioApp() {
 
       {/* Floating Back To Top Button (Shows on scroll at bottom right) */}
       <BackToTop />
+
+      {/* Dynamic Time-Based Greeting & Project Inquiry Popup */}
+      <WelcomeGreetingModal onContactClick={() => scrollToSection('contact')} />
 
       {/* Admin Login Popup (Triggered when accessing /admin, #admin, or ?admin=true) */}
       <AdminLoginModal />

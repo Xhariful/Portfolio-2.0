@@ -11,6 +11,8 @@ import {
   CertificationItem,
   TestimonialItem,
   AchievementItem,
+  SeoConfig,
+  WelcomePopupConfig,
   SecurityConfig,
   AuthenticatedUser,
 } from '../types';
@@ -69,6 +71,8 @@ interface PortfolioContextType {
   updateCertifications: (certifications: CertificationItem[]) => void;
   updateTestimonials: (testimonials: TestimonialItem[]) => void;
   updateAchievements: (achievements: AchievementItem[]) => void;
+  updateSeo: (seo: Partial<SeoConfig>) => void;
+  updateWelcomePopup: (config: Partial<WelcomePopupConfig>) => void;
   
   // Education Helpers
   addEducation: (item: EducationItem) => void;
@@ -113,6 +117,8 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           ...initialPortfolioData,
           ...parsed,
           profile: { ...initialPortfolioData.profile, ...(parsed.profile || {}) },
+          seo: { ...initialPortfolioData.seo, ...(parsed.seo || {}) },
+          welcomePopup: { ...initialPortfolioData.welcomePopup, ...(parsed.welcomePopup || {}) },
           education: parsed.education && parsed.education.length > 0 ? parsed.education : initialPortfolioData.education,
         };
       }
@@ -438,6 +444,72 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     showToast('Achievements updated!');
   };
 
+  const updateSeo = (seoUpdate: Partial<SeoConfig>) => {
+    setData((prev) => ({
+      ...prev,
+      seo: { ...prev.seo, ...(prev.seo || initialPortfolioData.seo!), ...seoUpdate },
+    }));
+    showToast('SEO & Favicon configurations updated live!');
+  };
+
+  const updateWelcomePopup = (popupUpdate: Partial<WelcomePopupConfig>) => {
+    setData((prev) => ({
+      ...prev,
+      welcomePopup: { ...prev.welcomePopup, ...(prev.welcomePopup || initialPortfolioData.welcomePopup!), ...popupUpdate },
+    }));
+    showToast('Greeting Popup settings updated!');
+  };
+
+  // Sync SEO metadata, title, and favicon dynamically with the document head
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+
+    const seo = data.seo || initialPortfolioData.seo!;
+
+    // 1. Document Title
+    if (seo.metaTitle) {
+      document.title = seo.metaTitle;
+    }
+
+    // 2. Meta Description
+    let descTag = document.querySelector('meta[name="description"]');
+    if (descTag && seo.metaDescription) {
+      descTag.setAttribute('content', seo.metaDescription);
+    }
+
+    // 3. Meta Keywords
+    let keywordsTag = document.querySelector('meta[name="keywords"]');
+    if (keywordsTag && seo.keywords) {
+      keywordsTag.setAttribute('content', seo.keywords);
+    }
+
+    // 4. OpenGraph Title & Description
+    let ogTitle = document.querySelector('meta[property="og:title"]');
+    if (ogTitle && seo.metaTitle) {
+      ogTitle.setAttribute('content', seo.metaTitle);
+    }
+    let ogDesc = document.querySelector('meta[property="og:description"]');
+    if (ogDesc && seo.metaDescription) {
+      ogDesc.setAttribute('content', seo.metaDescription);
+    }
+    let ogImage = document.querySelector('meta[property="og:image"]');
+    if (ogImage && seo.ogImage) {
+      ogImage.setAttribute('content', seo.ogImage);
+    }
+
+    // 5. Dynamic Favicon Link
+    if (seo.faviconUrl) {
+      let faviconLink = document.querySelector<HTMLLinkElement>('link[rel="icon"]');
+      if (faviconLink) {
+        faviconLink.href = seo.faviconUrl;
+      }
+      let appleLink = document.querySelector<HTMLLinkElement>('link[rel="apple-touch-icon"]');
+      if (appleLink) {
+        appleLink.href = seo.faviconUrl;
+      }
+    }
+  }, [data.seo]);
+
   // Education Helpers
   const addEducation = (item: EducationItem) => {
     setData((prev) => ({
@@ -599,6 +671,8 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         updateCertifications,
         updateTestimonials,
         updateAchievements,
+        updateSeo,
+        updateWelcomePopup,
         addEducation,
         editEducation,
         deleteEducation,

@@ -213,7 +213,7 @@ export const AdminLoginModal: React.FC = () => {
                 {/* Username Input */}
                 <div className="space-y-1.5">
                   <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-zinc-300">
-                    Username (ইউজারনেম)
+                    Username
                   </label>
                   <div className="relative">
                     <input
@@ -232,7 +232,7 @@ export const AdminLoginModal: React.FC = () => {
                 {/* Password Input */}
                 <div className="space-y-1.5">
                   <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-zinc-300">
-                    Password (পাসওয়ার্ড)
+                    Password
                   </label>
                   <div className="relative">
                     <input

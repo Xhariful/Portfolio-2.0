@@ -464,6 +464,30 @@ export const initialPortfolioData: PortfolioData = {
       description: "Advanced certification in Liquid, Django backend APIs, and React architectures.",
     },
   ],
+
+  seo: {
+    metaTitle: "Shariful Islam - Senior Full-Stack Developer & Shopify Architect",
+    metaDescription: "Senior Full-Stack Developer and Shopify Architect specializing in custom Liquid builds, Python/Django APIs, store speed optimization, and interactive web applications.",
+    keywords: "Shariful Islam, Senior Full-Stack Developer, Shopify Developer, Shopify Plus Expert, Liquid Theme Developer, React Developer, Django, Python Developer, Store Optimization",
+    author: "Shariful Islam",
+    canonicalUrl: "https://sharif-ul-islam.vercel.app/",
+    ogImage: "/myname.png",
+    faviconUrl: "/favicon.svg",
+    faviconType: "preset",
+    faviconPreset: "code",
+    googleSiteVerification: "",
+    structuredDataEnabled: true,
+  },
+
+  welcomePopup: {
+    enabled: true,
+    delayMs: 2400,
+    headline: "Need a modern website or Shopify store?",
+    subText: "If you're planning to build or redesign your website, let's talk about your project goals.",
+    ctaText: "Let's Talk",
+    dismissText: "Maybe Later",
+    showTimeGreeting: true,
+  },
 };
 
 // Backwards compatibility convenience exports

@@ -36,7 +36,10 @@ import {
   Code2,
   Link as LinkIcon,
   CheckCircle2,
-  FileImage
+  FileImage,
+  Globe,
+  Search,
+  Bell
 } from 'lucide-react';
 import { usePortfolio } from '../context/PortfolioContext';
 import {
@@ -49,7 +52,9 @@ import {
   StatItem,
   TestimonialItem,
   CertificationItem,
-  AchievementItem
+  AchievementItem,
+  SeoConfig,
+  WelcomePopupConfig
 } from '../types';
 
 export const AdminDashboard: React.FC = () => {
@@ -67,6 +72,8 @@ export const AdminDashboard: React.FC = () => {
     updateCertifications,
     updateTestimonials,
     updateAchievements,
+    updateSeo,
+    updateWelcomePopup,
     addEducation,
     editEducation,
     deleteEducation,
@@ -96,6 +103,8 @@ export const AdminDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<
     | 'profile'
     | 'media'
+    | 'seo'
+    | 'popup'
     | 'education'
     | 'experience'
     | 'skills'
@@ -213,10 +222,38 @@ export const AdminDashboard: React.FC = () => {
   // JSON Import state
   const [jsonInput, setJsonInput] = useState('');
 
-  // Synchronize profile form if data changes externally
+  // SEO & Favicon Form State
+  const [seoForm, setSeoForm] = useState<SeoConfig>(data.seo || {
+    metaTitle: "Shariful Islam - Senior Full-Stack Developer & Shopify Architect",
+    metaDescription: "Senior Full-Stack Developer and Shopify Architect specializing in custom Liquid builds, Python/Django APIs, and interactive web applications.",
+    keywords: "Shariful Islam, Shopify Developer, React Developer, Full-Stack",
+    author: "Shariful Islam",
+    canonicalUrl: "https://sharif-ul-islam.vercel.app/",
+    ogImage: "/myname.png",
+    faviconUrl: "/favicon.svg",
+    faviconType: "preset",
+    faviconPreset: "code",
+    googleSiteVerification: "",
+    structuredDataEnabled: true,
+  });
+
+  // Welcome Popup Form State
+  const [popupForm, setPopupForm] = useState<WelcomePopupConfig>(data.welcomePopup || {
+    enabled: true,
+    delayMs: 2400,
+    headline: "Need a modern website or Shopify store?",
+    subText: "If you're planning to build or redesign your website, let's talk about your project goals.",
+    ctaText: "Let's Talk",
+    dismissText: "Maybe Later",
+    showTimeGreeting: true,
+  });
+
+  // Synchronize forms if data changes externally
   React.useEffect(() => {
     setProfileForm(data.profile);
-  }, [data.profile]);
+    if (data.seo) setSeoForm(data.seo);
+    if (data.welcomePopup) setPopupForm(data.welcomePopup);
+  }, [data.profile, data.seo, data.welcomePopup]);
 
   if (!isDashboardOpen) return null;
 
@@ -224,6 +261,18 @@ export const AdminDashboard: React.FC = () => {
   const handleSaveProfile = (e: React.FormEvent) => {
     e.preventDefault();
     updateProfile(profileForm);
+  };
+
+  // Handle SEO & Favicon Save
+  const handleSaveSeo = (e: React.FormEvent) => {
+    e.preventDefault();
+    updateSeo(seoForm);
+  };
+
+  // Handle Welcome Popup Save
+  const handleSavePopup = (e: React.FormEvent) => {
+    e.preventDefault();
+    updateWelcomePopup(popupForm);
   };
 
   // Add Headline string
@@ -540,6 +589,18 @@ export const AdminDashboard: React.FC = () => {
               onClick={() => setActiveTab('media')}
               icon={<ImageIcon className="w-4 h-4 text-purple-600 dark:text-purple-400" />}
               label="Logo & Website Media"
+            />
+            <TabButton
+              active={activeTab === 'seo'}
+              onClick={() => setActiveTab('seo')}
+              icon={<Globe className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />}
+              label="Favicon & SEO Meta"
+            />
+            <TabButton
+              active={activeTab === 'popup'}
+              onClick={() => setActiveTab('popup')}
+              icon={<Bell className="w-4 h-4 text-amber-500" />}
+              label="Greeting Popup"
             />
             <TabButton
               active={activeTab === 'education'}
@@ -2596,7 +2657,7 @@ export const AdminDashboard: React.FC = () => {
                       <Lock className="w-5 h-5" />
                     </div>
                     <div>
-                      <h4 className="text-base font-bold text-slate-900 dark:text-white">Update Master Credentials (ইউজারনেম ও পাসওয়ার্ড)</h4>
+                      <h4 className="text-base font-bold text-slate-900 dark:text-white">Update Master Credentials</h4>
                       <p className="text-xs text-slate-500 dark:text-zinc-400">
                         Customize your master username and login password.
                       </p>
@@ -2621,7 +2682,7 @@ export const AdminDashboard: React.FC = () => {
                     }}
                     className="space-y-4 max-w-lg pt-2"
                   >
-                    <FormField label="Current Password (বর্তমান পাসওয়ার্ড)">
+                    <FormField label="Current Password">
                       <input
                         type="password"
                         required
@@ -2633,7 +2694,7 @@ export const AdminDashboard: React.FC = () => {
                     </FormField>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <FormField label="New Username (নতুন ইউজারনেম)">
+                      <FormField label="New Username">
                         <input
                           type="text"
                           required
@@ -2644,7 +2705,7 @@ export const AdminDashboard: React.FC = () => {
                         />
                       </FormField>
 
-                      <FormField label="New Password (নতুন পাসওয়ার্ড)">
+                      <FormField label="New Password">
                         <input
                           type="password"
                           required
@@ -2656,7 +2717,7 @@ export const AdminDashboard: React.FC = () => {
                       </FormField>
                     </div>
 
-                    <FormField label="Confirm New Password (পাসওয়ার্ড নিশ্চিত করুন)">
+                    <FormField label="Confirm New Password">
                       <input
                         type="password"
                         required
@@ -2853,6 +2914,400 @@ export const AdminDashboard: React.FC = () => {
                   </div>
                 </div>
               </div>
+            )}
+
+            {/* SEO & FAVICON TAB */}
+            {activeTab === 'seo' && (
+              <form onSubmit={handleSaveSeo} className="space-y-6 max-w-4xl">
+                <div className="flex items-center justify-between border-b border-slate-200 dark:border-zinc-800 pb-4">
+                  <div>
+                    <h3 className="text-xl font-bold text-slate-900 dark:text-white">Favicon, Meta Tags & SEO Configuration</h3>
+                    <p className="text-xs text-slate-500 dark:text-zinc-400">
+                      Manage website title, description, Google search snippets, social share card, and browser tab favicon live.
+                    </p>
+                  </div>
+                  <button
+                    type="submit"
+                    className="px-5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold tracking-wide uppercase flex items-center gap-1.5 shadow-sm cursor-pointer"
+                  >
+                    <Save className="w-4 h-4" />
+                    <span>Save SEO & Favicon</span>
+                  </button>
+                </div>
+
+                {/* Live Google Search Preview Card */}
+                <div className="p-5 rounded-2xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 space-y-3">
+                  <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-400">
+                    <Search className="w-3.5 h-3.5 text-blue-500" />
+                    <span>Google Search Result Snippet Preview</span>
+                  </div>
+                  <div className="p-4 rounded-xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 space-y-1.5 shadow-xs">
+                    <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-zinc-400">
+                      <div className="w-4 h-4 rounded-full overflow-hidden bg-slate-100 flex items-center justify-center border border-slate-200 dark:border-zinc-700">
+                        {seoForm.faviconUrl ? (
+                          <img src={seoForm.faviconUrl} alt="Favicon" className="w-3.5 h-3.5 object-contain" />
+                        ) : (
+                          <Globe className="w-3 h-3 text-slate-400" />
+                        )}
+                      </div>
+                      <span className="truncate max-w-xs">{seoForm.canonicalUrl || 'https://sharif-ul-islam.vercel.app/'}</span>
+                    </div>
+                    <h4 className="text-base font-medium text-blue-600 dark:text-blue-400 hover:underline cursor-pointer truncate">
+                      {seoForm.metaTitle || 'Shariful Islam - Senior Full-Stack Developer'}
+                    </h4>
+                    <p className="text-xs text-slate-600 dark:text-zinc-400 line-clamp-2 leading-relaxed">
+                      {seoForm.metaDescription || 'Add a compelling meta description to rank higher on Google search results.'}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Favicon Settings Section */}
+                <div className="p-5 rounded-2xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h4 className="text-sm font-bold text-slate-900 dark:text-white">Browser Tab Favicon</h4>
+                      <p className="text-xs text-slate-500 dark:text-zinc-400">
+                        Choose a quick SVG preset icon or upload your custom logo/favicon image.
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 flex items-center justify-center shadow-xs">
+                        {seoForm.faviconUrl ? (
+                          <img src={seoForm.faviconUrl} alt="Favicon preview" className="w-6 h-6 object-contain" />
+                        ) : (
+                          <Globe className="w-5 h-5 text-slate-400" />
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Preset Selector */}
+                  <div className="space-y-2">
+                    <label className="block text-xs font-semibold text-slate-700 dark:text-zinc-300">
+                      Quick Favicon Presets:
+                    </label>
+                    <div className="flex flex-wrap gap-2">
+                      {[
+                        {
+                          id: 'code',
+                          label: 'Code Symbol (<>)',
+                          svgUrl: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="24" fill="%239333ea"/><path d="M38 35L22 50L38 65M62 35L78 50L62 65" stroke="white" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>`
+                        },
+                        {
+                          id: 'monogram',
+                          label: 'Letter S Badge',
+                          svgUrl: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="24" fill="%234f46e5"/><text x="50" y="68" font-family="Arial,sans-serif" font-size="54" font-weight="900" fill="white" text-anchor="middle">S</text></svg>`
+                        },
+                        {
+                          id: 'sparkle',
+                          label: 'Sparkle Star (✨)',
+                          svgUrl: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="24" fill="%230ea5e9"/><path d="M50 20L58 42L80 50L58 58L50 80L42 58L20 50L42 42Z" fill="white"/></svg>`
+                        },
+                        {
+                          id: 'terminal',
+                          label: 'Terminal Prompt (>_)',
+                          svgUrl: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="24" fill="%2318181b"/><path d="M26 34L44 50L26 66M50 66H74" stroke="%23a855f7" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>`
+                        },
+                      ].map((preset) => (
+                        <button
+                          key={preset.id}
+                          type="button"
+                          onClick={() => {
+                            setSeoForm((prev) => ({
+                              ...prev,
+                              faviconUrl: preset.svgUrl,
+                              faviconPreset: preset.id,
+                              faviconType: 'preset',
+                            }));
+                            showToast(`Applied "${preset.label}" Favicon preset!`);
+                          }}
+                          className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-2 border cursor-pointer transition-all ${
+                            seoForm.faviconPreset === preset.id
+                              ? 'bg-purple-50 dark:bg-purple-950 border-purple-500 text-purple-600 dark:text-purple-300 shadow-xs'
+                              : 'bg-white dark:bg-zinc-900 border-slate-200 dark:border-zinc-800 text-slate-700 dark:text-zinc-300 hover:bg-slate-50'
+                          }`}
+                        >
+                          <img src={preset.svgUrl} alt={preset.label} className="w-3.5 h-3.5 object-contain" />
+                          <span>{preset.label}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Custom Favicon URL or Upload */}
+                  <div className="grid sm:grid-cols-2 gap-4 pt-2">
+                    <FormField label="Favicon Image URL or Path">
+                      <input
+                        type="text"
+                        value={seoForm.faviconUrl}
+                        onChange={(e) => setSeoForm((prev) => ({ ...prev, faviconUrl: e.target.value, faviconPreset: 'custom' }))}
+                        placeholder="/favicon.svg or https://..."
+                        className="input-field"
+                      />
+                    </FormField>
+
+                    <div className="space-y-1.5">
+                      <label className="block text-xs font-semibold text-slate-700 dark:text-zinc-300">
+                        Upload Local Favicon File
+                      </label>
+                      <label className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-dashed border-slate-300 dark:border-zinc-700 hover:border-purple-500 bg-white dark:bg-zinc-900 text-xs font-semibold text-slate-700 dark:text-zinc-300 cursor-pointer transition-colors">
+                        <Upload className="w-4 h-4 text-purple-500" />
+                        <span>Upload Favicon (.svg, .png, .ico)</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            handleImageFilePick(file || null, (url) => {
+                              setSeoForm((prev) => ({ ...prev, faviconUrl: url, faviconPreset: 'custom' }));
+                            });
+                          }}
+                        />
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Primary Meta Tags */}
+                <div className="space-y-4">
+                  <FormField label="SEO Meta Title (Browser & Search Snippet)">
+                    <input
+                      type="text"
+                      required
+                      value={seoForm.metaTitle}
+                      onChange={(e) => setSeoForm((prev) => ({ ...prev, metaTitle: e.target.value }))}
+                      placeholder="e.g. Shariful Islam - Senior Full-Stack Developer & Shopify Architect"
+                      className="input-field"
+                    />
+                  </FormField>
+
+                  <FormField label="SEO Meta Description (Target: 140 - 160 characters)">
+                    <textarea
+                      rows={3}
+                      required
+                      value={seoForm.metaDescription}
+                      onChange={(e) => setSeoForm((prev) => ({ ...prev, metaDescription: e.target.value }))}
+                      placeholder="Detailed meta description for Google indexing and search rankings..."
+                      className="input-field"
+                    />
+                    <div className="flex justify-between text-[11px] text-slate-500 dark:text-zinc-400 mt-1">
+                      <span>Google snippet ideal length: 155 characters</span>
+                      <span className={seoForm.metaDescription.length > 165 ? 'text-amber-500 font-semibold' : ''}>
+                        {seoForm.metaDescription.length} characters
+                      </span>
+                    </div>
+                  </FormField>
+
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    <FormField label="Keywords (Comma separated)">
+                      <input
+                        type="text"
+                        value={seoForm.keywords}
+                        onChange={(e) => setSeoForm((prev) => ({ ...prev, keywords: e.target.value }))}
+                        placeholder="Shariful Islam, Shopify, Full-Stack, React, Liquid..."
+                        className="input-field"
+                      />
+                    </FormField>
+
+                    <FormField label="Author Name">
+                      <input
+                        type="text"
+                        value={seoForm.author}
+                        onChange={(e) => setSeoForm((prev) => ({ ...prev, author: e.target.value }))}
+                        placeholder="Shariful Islam"
+                        className="input-field"
+                      />
+                    </FormField>
+                  </div>
+
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    <FormField label="Canonical Website URL">
+                      <input
+                        type="text"
+                        value={seoForm.canonicalUrl}
+                        onChange={(e) => setSeoForm((prev) => ({ ...prev, canonicalUrl: e.target.value }))}
+                        placeholder="https://sharif-ul-islam.vercel.app/"
+                        className="input-field"
+                      />
+                    </FormField>
+
+                    <FormField label="OpenGraph & Twitter Social Share Image URL">
+                      <input
+                        type="text"
+                        value={seoForm.ogImage}
+                        onChange={(e) => setSeoForm((prev) => ({ ...prev, ogImage: e.target.value }))}
+                        placeholder="/myname.png or https://..."
+                        className="input-field"
+                      />
+                    </FormField>
+                  </div>
+
+                  <FormField label="Google Search Console Verification Code (Optional)">
+                    <input
+                      type="text"
+                      value={seoForm.googleSiteVerification || ''}
+                      onChange={(e) => setSeoForm((prev) => ({ ...prev, googleSiteVerification: e.target.value }))}
+                      placeholder="e.g. google-site-verification=abc123xyz"
+                      className="input-field font-mono text-xs"
+                    />
+                  </FormField>
+                </div>
+
+                <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-200 dark:border-zinc-800">
+                  <button
+                    type="submit"
+                    className="px-6 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold tracking-wide uppercase flex items-center gap-2 shadow-sm cursor-pointer"
+                  >
+                    <Save className="w-4 h-4" />
+                    <span>Save All SEO Settings</span>
+                  </button>
+                </div>
+              </form>
+            )}
+
+            {/* GREETING POPUP TAB */}
+            {activeTab === 'popup' && (
+              <form onSubmit={handleSavePopup} className="space-y-6 max-w-4xl">
+                <div className="flex items-center justify-between border-b border-slate-200 dark:border-zinc-800 pb-4">
+                  <div>
+                    <h3 className="text-xl font-bold text-slate-900 dark:text-white">Greeting & Contact Popup Settings</h3>
+                    <p className="text-xs text-slate-500 dark:text-zinc-400">
+                      Customize the welcome popup timing, headlines, message, and button texts displayed to visitors.
+                    </p>
+                  </div>
+                  <button
+                    type="submit"
+                    className="px-5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold tracking-wide uppercase flex items-center gap-1.5 shadow-sm cursor-pointer"
+                  >
+                    <Save className="w-4 h-4" />
+                    <span>Save Popup Settings</span>
+                  </button>
+                </div>
+
+                {/* Enable / Disable Switch */}
+                <div className="p-5 rounded-2xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 flex items-center justify-between">
+                  <div>
+                    <h4 className="text-sm font-bold text-slate-900 dark:text-white">Enable Greeting Popup</h4>
+                    <p className="text-xs text-slate-500 dark:text-zinc-400">
+                      Toggle whether the greeting modal automatically displays to new visitors.
+                    </p>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={popupForm.enabled}
+                      onChange={(e) => setPopupForm((prev) => ({ ...prev, enabled: e.target.checked }))}
+                      className="sr-only peer"
+                    />
+                    <div className="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer dark:bg-zinc-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+                  </label>
+                </div>
+
+                {/* Time-Based Greeting Toggle */}
+                <div className="p-5 rounded-2xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 flex items-center justify-between">
+                  <div>
+                    <h4 className="text-sm font-bold text-slate-900 dark:text-white">Show Time-Based Badge</h4>
+                    <p className="text-xs text-slate-500 dark:text-zinc-400">
+                      Displays &quot;Good Morning&quot;, &quot;Good Afternoon&quot;, or &quot;Good Evening&quot; based on client&apos;s local clock.
+                    </p>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={popupForm.showTimeGreeting}
+                      onChange={(e) => setPopupForm((prev) => ({ ...prev, showTimeGreeting: e.target.checked }))}
+                      className="sr-only peer"
+                    />
+                    <div className="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer dark:bg-zinc-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+                  </label>
+                </div>
+
+                {/* Popup Content Form Fields */}
+                <div className="space-y-4">
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    <FormField label="Display Delay (Milliseconds)">
+                      <input
+                        type="number"
+                        min="500"
+                        max="10000"
+                        step="100"
+                        value={popupForm.delayMs}
+                        onChange={(e) => setPopupForm((prev) => ({ ...prev, delayMs: parseInt(e.target.value) || 2400 }))}
+                        placeholder="2400 (approx 2.4 seconds)"
+                        className="input-field"
+                      />
+                    </FormField>
+
+                    <FormField label="Call to Action (CTA) Button Text">
+                      <input
+                        type="text"
+                        value={popupForm.ctaText}
+                        onChange={(e) => setPopupForm((prev) => ({ ...prev, ctaText: e.target.value }))}
+                        placeholder="Let's Talk"
+                        className="input-field"
+                      />
+                    </FormField>
+                  </div>
+
+                  <FormField label="Main Headline Question / Greeting">
+                    <input
+                      type="text"
+                      required
+                      value={popupForm.headline}
+                      onChange={(e) => setPopupForm((prev) => ({ ...prev, headline: e.target.value }))}
+                      placeholder="Need a modern website or Shopify store?"
+                      className="input-field"
+                    />
+                  </FormField>
+
+                  <FormField label="Sub-Text / Pitch Message">
+                    <textarea
+                      rows={3}
+                      required
+                      value={popupForm.subText}
+                      onChange={(e) => setPopupForm((prev) => ({ ...prev, subText: e.target.value }))}
+                      placeholder="If you're planning to build or redesign your website, let's talk about your project goals."
+                      className="input-field"
+                    />
+                  </FormField>
+
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    <FormField label="Dismiss / Cancel Button Text">
+                      <input
+                        type="text"
+                        value={popupForm.dismissText}
+                        onChange={(e) => setPopupForm((prev) => ({ ...prev, dismissText: e.target.value }))}
+                        placeholder="Maybe Later"
+                        className="input-field"
+                      />
+                    </FormField>
+
+                    <div className="flex items-end">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          sessionStorage.removeItem('portfolio_greeting_dismissed');
+                          showToast('Popup session cache cleared! Refresh or open the site to see it appear.');
+                        }}
+                        className="w-full py-2.5 px-4 rounded-xl border border-slate-200 dark:border-zinc-700 bg-slate-50 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 text-xs font-semibold hover:bg-slate-100 dark:hover:bg-zinc-700 transition-colors cursor-pointer"
+                      >
+                        Reset Session Cache (Test Popup Now)
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-200 dark:border-zinc-800">
+                  <button
+                    type="submit"
+                    className="px-6 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold tracking-wide uppercase flex items-center gap-2 shadow-sm cursor-pointer"
+                  >
+                    <Save className="w-4 h-4" />
+                    <span>Save Popup Configuration</span>
+                  </button>
+                </div>
+              </form>
             )}
 
           </div>

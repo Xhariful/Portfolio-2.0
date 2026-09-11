@@ -122,6 +122,30 @@ export interface AchievementItem {
   description: string;
 }
 
+export interface SeoConfig {
+  metaTitle: string;
+  metaDescription: string;
+  keywords: string;
+  author: string;
+  canonicalUrl: string;
+  ogImage: string;
+  faviconUrl: string;
+  faviconType?: 'preset' | 'custom';
+  faviconPreset?: string;
+  googleSiteVerification?: string;
+  structuredDataEnabled?: boolean;
+}
+
+export interface WelcomePopupConfig {
+  enabled: boolean;
+  delayMs: number;
+  headline: string;
+  subText: string;
+  ctaText: string;
+  dismissText: string;
+  showTimeGreeting: boolean;
+}
+
 export interface PortfolioData {
   profile: ProfileData;
   stats: StatItem[];
@@ -133,6 +157,8 @@ export interface PortfolioData {
   certifications: CertificationItem[];
   testimonials: TestimonialItem[];
   achievements: AchievementItem[];
+  seo?: SeoConfig;
+  welcomePopup?: WelcomePopupConfig;
 }
 
 export interface SecurityCredentials {
