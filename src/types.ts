@@ -101,17 +101,28 @@ export interface WorkExperienceItem {
 }
 
 export interface CertificationItem {
+  id: string;
   title: string;
   org: string;
   date: string;
-  id: string;
+  credentialId?: string;
+  credentialUrl?: string;
+  imageUrl?: string;
+  description?: string;
+  skills?: string[];
+  category?: string;
 }
 
 export interface TestimonialItem {
+  id?: string;
   quote: string;
   name: string;
   role: string;
+  company?: string;
   rating: number;
+  avatarUrl?: string;
+  project?: string;
+  date?: string;
 }
 
 export interface AchievementItem {
@@ -144,6 +155,8 @@ export interface WelcomePopupConfig {
   ctaText: string;
   dismissText: string;
   showTimeGreeting: boolean;
+  whatsappNumber?: string;
+  whatsappMessage?: string;
 }
 
 export interface PortfolioData {

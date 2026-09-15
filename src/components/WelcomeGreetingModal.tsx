@@ -5,6 +5,7 @@ import {
   Sunset,
   Moon,
   ArrowRight,
+  MessageCircle,
   X
 } from 'lucide-react';
 import { usePortfolio } from '../context/PortfolioContext';
@@ -26,6 +27,12 @@ export const WelcomeGreetingModal: React.FC<WelcomeGreetingModalProps> = ({ onCo
   const subText = welcomePopup?.subText || "If you're planning to build or redesign your website, let's talk about your project goals.";
   const ctaText = welcomePopup?.ctaText || "Let's Talk";
   const dismissText = welcomePopup?.dismissText || 'Maybe Later';
+
+  // Format WhatsApp Link and default first message
+  const rawNumber = welcomePopup?.whatsappNumber || profile.whatsapp || profile.socials?.whatsapp || profile.phone || '+8801996954104';
+  const cleanPhone = rawNumber.replace(/[^0-9]/g, '') || '8801996954104';
+  const defaultWhatsAppMsg = welcomePopup?.whatsappMessage || `Hi ${profile.name || 'Shariful'}, I saw your portfolio and I would love to discuss a project with you!`;
+  const whatsappUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(defaultWhatsAppMsg)}`;
 
   // Dynamic greeting based on current local hour
   const greeting = useMemo(() => {
@@ -76,7 +83,11 @@ export const WelcomeGreetingModal: React.FC<WelcomeGreetingModalProps> = ({ onCo
 
   const handleCtaClick = () => {
     handleClose();
-    onContactClick();
+    // Open WhatsApp in a new tab with pre-filled message
+    window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+    if (onContactClick) {
+      onContactClick();
+    }
   };
 
   if (!isEnabled) return null;
@@ -137,10 +148,11 @@ export const WelcomeGreetingModal: React.FC<WelcomeGreetingModalProps> = ({ onCo
               <button
                 id="greeting-popup-contact-cta"
                 onClick={handleCtaClick}
-                className="flex-1 py-2.5 px-4 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-semibold text-xs sm:text-sm tracking-wide shadow-sm flex items-center justify-center gap-1.5 cursor-pointer transition-all hover:shadow-md"
+                className="flex-1 py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs sm:text-sm tracking-wide shadow-sm flex items-center justify-center gap-2 cursor-pointer transition-all hover:shadow-md"
               >
+                <MessageCircle className="w-4 h-4" />
                 <span>{ctaText}</span>
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight className="w-4 h-4 opacity-80" />
               </button>
 
               <button

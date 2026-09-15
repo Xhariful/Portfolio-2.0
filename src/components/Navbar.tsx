@@ -50,11 +50,12 @@ export const Navbar: React.FC<NavbarProps> = ({
   const navItems = [
     { id: 'hero', label: 'Home' },
     { id: 'about', label: 'About' },
-    { id: 'education', label: 'Education' },
-    { id: 'core-skills', label: 'Core Skills' },
+    { id: 'education', label: 'Education & Courses' },
     { id: 'skills', label: 'Skills' },
+    { id: 'certificates', label: 'Certificates' },
     { id: 'services', label: 'Services' },
     { id: 'projects', label: 'Projects' },
+    { id: 'reviews', label: 'Reviews' },
     { id: 'contact', label: 'Contact' },
   ];
 

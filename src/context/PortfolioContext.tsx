@@ -108,6 +108,16 @@ interface PortfolioContextType {
   editExperience: (id: string, updated: Partial<WorkExperienceItem>) => void;
   deleteExperience: (id: string) => void;
 
+  // Certification Helpers
+  addCertification: (item: CertificationItem) => void;
+  editCertification: (id: string, updated: Partial<CertificationItem>) => void;
+  deleteCertification: (id: string) => void;
+
+  // Testimonial Helpers
+  addTestimonial: (item: TestimonialItem) => void;
+  editTestimonial: (idOrIdx: string | number, updated: Partial<TestimonialItem>) => void;
+  deleteTestimonial: (idOrIdx: string | number) => void;
+
   // Import / Export / Reset
   resetToDefault: () => void;
   importData: (jsonData: string) => boolean;
@@ -901,6 +911,87 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     showToast('Experience removed.');
   };
 
+  // Certification Helpers
+  const addCertification = (item: CertificationItem) => {
+    const newItem = { ...item, id: item.id || `cert-${Date.now()}` };
+    setData((prev) => {
+      const updated = { ...prev, certifications: [newItem, ...(prev.certifications || [])] };
+      persistToCloud(updated);
+      return updated;
+    });
+    showToast('Certificate added & synced to Cloud!');
+  };
+
+  const editCertification = (id: string, updated: Partial<CertificationItem>) => {
+    setData((prev) => {
+      const updatedData = {
+        ...prev,
+        certifications: (prev.certifications || []).map((c) => (c.id === id ? { ...c, ...updated } : c)),
+      };
+      persistToCloud(updatedData);
+      return updatedData;
+    });
+    showToast('Certificate updated!');
+  };
+
+  const deleteCertification = (id: string) => {
+    setData((prev) => {
+      const updated = {
+        ...prev,
+        certifications: (prev.certifications || []).filter((c) => c.id !== id),
+      };
+      persistToCloud(updated);
+      return updated;
+    });
+    showToast('Certificate removed.');
+  };
+
+  // Testimonial Helpers
+  const addTestimonial = (item: TestimonialItem) => {
+    const newItem = { ...item, id: item.id || `test-${Date.now()}` };
+    setData((prev) => {
+      const updated = { ...prev, testimonials: [newItem, ...(prev.testimonials || [])] };
+      persistToCloud(updated);
+      return updated;
+    });
+    showToast('Review added & synced to Cloud!');
+  };
+
+  const editTestimonial = (idOrIdx: string | number, updated: Partial<TestimonialItem>) => {
+    setData((prev) => {
+      const list = [...(prev.testimonials || [])];
+      if (typeof idOrIdx === 'number') {
+        if (list[idOrIdx]) {
+          list[idOrIdx] = { ...list[idOrIdx], ...updated };
+        }
+      } else {
+        const idx = list.findIndex((t) => t.id === idOrIdx);
+        if (idx !== -1) {
+          list[idx] = { ...list[idx], ...updated };
+        }
+      }
+      const updatedData = { ...prev, testimonials: list };
+      persistToCloud(updatedData);
+      return updatedData;
+    });
+    showToast('Review updated!');
+  };
+
+  const deleteTestimonial = (idOrIdx: string | number) => {
+    setData((prev) => {
+      let list = [...(prev.testimonials || [])];
+      if (typeof idOrIdx === 'number') {
+        list = list.filter((_, i) => i !== idOrIdx);
+      } else {
+        list = list.filter((t) => t.id !== idOrIdx);
+      }
+      const updated = { ...prev, testimonials: list };
+      persistToCloud(updated);
+      return updated;
+    });
+    showToast('Review removed.');
+  };
+
   const resetToDefault = () => {
     setData(initialPortfolioData);
     persistToCloud(initialPortfolioData);
@@ -977,6 +1068,12 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         addExperience,
         editExperience,
         deleteExperience,
+        addCertification,
+        editCertification,
+        deleteCertification,
+        addTestimonial,
+        editTestimonial,
+        deleteTestimonial,
         resetToDefault,
         importData,
         exportData,

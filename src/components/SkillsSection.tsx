@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { Cpu, Layers, CheckCircle2, ChevronDown, ChevronUp, Eye } from 'lucide-react';
 import { usePortfolio } from '../context/PortfolioContext';
+import { CoreSkillsTicker } from './CoreSkillsSection';
 
 export const SkillsSection: React.FC = () => {
   const { data } = usePortfolio();
@@ -55,6 +56,9 @@ export const SkillsSection: React.FC = () => {
             A comprehensive overview of programming languages, e-commerce architectures, and frontend toolkits I specialize in.
           </p>
         </div>
+
+        {/* Dynamic Core Skills Ticker Showcase */}
+        <CoreSkillsTicker />
 
         {/* Category Filters */}
         <div className="flex flex-wrap items-center justify-center gap-2">

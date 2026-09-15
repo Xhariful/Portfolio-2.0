@@ -239,59 +239,50 @@ const row2Skills: SkillItem[] = [
   },
 ];
 
-export const CoreSkillsSection: React.FC = () => {
+export const CoreSkillsTicker: React.FC = () => {
   return (
-    <section id="core-skills" className="py-20 relative overflow-hidden bg-slate-50/80 dark:bg-zinc-950 border-t border-b border-slate-200/80 dark:border-zinc-800/80">
-      {/* Background ambient lighting */}
-      <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-96 h-96 bg-purple-500/5 dark:bg-purple-600/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute top-1/2 right-1/4 -translate-y-1/2 w-96 h-96 bg-sky-500/5 dark:bg-sky-600/5 rounded-full blur-3xl pointer-events-none" />
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10 relative z-10">
-        {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto space-y-3">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-purple-500/20 bg-purple-500/10 text-purple-700 dark:text-purple-300 text-xs font-mono">
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>CORE COMPETENCIES & STACK</span>
-          </div>
-          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
-            Core <span className="gradient-text">Skills & Technologies</span>
-          </h2>
-          <p className="text-sm sm:text-base text-slate-600 dark:text-zinc-400">
-            A comprehensive spectrum of modern e-commerce engineering, robust full-stack languages, and professional delivery disciplines.
-          </p>
+    <div className="space-y-4 relative">
+      <div className="flex items-center justify-between px-1">
+        <div className="flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-purple-500 animate-ping" />
+          <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-400">
+            Core Technologies in Motion
+          </span>
         </div>
+        <span className="text-[11px] font-mono text-slate-400 dark:text-zinc-500">
+          Hover to pause ticker
+        </span>
       </div>
 
       {/* Dual Infinite Scroll Ticker Container */}
-      <div className="mt-10 space-y-5 relative pause-on-hover">
+      <div className="space-y-3.5 relative pause-on-hover overflow-hidden rounded-2xl py-2">
         {/* Left & Right Gradient Vignette Overlays for seamless edge fade */}
-        <div className="absolute top-0 bottom-0 left-0 w-16 sm:w-32 bg-gradient-to-r from-slate-50 dark:from-zinc-950 to-transparent z-20 pointer-events-none" />
-        <div className="absolute top-0 bottom-0 right-0 w-16 sm:w-32 bg-gradient-to-l from-slate-50 dark:from-zinc-950 to-transparent z-20 pointer-events-none" />
+        <div className="absolute top-0 bottom-0 left-0 w-16 sm:w-28 bg-gradient-to-r from-slate-100/90 dark:from-zinc-950 to-transparent z-20 pointer-events-none" />
+        <div className="absolute top-0 bottom-0 right-0 w-16 sm:w-28 bg-gradient-to-l from-slate-100/90 dark:from-zinc-950 to-transparent z-20 pointer-events-none" />
 
         {/* Row 1: Left to Right Marquee */}
         <div className="overflow-hidden flex">
-          <div className="animate-marquee-left flex gap-4 pr-4">
-            {/* Render 2 duplicates for smooth infinite seamless wrap */}
+          <div className="animate-marquee-left flex gap-3.5 pr-3.5">
             {[...row1Skills, ...row1Skills].map((skill, idx) => (
               <div
                 key={`${skill.id}-row1-${idx}`}
-                className="flex items-center gap-3.5 px-5 py-3.5 rounded-2xl bg-white dark:bg-zinc-900/90 border border-slate-200/90 dark:border-zinc-800 shadow-sm hover:shadow-md hover:border-purple-400 dark:hover:border-purple-600 transition-all duration-200 select-none group flex-shrink-0 cursor-default"
+                className="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-white dark:bg-zinc-900 border border-slate-200/90 dark:border-zinc-800 shadow-xs hover:shadow-md hover:border-purple-400 dark:hover:border-purple-600 transition-all duration-200 select-none group flex-shrink-0 cursor-default"
               >
                 <div
-                  className={`w-10 h-10 rounded-xl flex items-center justify-center p-2 ${skill.accentBg} ${skill.accentBorder} border shadow-xs transition-transform group-hover:scale-110 flex-shrink-0`}
+                  className={`w-8 h-8 rounded-lg flex items-center justify-center p-1.5 ${skill.accentBg} ${skill.accentBorder} border shadow-xs transition-transform group-hover:scale-110 flex-shrink-0`}
                 >
                   {skill.icon}
                 </div>
                 <div className="flex flex-col">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-bold text-slate-900 dark:text-white tracking-tight whitespace-nowrap">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-xs font-bold text-slate-900 dark:text-white tracking-tight whitespace-nowrap">
                       {skill.name}
                     </span>
-                    <span className={`text-[10px] font-mono px-2 py-0.5 rounded-md font-semibold ${skill.accentBg} ${skill.accentText} border ${skill.accentBorder} whitespace-nowrap`}>
+                    <span className={`text-[9px] font-mono px-1.5 py-0.5 rounded font-semibold ${skill.accentBg} ${skill.accentText} border ${skill.accentBorder} whitespace-nowrap`}>
                       {skill.tag}
                     </span>
                   </div>
-                  <span className="text-[11px] text-slate-500 dark:text-zinc-400 font-medium whitespace-nowrap">
+                  <span className="text-[10px] text-slate-500 dark:text-zinc-400 font-medium whitespace-nowrap">
                     {skill.category}
                   </span>
                 </div>
@@ -302,28 +293,27 @@ export const CoreSkillsSection: React.FC = () => {
 
         {/* Row 2: Right to Left (Opposite Direction) Marquee */}
         <div className="overflow-hidden flex">
-          <div className="animate-marquee-right flex gap-4 pr-4">
-            {/* Render 2 duplicates for smooth infinite seamless wrap */}
+          <div className="animate-marquee-right flex gap-3.5 pr-3.5">
             {[...row2Skills, ...row2Skills].map((skill, idx) => (
               <div
                 key={`${skill.id}-row2-${idx}`}
-                className="flex items-center gap-3.5 px-5 py-3.5 rounded-2xl bg-white dark:bg-zinc-900/90 border border-slate-200/90 dark:border-zinc-800 shadow-sm hover:shadow-md hover:border-purple-400 dark:hover:border-purple-600 transition-all duration-200 select-none group flex-shrink-0 cursor-default"
+                className="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-white dark:bg-zinc-900 border border-slate-200/90 dark:border-zinc-800 shadow-xs hover:shadow-md hover:border-purple-400 dark:hover:border-purple-600 transition-all duration-200 select-none group flex-shrink-0 cursor-default"
               >
                 <div
-                  className={`w-10 h-10 rounded-xl flex items-center justify-center p-2 ${skill.accentBg} ${skill.accentBorder} border shadow-xs transition-transform group-hover:scale-110 flex-shrink-0`}
+                  className={`w-8 h-8 rounded-lg flex items-center justify-center p-1.5 ${skill.accentBg} ${skill.accentBorder} border shadow-xs transition-transform group-hover:scale-110 flex-shrink-0`}
                 >
                   {skill.icon}
                 </div>
                 <div className="flex flex-col">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-bold text-slate-900 dark:text-white tracking-tight whitespace-nowrap">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-xs font-bold text-slate-900 dark:text-white tracking-tight whitespace-nowrap">
                       {skill.name}
                     </span>
-                    <span className={`text-[10px] font-mono px-2 py-0.5 rounded-md font-semibold ${skill.accentBg} ${skill.accentText} border ${skill.accentBorder} whitespace-nowrap`}>
+                    <span className={`text-[9px] font-mono px-1.5 py-0.5 rounded font-semibold ${skill.accentBg} ${skill.accentText} border ${skill.accentBorder} whitespace-nowrap`}>
                       {skill.tag}
                     </span>
                   </div>
-                  <span className="text-[11px] text-slate-500 dark:text-zinc-400 font-medium whitespace-nowrap">
+                  <span className="text-[10px] text-slate-500 dark:text-zinc-400 font-medium whitespace-nowrap">
                     {skill.category}
                   </span>
                 </div>
@@ -333,6 +323,14 @@ export const CoreSkillsSection: React.FC = () => {
         </div>
 
       </div>
-    </section>
+    </div>
+  );
+};
+
+export const CoreSkillsSection: React.FC = () => {
+  return (
+    <div className="w-full">
+      <CoreSkillsTicker />
+    </div>
   );
 };

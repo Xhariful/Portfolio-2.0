@@ -4,8 +4,8 @@ import { Navbar } from './components/Navbar';
 import { HeroSection } from './components/HeroSection';
 import { AboutSection } from './components/AboutSection';
 import { EducationSection } from './components/EducationSection';
+import { CertificatesSection } from './components/CertificatesSection';
 import { SkillsSection } from './components/SkillsSection';
-import { CoreSkillsSection } from './components/CoreSkillsSection';
 import { ServicesSection } from './components/ServicesSection';
 import { ProjectsSection } from './components/ProjectsSection';
 import { TestimonialsSection } from './components/TestimonialsSection';
@@ -61,7 +61,7 @@ function PortfolioApp() {
 
   // Section Observer for Active Nav
   useEffect(() => {
-    const sectionIds = ['hero', 'about', 'education', 'skills', 'services', 'projects', 'contact'];
+    const sectionIds = ['hero', 'about', 'education', 'certificates', 'skills', 'services', 'projects', 'testimonials', 'contact'];
     
     const handleScroll = () => {
       const scrollPosition = window.scrollY + 200;
@@ -111,13 +111,13 @@ function PortfolioApp() {
         {/* About & Credentials */}
         <AboutSection onContactClick={() => scrollToSection('contact')} />
 
-        {/* Education & Academic Journey */}
+        {/* Education & Courses */}
         <EducationSection />
 
-        {/* Dynamic Dual-Scroll Core Skills Ticker */}
-        <CoreSkillsSection />
+        {/* Professional Certifications */}
+        <CertificatesSection />
 
-        {/* Technical Skills Matrix */}
+        {/* Technical Skills Matrix with Core Technologies Ticker */}
         <SkillsSection />
 
         {/* Services & Offerings */}
@@ -126,7 +126,7 @@ function PortfolioApp() {
         {/* Featured Projects & Case Studies */}
         <ProjectsSection />
 
-        {/* Client Endorsements */}
+        {/* Client Endorsements & Store Reviews */}
         <TestimonialsSection />
 
         {/* Contact & Proposal Form */}
