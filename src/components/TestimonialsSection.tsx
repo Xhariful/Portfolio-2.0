@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { Star, MessageSquare, CheckCircle2, Sliders, MapPin, Briefcase, Quote, ChevronDown, ChevronUp } from 'lucide-react';
+import { Star, MessageSquare, CheckCircle2, MapPin, Briefcase, Quote, ChevronDown, ChevronUp } from 'lucide-react';
 import { usePortfolio } from '../context/PortfolioContext';
 
 export const TestimonialsSection: React.FC = () => {
-  const { data, openAdminPortal } = usePortfolio();
+  const { data } = usePortfolio();
   const { testimonials } = data;
 
   const INITIAL_COUNT = 6;
@@ -13,8 +13,9 @@ export const TestimonialsSection: React.FC = () => {
   const hasMore = visibleCount < testimonials.length;
 
   return (
-    <section id="testimonials" className="py-24 px-4 sm:px-6 lg:px-8 relative border-t border-slate-200/80 dark:border-zinc-800/80 bg-white dark:bg-zinc-950">
-      <div id="reviews" className="absolute -top-24" />
+    <section id="reviews" className="py-24 px-4 sm:px-6 lg:px-8 relative border-t border-slate-200/80 dark:border-zinc-800/80 bg-white dark:bg-zinc-950 scroll-mt-24">
+      {/* Fallback alias for any legacy links referencing #testimonials */}
+      <div id="testimonials" className="absolute -top-24 pointer-events-none opacity-0" />
 
       {/* Subtle ambient lighting */}
       <div className="absolute top-1/2 right-1/4 -translate-y-1/2 w-96 h-96 bg-purple-500/5 dark:bg-purple-600/5 rounded-full blur-3xl pointer-events-none" />
@@ -35,7 +36,7 @@ export const TestimonialsSection: React.FC = () => {
           </p>
         </div>
 
-        {/* Top summary stats & admin button */}
+        {/* Top summary stats without admin CTA button */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 rounded-2xl bg-slate-50 dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-1 text-amber-500">
@@ -48,13 +49,10 @@ export const TestimonialsSection: React.FC = () => {
             </span>
           </div>
 
-          <button
-            onClick={openAdminPortal}
-            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-white dark:bg-zinc-800 hover:bg-slate-100 dark:hover:bg-zinc-700 border border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300 text-xs font-semibold cursor-pointer transition-colors"
-          >
-            <Sliders className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
-            <span>Manage Reviews In Dashboard</span>
-          </button>
+          <div className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-500 dark:text-zinc-400">
+            <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+            <span>100% Client Satisfaction Guarantee</span>
+          </div>
         </div>
 
         {/* Testimonials Grid */}

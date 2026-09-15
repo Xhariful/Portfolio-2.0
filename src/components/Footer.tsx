@@ -205,8 +205,8 @@ export const Footer: React.FC<{ onNavigate: (sectionId: string) => void }> = ({ 
               <button onClick={() => onNavigate('education')} className="text-left hover:text-purple-600 dark:hover:text-white transition-colors cursor-pointer py-1">
                 Education
               </button>
-              <button onClick={() => onNavigate('core-skills')} className="text-left hover:text-purple-600 dark:hover:text-white transition-colors cursor-pointer py-1">
-                Core Skills
+              <button onClick={() => onNavigate('certificates')} className="text-left hover:text-purple-600 dark:hover:text-white transition-colors cursor-pointer py-1">
+                Certificates
               </button>
               <button onClick={() => onNavigate('skills')} className="text-left hover:text-purple-600 dark:hover:text-white transition-colors cursor-pointer py-1">
                 Skills Stack
@@ -216,6 +216,9 @@ export const Footer: React.FC<{ onNavigate: (sectionId: string) => void }> = ({ 
               </button>
               <button onClick={() => onNavigate('projects')} className="text-left hover:text-purple-600 dark:hover:text-white transition-colors cursor-pointer py-1">
                 Projects
+              </button>
+              <button onClick={() => onNavigate('reviews')} className="text-left hover:text-purple-600 dark:hover:text-white transition-colors cursor-pointer py-1">
+                Client Reviews
               </button>
               <button onClick={() => onNavigate('contact')} className="text-left hover:text-purple-600 dark:hover:text-white transition-colors cursor-pointer py-1">
                 Get in Touch

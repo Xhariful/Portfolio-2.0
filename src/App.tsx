@@ -61,16 +61,45 @@ function PortfolioApp() {
 
   // Section Observer for Active Nav
   useEffect(() => {
-    const sectionIds = ['hero', 'about', 'education', 'certificates', 'skills', 'services', 'projects', 'testimonials', 'contact'];
+    const sectionIds = [
+      'hero',
+      'about',
+      'education',
+      'certificates',
+      'skills',
+      'services',
+      'projects',
+      'reviews',
+      'contact',
+    ];
     
     const handleScroll = () => {
-      const scrollPosition = window.scrollY + 200;
-      for (const id of sectionIds) {
-        const element = document.getElementById(id);
+      const scrollY = window.scrollY;
+      const windowHeight = window.innerHeight;
+      const fullHeight = document.documentElement.scrollHeight;
+
+      // When near or at the bottom of the page, highlight 'contact'
+      if (scrollY + windowHeight >= fullHeight - 80) {
+        setActiveSection('contact');
+        return;
+      }
+
+      // When near top of the page, highlight 'hero'
+      if (scrollY < 120) {
+        setActiveSection('hero');
+        return;
+      }
+
+      // Viewport probe point (offset 160px down from viewport top to account for floating navbar)
+      const probePosition = scrollY + 160;
+
+      for (let i = sectionIds.length - 1; i >= 0; i--) {
+        const id = sectionIds[i];
+        const element = document.getElementById(id) || (id === 'reviews' ? document.getElementById('testimonials') : null);
         if (element) {
-          const top = element.offsetTop;
-          const height = element.offsetHeight;
-          if (scrollPosition >= top && scrollPosition < top + height) {
+          const rect = element.getBoundingClientRect();
+          const elementTop = rect.top + scrollY;
+          if (probePosition >= elementTop) {
             setActiveSection(id);
             break;
           }
@@ -78,15 +107,24 @@ function PortfolioApp() {
       }
     };
 
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const scrollToSection = (sectionId: string) => {
     setActiveSection(sectionId);
-    const element = document.getElementById(sectionId);
+    const targetId = sectionId === 'testimonials' ? 'reviews' : sectionId;
+    const element = document.getElementById(targetId) || document.getElementById(sectionId);
     if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
+      const navOffset = 90; // Fixed navbar buffer
+      const elementPosition = element.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - navOffset;
+
+      window.scrollTo({
+        top: Math.max(0, offsetPosition),
+        behavior: 'smooth',
+      });
     }
   };
 

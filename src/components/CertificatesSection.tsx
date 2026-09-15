@@ -5,7 +5,6 @@ import {
   Calendar,
   ExternalLink,
   CheckCircle2,
-  Sliders,
   ChevronDown,
   ChevronUp,
   Eye,
@@ -20,7 +19,7 @@ import { usePortfolio } from '../context/PortfolioContext';
 import { CertificationItem } from '../types';
 
 export const CertificatesSection: React.FC = () => {
-  const { data, openAdminPortal, showToast } = usePortfolio();
+  const { data, showToast } = usePortfolio();
   const { certifications } = data;
 
   const [activeCategory, setActiveCategory] = useState<string>('all');
@@ -92,7 +91,7 @@ export const CertificatesSection: React.FC = () => {
   return (
     <section
       id="certificates"
-      className="py-24 px-4 sm:px-6 lg:px-8 relative border-t border-slate-200/80 dark:border-zinc-800/80 bg-slate-50/70 dark:bg-zinc-950/70"
+      className="py-24 px-4 sm:px-6 lg:px-8 relative border-t border-slate-200/80 dark:border-zinc-800/80 bg-slate-50/70 dark:bg-zinc-950/70 scroll-mt-24"
     >
       {/* Subtle background glow */}
       <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-purple-500/5 dark:bg-purple-600/10 rounded-full blur-3xl pointer-events-none" />
@@ -162,14 +161,6 @@ export const CertificatesSection: React.FC = () => {
                 </button>
               )}
             </div>
-
-            <button
-              onClick={openAdminPortal}
-              title="Add or edit certificates from admin panel"
-              className="p-2 rounded-xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-slate-600 dark:text-zinc-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors cursor-pointer flex-shrink-0"
-            >
-              <Sliders className="w-4 h-4" />
-            </button>
           </div>
         </div>
 

@@ -17,7 +17,7 @@ export const AboutSection: React.FC<{ onContactClick: () => void }> = ({ onConta
   const { profile, workTimeline, achievements } = data;
 
   return (
-    <section id="about" className="py-24 px-4 sm:px-6 lg:px-8 relative border-t border-slate-200/80 dark:border-zinc-800/80 bg-white dark:bg-zinc-900/30">
+    <section id="about" className="py-24 px-4 sm:px-6 lg:px-8 relative border-t border-slate-200/80 dark:border-zinc-800/80 bg-white dark:bg-zinc-900/30 scroll-mt-24">
       <div className="max-w-7xl mx-auto space-y-16">
         
         {/* Section Header */}

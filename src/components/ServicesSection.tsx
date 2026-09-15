@@ -53,7 +53,7 @@ export const ServicesSection: React.FC<{ onContactClick: () => void }> = ({ onCo
   };
 
   return (
-    <section id="services" className="py-24 px-4 sm:px-6 lg:px-8 relative border-t border-slate-200/60 dark:border-zinc-800/60">
+    <section id="services" className="py-24 px-4 sm:px-6 lg:px-8 relative border-t border-slate-200/60 dark:border-zinc-800/60 scroll-mt-24">
       <div className="max-w-7xl mx-auto space-y-12">
         
         {/* Section Header */}
