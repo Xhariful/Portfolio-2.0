@@ -17,8 +17,14 @@ import { AdminDashboard } from './components/AdminDashboard';
 import { AdminLoginModal } from './components/AdminLoginModal';
 import { CheckCircle2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { useLenisScroll, getLenis } from './hooks/useLenisScroll';
+import { ScrollProgress } from './components/animations/ScrollProgress';
+import { CustomCursor } from './components/animations/CustomCursor';
 
 function PortfolioApp() {
+  // Initialize buttery-smooth Lenis inertial scroll linked with GSAP ScrollTrigger
+  useLenisScroll();
+
   const [activeSection, setActiveSection] = useState('hero');
   const [isDark, setIsDark] = useState<boolean>(() => {
     if (typeof window !== 'undefined') {
@@ -117,19 +123,30 @@ function PortfolioApp() {
     const targetId = sectionId === 'testimonials' ? 'reviews' : sectionId;
     const element = document.getElementById(targetId) || document.getElementById(sectionId);
     if (element) {
-      const navOffset = 90; // Fixed navbar buffer
-      const elementPosition = element.getBoundingClientRect().top;
-      const offsetPosition = elementPosition + window.pageYOffset - navOffset;
+      const lenis = getLenis();
+      if (lenis) {
+        lenis.scrollTo(element, { offset: -90, duration: 1.15 });
+      } else {
+        const navOffset = 90; // Fixed navbar buffer
+        const elementPosition = element.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - navOffset;
 
-      window.scrollTo({
-        top: Math.max(0, offsetPosition),
-        behavior: 'smooth',
-      });
+        window.scrollTo({
+          top: Math.max(0, offsetPosition),
+          behavior: 'smooth',
+        });
+      }
     }
   };
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-zinc-950 text-slate-900 dark:text-zinc-100 selection:bg-purple-600 selection:text-white transition-colors duration-300 antialiased">
+      {/* Top GSAP Scroll Progress Indicator */}
+      <ScrollProgress />
+
+      {/* Pro-Level Interactive Fluid Custom Cursor (Desktop) */}
+      <CustomCursor />
+
       {/* Floating Navigation Bar */}
       <Navbar
         activeSection={activeSection}

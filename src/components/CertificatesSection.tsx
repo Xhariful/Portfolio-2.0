@@ -17,6 +17,8 @@ import {
 } from 'lucide-react';
 import { usePortfolio } from '../context/PortfolioContext';
 import { CertificationItem } from '../types';
+import { TiltCard } from './animations/TiltCard';
+import { Magnetic } from './animations/Magnetic';
 
 export const CertificatesSection: React.FC = () => {
   const { data, showToast } = usePortfolio();
@@ -182,10 +184,12 @@ export const CertificatesSection: React.FC = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.35, delay: idx * 0.05 }}
-              className="group rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/90 dark:border-zinc-800/90 hover:border-purple-300 dark:hover:border-purple-600/70 p-6 flex flex-col justify-between shadow-xs hover:shadow-md transition-all space-y-5 relative overflow-hidden"
+              className="h-full"
             >
-              {/* Subtle card top gradient accent */}
-              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-500 via-indigo-500 to-sky-500 opacity-80 group-hover:opacity-100 transition-opacity" />
+              <TiltCard maxTilt={5} scale={1.015} glare={true} className="h-full rounded-2xl">
+                <div className="group h-full rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/90 dark:border-zinc-800/90 hover:border-purple-300 dark:hover:border-purple-600/70 p-6 flex flex-col justify-between shadow-xs hover:shadow-md transition-all space-y-5 relative overflow-hidden">
+                  {/* Subtle card top gradient accent */}
+                  <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-500 via-indigo-500 to-sky-500 opacity-80 group-hover:opacity-100 transition-opacity" />
 
               <div className="space-y-4">
                 {/* Visual Header / Badge & Org */}
@@ -275,7 +279,9 @@ export const CertificatesSection: React.FC = () => {
                   </span>
                 )}
               </div>
-            </motion.div>
+            </div>
+          </TiltCard>
+        </motion.div>
           ))}
         </div>
 
@@ -303,32 +309,38 @@ export const CertificatesSection: React.FC = () => {
             {/* Buttons */}
             <div className="flex items-center gap-2.5 w-full sm:w-auto justify-end">
               {hasMore && (
-                <button
-                  onClick={handleLoadMore}
-                  className="px-5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold tracking-wide uppercase flex items-center justify-center gap-2 shadow-xs transition-all cursor-pointer flex-1 sm:flex-initial"
-                >
-                  <span>Load More (+{Math.min(STEP, filteredCerts.length - visibleCount)})</span>
-                  <ChevronDown className="w-4 h-4" />
-                </button>
+                <Magnetic strength={0.25}>
+                  <button
+                    onClick={handleLoadMore}
+                    className="px-5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold tracking-wide uppercase flex items-center justify-center gap-2 shadow-xs transition-all cursor-pointer flex-1 sm:flex-initial"
+                  >
+                    <span>Load More (+{Math.min(STEP, filteredCerts.length - visibleCount)})</span>
+                    <ChevronDown className="w-4 h-4" />
+                  </button>
+                </Magnetic>
               )}
 
               {hasMore && filteredCerts.length - visibleCount > STEP && (
-                <button
-                  onClick={() => setVisibleCount(filteredCerts.length)}
-                  className="px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 text-xs font-semibold tracking-wide transition-colors cursor-pointer"
-                >
-                  Show All ({filteredCerts.length})
-                </button>
+                <Magnetic strength={0.25}>
+                  <button
+                    onClick={() => setVisibleCount(filteredCerts.length)}
+                    className="px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 text-xs font-semibold tracking-wide transition-colors cursor-pointer"
+                  >
+                    Show All ({filteredCerts.length})
+                  </button>
+                </Magnetic>
               )}
 
               {isExpanded && (
-                <button
-                  onClick={handleShowLess}
-                  className="px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer flex-1 sm:flex-initial"
-                >
-                  <span>Show Less</span>
-                  <ChevronUp className="w-4 h-4" />
-                </button>
+                <Magnetic strength={0.25}>
+                  <button
+                    onClick={handleShowLess}
+                    className="px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer flex-1 sm:flex-initial"
+                  >
+                    <span>Show Less</span>
+                    <ChevronUp className="w-4 h-4" />
+                  </button>
+                </Magnetic>
               )}
             </div>
           </div>

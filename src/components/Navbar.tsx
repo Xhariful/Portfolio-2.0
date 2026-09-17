@@ -15,6 +15,7 @@ import {
   ArrowUpRight
 } from 'lucide-react';
 import { usePortfolio } from '../context/PortfolioContext';
+import { Magnetic } from './animations/Magnetic';
 
 // Helper to render dynamic logo icon
 const renderLogoIcon = (iconName?: string) => {
@@ -145,27 +146,31 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* Right Action Controls */}
           <div className="flex items-center gap-2 sm:gap-3">
             {/* Theme Toggle Button */}
-            <button
-              onClick={onToggleTheme}
-              aria-label="Toggle Dark/Light Mode"
-              className="p-2.5 rounded-xl bg-slate-100 dark:bg-zinc-800/80 border border-slate-200/90 dark:border-zinc-700/60 text-slate-700 dark:text-zinc-300 hover:text-purple-600 dark:hover:text-purple-300 transition-colors cursor-pointer shadow-xs"
-              title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
-            >
-              {isDark ? (
-                <Sun className="w-4 h-4 text-amber-400" />
-              ) : (
-                <Moon className="w-4 h-4 text-indigo-600" />
-              )}
-            </button>
+            <Magnetic strength={0.3}>
+              <button
+                onClick={onToggleTheme}
+                aria-label="Toggle Dark/Light Mode"
+                className="p-2.5 rounded-xl bg-slate-100 dark:bg-zinc-800/80 border border-slate-200/90 dark:border-zinc-700/60 text-slate-700 dark:text-zinc-300 hover:text-purple-600 dark:hover:text-purple-300 transition-colors cursor-pointer shadow-xs"
+                title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
+              >
+                {isDark ? (
+                  <Sun className="w-4 h-4 text-amber-400" />
+                ) : (
+                  <Moon className="w-4 h-4 text-indigo-600" />
+                )}
+              </button>
+            </Magnetic>
 
             {/* Quick Contact CTA */}
-            <button
-              onClick={() => handleNav('contact')}
-              className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-semibold text-xs tracking-wide shadow-xs hover:shadow-sm transition-all cursor-pointer"
-            >
-              <span>Contact</span>
-              <ArrowUpRight className="w-3.5 h-3.5" />
-            </button>
+            <Magnetic strength={0.25}>
+              <button
+                onClick={() => handleNav('contact')}
+                className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-semibold text-xs tracking-wide shadow-xs hover:shadow-sm transition-all cursor-pointer"
+              >
+                <span>Contact</span>
+                <ArrowUpRight className="w-3.5 h-3.5" />
+              </button>
+            </Magnetic>
 
             {/* Mobile Hamburger Button */}
             <button

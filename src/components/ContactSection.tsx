@@ -12,6 +12,7 @@ import {
   Clock
 } from 'lucide-react';
 import { usePortfolio } from '../context/PortfolioContext';
+import { Magnetic } from './animations/Magnetic';
 
 export const ContactSection: React.FC = () => {
   const { data } = usePortfolio();
@@ -293,20 +294,22 @@ export const ContactSection: React.FC = () => {
                     />
                   </div>
 
-                  <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="w-full py-3.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs tracking-wider uppercase shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
-                  >
-                    {isSubmitting ? (
-                      <span>Sending inquiry...</span>
-                    ) : (
-                      <>
-                        <span>Submit Project Brief</span>
-                        <Send className="w-4 h-4" />
-                      </>
-                    )}
-                  </button>
+                  <Magnetic strength={0.2}>
+                    <button
+                      type="submit"
+                      disabled={isSubmitting}
+                      className="w-full py-3.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs tracking-wider uppercase shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                    >
+                      {isSubmitting ? (
+                        <span>Sending inquiry...</span>
+                      ) : (
+                        <>
+                          <span>Submit Project Brief</span>
+                          <Send className="w-4 h-4" />
+                        </>
+                      )}
+                    </button>
+                  </Magnetic>
                 </form>
               )}
             </div>

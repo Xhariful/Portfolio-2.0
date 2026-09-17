@@ -13,6 +13,8 @@ import {
   Eye
 } from 'lucide-react';
 import { usePortfolio } from '../context/PortfolioContext';
+import { TiltCard } from './animations/TiltCard';
+import { Magnetic } from './animations/Magnetic';
 
 export const EducationSection: React.FC = () => {
   const { data } = usePortfolio();
@@ -66,8 +68,10 @@ export const EducationSection: React.FC = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.4, delay: idx * 0.1 }}
-                className="p-7 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/90 dark:border-zinc-800 hover:border-purple-300 dark:hover:border-purple-600 transition-all flex flex-col justify-between shadow-xs dark:shadow-none space-y-5"
+                className="h-full"
               >
+                <TiltCard maxTilt={5} scale={1.015} glare={true} className="h-full rounded-2xl">
+                  <div className="p-7 h-full rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/90 dark:border-zinc-800 hover:border-purple-300 dark:hover:border-purple-600 transition-all flex flex-col justify-between shadow-xs dark:shadow-none space-y-5">
                 <div className="space-y-4">
                   {/* Top Metadata Badge */}
                   <div className="flex items-center justify-between gap-2">
@@ -140,6 +144,8 @@ export const EducationSection: React.FC = () => {
                     ID #{idx + 1}
                   </span>
                 </div>
+                  </div>
+                </TiltCard>
               </motion.div>
             ))}
           </div>
@@ -168,32 +174,38 @@ export const EducationSection: React.FC = () => {
               {/* Buttons */}
               <div className="flex items-center gap-2.5 w-full sm:w-auto justify-end">
                 {hasMore && (
-                  <button
-                    onClick={handleLoadMore}
-                    className="px-5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold tracking-wide uppercase flex items-center justify-center gap-2 shadow-xs transition-all cursor-pointer flex-1 sm:flex-initial"
-                  >
-                    <span>Load More (+{Math.min(STEP, education.length - visibleCount)})</span>
-                    <ChevronDown className="w-4 h-4" />
-                  </button>
+                  <Magnetic strength={0.25}>
+                    <button
+                      onClick={handleLoadMore}
+                      className="px-5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold tracking-wide uppercase flex items-center justify-center gap-2 shadow-xs transition-all cursor-pointer flex-1 sm:flex-initial"
+                    >
+                      <span>Load More (+{Math.min(STEP, education.length - visibleCount)})</span>
+                      <ChevronDown className="w-4 h-4" />
+                    </button>
+                  </Magnetic>
                 )}
 
                 {hasMore && education.length - visibleCount > STEP && (
-                  <button
-                    onClick={() => setVisibleCount(education.length)}
-                    className="px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 text-xs font-semibold tracking-wide transition-colors cursor-pointer"
-                  >
-                    Show All ({education.length})
-                  </button>
+                  <Magnetic strength={0.25}>
+                    <button
+                      onClick={() => setVisibleCount(education.length)}
+                      className="px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 text-xs font-semibold tracking-wide transition-colors cursor-pointer"
+                    >
+                      Show All ({education.length})
+                    </button>
+                  </Magnetic>
                 )}
 
                 {isExpanded && (
-                  <button
-                    onClick={handleShowLess}
-                    className="px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer flex-1 sm:flex-initial"
-                  >
-                    <span>Show Less</span>
-                    <ChevronUp className="w-4 h-4" />
-                  </button>
+                  <Magnetic strength={0.25}>
+                    <button
+                      onClick={handleShowLess}
+                      className="px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer flex-1 sm:flex-initial"
+                    >
+                      <span>Show Less</span>
+                      <ChevronUp className="w-4 h-4" />
+                    </button>
+                  </Magnetic>
                 )}
               </div>
             </div>

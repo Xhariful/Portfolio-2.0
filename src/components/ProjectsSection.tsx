@@ -13,6 +13,8 @@ import {
 } from 'lucide-react';
 import { usePortfolio } from '../context/PortfolioContext';
 import { ProjectItem } from '../types';
+import { TiltCard } from './animations/TiltCard';
+import { Magnetic } from './animations/Magnetic';
 
 export const ProjectsSection: React.FC = () => {
   const { data } = usePortfolio();
@@ -104,100 +106,117 @@ export const ProjectsSection: React.FC = () => {
               initial={{ opacity: 0, scale: 0.98 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.3, delay: idx * 0.05 }}
-              className="group rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 hover:border-purple-400 dark:hover:border-purple-600 transition-all overflow-hidden shadow-sm dark:shadow-none flex flex-col justify-between"
+              className="h-full"
             >
-              {/* Project Image Preview */}
-              <div className="relative aspect-[16/10] overflow-hidden bg-slate-100 dark:bg-zinc-950">
-                <img
-                  src={project.image || 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1000'}
-                  alt={project.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  loading="lazy"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1000';
-                  }}
-                />
-
-                {/* Top Badge: Category & Year */}
-                <div className="absolute top-3 left-3 right-3 flex items-center justify-between">
-                  <span className="px-3 py-1 rounded-lg bg-white/90 dark:bg-zinc-950/90 backdrop-blur-md border border-slate-200 dark:border-zinc-700 text-purple-700 dark:text-purple-300 text-xs font-mono font-semibold">
-                    {project.category}
-                  </span>
-                  <span className="px-2.5 py-1 rounded-lg bg-white/90 dark:bg-zinc-950/90 backdrop-blur-md border border-slate-200 dark:border-zinc-700 text-slate-600 dark:text-zinc-400 text-xs font-mono">
-                    {project.year}
-                  </span>
-                </div>
-
-                {/* Bottom Highlight Tag */}
-                {project.highlight && (
-                  <div className="absolute bottom-3 left-3">
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-emerald-50/90 dark:bg-emerald-950/90 border border-emerald-500/40 text-emerald-700 dark:text-emerald-300 text-xs font-semibold backdrop-blur-md">
-                      <TrendingUp className="w-3.5 h-3.5" />
-                      {project.highlight}
-                    </span>
-                  </div>
-                )}
-              </div>
-
-              {/* Project Body */}
-              <div className="p-6 space-y-4 flex-1 flex flex-col justify-between">
-                <div className="space-y-2">
-                  <h3 className="text-xl font-bold text-slate-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
-                    {project.title}
-                  </h3>
-                  <p className="text-sm text-slate-600 dark:text-zinc-300 leading-relaxed line-clamp-2">
-                    {project.description}
-                  </p>
-                </div>
-
-                {/* Tech Stack Badges */}
-                <div className="flex flex-wrap gap-1.5 pt-1">
-                  {project.tech.map((t, tIdx) => (
-                    <span
-                      key={tIdx}
-                      className="px-2.5 py-1 rounded-md bg-slate-100 dark:bg-zinc-950 text-slate-700 dark:text-zinc-400 border border-slate-200 dark:border-zinc-800 text-[11px] font-mono"
-                    >
-                      {t}
-                    </span>
-                  ))}
-                </div>
-
-                {/* Action Links */}
-                <div className="pt-4 border-t border-slate-100 dark:border-zinc-800/80 flex items-center justify-between">
-                  <button
+              <TiltCard maxTilt={5} scale={1.015} glare={true} className="h-full rounded-2xl">
+                <div className="group h-full rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 hover:border-purple-400 dark:hover:border-purple-600 transition-all overflow-hidden shadow-sm dark:shadow-none flex flex-col justify-between">
+                  {/* Project Image Preview */}
+                  <div
+                    className="relative aspect-[16/10] overflow-hidden bg-slate-100 dark:bg-zinc-950 cursor-pointer"
                     onClick={() => setSelectedProject(project)}
-                    className="text-xs font-bold text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 tracking-wide uppercase flex items-center gap-1 cursor-pointer"
+                    data-cursor="View"
                   >
-                    <span>View Details</span>
-                    <ArrowUpRight className="w-3.5 h-3.5" />
-                  </button>
+                    <img
+                      src={project.image || 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1000'}
+                      alt={project.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      loading="lazy"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1000';
+                      }}
+                    />
 
-                  <div className="flex items-center gap-2">
-                    {project.githubUrl && (
-                      <a
-                        href={project.githubUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="p-2 rounded-lg bg-slate-100 dark:bg-zinc-950 hover:bg-slate-200 dark:hover:bg-zinc-800 border border-slate-200 dark:border-zinc-800 text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer"
-                        title="GitHub Source"
-                      >
-                        <Github className="w-4 h-4" />
-                      </a>
-                    )}
-                    {project.liveUrl && (
-                      <a
-                        href={project.liveUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="p-2 rounded-lg bg-slate-100 dark:bg-zinc-950 hover:bg-slate-200 dark:hover:bg-zinc-800 border border-slate-200 dark:border-zinc-800 text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer"
-                        title="Live Demo"
-                      >
-                        <ExternalLink className="w-4 h-4" />
-                      </a>
+                    {/* Top Badge: Category & Year */}
+                    <div className="absolute top-3 left-3 right-3 flex items-center justify-between pointer-events-none">
+                      <span className="px-3 py-1 rounded-lg bg-white/90 dark:bg-zinc-950/90 backdrop-blur-md border border-slate-200 dark:border-zinc-700 text-purple-700 dark:text-purple-300 text-xs font-mono font-semibold">
+                        {project.category}
+                      </span>
+                      <span className="px-2.5 py-1 rounded-lg bg-white/90 dark:bg-zinc-950/90 backdrop-blur-md border border-slate-200 dark:border-zinc-700 text-slate-600 dark:text-zinc-400 text-xs font-mono">
+                        {project.year}
+                      </span>
+                    </div>
+
+                    {/* Bottom Highlight Tag */}
+                    {project.highlight && (
+                      <div className="absolute bottom-3 left-3 pointer-events-none">
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-emerald-50/90 dark:bg-emerald-950/90 border border-emerald-500/40 text-emerald-700 dark:text-emerald-300 text-xs font-semibold backdrop-blur-md">
+                          <TrendingUp className="w-3.5 h-3.5" />
+                          {project.highlight}
+                        </span>
+                      </div>
                     )}
                   </div>
+
+                  {/* Project Body */}
+                  <div className="p-6 space-y-4 flex-1 flex flex-col justify-between">
+                    <div className="space-y-2">
+                      <h3
+                        onClick={() => setSelectedProject(project)}
+                        className="text-xl font-bold text-slate-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors cursor-pointer"
+                      >
+                        {project.title}
+                      </h3>
+                      <p className="text-sm text-slate-600 dark:text-zinc-300 leading-relaxed line-clamp-2">
+                        {project.description}
+                      </p>
+                    </div>
+
+                    {/* Tech Stack Badges */}
+                    <div className="flex flex-wrap gap-1.5 pt-1">
+                      {project.tech.map((t, tIdx) => (
+                        <span
+                          key={tIdx}
+                          className="px-2.5 py-1 rounded-md bg-slate-100 dark:bg-zinc-950 text-slate-700 dark:text-zinc-400 border border-slate-200 dark:border-zinc-800 text-[11px] font-mono"
+                        >
+                          {t}
+                        </span>
+                      ))}
+                    </div>
+
+                    {/* Action Links */}
+                    <div className="pt-4 border-t border-slate-100 dark:border-zinc-800/80 flex items-center justify-between">
+                      <Magnetic strength={0.3}>
+                        <button
+                          onClick={() => setSelectedProject(project)}
+                          className="text-xs font-bold text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 tracking-wide uppercase flex items-center gap-1 cursor-pointer"
+                        >
+                          <span>View Details</span>
+                          <ArrowUpRight className="w-3.5 h-3.5" />
+                        </button>
+                      </Magnetic>
+
+                      <div className="flex items-center gap-2">
+                        {project.githubUrl && (
+                          <Magnetic strength={0.4}>
+                            <a
+                              href={project.githubUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="p-2 rounded-lg bg-slate-100 dark:bg-zinc-950 hover:bg-slate-200 dark:hover:bg-zinc-800 border border-slate-200 dark:border-zinc-800 text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer block"
+                              title="GitHub Source"
+                            >
+                              <Github className="w-4 h-4" />
+                            </a>
+                          </Magnetic>
+                        )}
+                        {project.liveUrl && (
+                          <Magnetic strength={0.4}>
+                            <a
+                              href={project.liveUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="p-2 rounded-lg bg-slate-100 dark:bg-zinc-950 hover:bg-slate-200 dark:hover:bg-zinc-800 border border-slate-200 dark:border-zinc-800 text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer block"
+                              title="Live Demo"
+                            >
+                              <ExternalLink className="w-4 h-4" />
+                            </a>
+                          </Magnetic>
+                        )}
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              </TiltCard>
             </motion.div>
           ))}
         </div>

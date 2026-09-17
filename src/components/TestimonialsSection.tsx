@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { Star, MessageSquare, CheckCircle2, MapPin, Briefcase, Quote, ChevronDown, ChevronUp } from 'lucide-react';
 import { usePortfolio } from '../context/PortfolioContext';
+import { TiltCard } from './animations/TiltCard';
+import { Magnetic } from './animations/Magnetic';
 
 export const TestimonialsSection: React.FC = () => {
   const { data } = usePortfolio();
@@ -64,10 +66,12 @@ export const TestimonialsSection: React.FC = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.35, delay: idx * 0.06 }}
-              className="group p-6 sm:p-7 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/90 dark:border-zinc-800/90 hover:border-purple-300 dark:hover:border-purple-600/70 space-y-5 flex flex-col justify-between shadow-xs hover:shadow-md transition-all relative overflow-hidden"
+              className="h-full"
             >
-              {/* Card top decorative accent */}
-              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-400 via-purple-500 to-indigo-500 opacity-70 group-hover:opacity-100 transition-opacity" />
+              <TiltCard maxTilt={5} scale={1.015} glare={true} className="h-full rounded-2xl">
+                <div className="group h-full p-6 sm:p-7 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/90 dark:border-zinc-800/90 hover:border-purple-300 dark:hover:border-purple-600/70 space-y-5 flex flex-col justify-between shadow-xs hover:shadow-md transition-all relative overflow-hidden">
+                  {/* Card top decorative accent */}
+                  <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-400 via-purple-500 to-indigo-500 opacity-70 group-hover:opacity-100 transition-opacity" />
 
               <div className="space-y-4">
                 {/* Header: Stars & Project / Verification Badge */}
@@ -135,29 +139,35 @@ export const TestimonialsSection: React.FC = () => {
                   </span>
                 )}
               </div>
-            </motion.div>
+            </div>
+          </TiltCard>
+        </motion.div>
           ))}
         </div>
 
         {/* Load More Controls */}
         {testimonials.length > INITIAL_COUNT && (
-          <div className="text-center pt-4">
+          <div className="text-center pt-4 flex justify-center">
             {hasMore ? (
-              <button
-                onClick={() => setVisibleCount((prev) => Math.min(prev + 3, testimonials.length))}
-                className="px-5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold tracking-wide uppercase inline-flex items-center gap-2 shadow-xs cursor-pointer transition-all"
-              >
-                <span>Load More Reviews</span>
-                <ChevronDown className="w-4 h-4" />
-              </button>
+              <Magnetic strength={0.25}>
+                <button
+                  onClick={() => setVisibleCount((prev) => Math.min(prev + 3, testimonials.length))}
+                  className="px-5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold tracking-wide uppercase inline-flex items-center gap-2 shadow-xs cursor-pointer transition-all"
+                >
+                  <span>Load More Reviews</span>
+                  <ChevronDown className="w-4 h-4" />
+                </button>
+              </Magnetic>
             ) : (
-              <button
-                onClick={() => setVisibleCount(INITIAL_COUNT)}
-                className="px-5 py-2.5 rounded-xl bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 text-xs font-semibold inline-flex items-center gap-2 cursor-pointer transition-colors"
-              >
-                <span>Show Less</span>
-                <ChevronUp className="w-4 h-4" />
-              </button>
+              <Magnetic strength={0.25}>
+                <button
+                  onClick={() => setVisibleCount(INITIAL_COUNT)}
+                  className="px-5 py-2.5 rounded-xl bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 text-xs font-semibold inline-flex items-center gap-2 cursor-pointer transition-colors"
+                >
+                  <span>Show Less</span>
+                  <ChevronUp className="w-4 h-4" />
+                </button>
+              </Magnetic>
             )}
           </div>
         )}

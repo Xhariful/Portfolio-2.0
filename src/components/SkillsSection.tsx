@@ -3,6 +3,8 @@ import { motion } from 'motion/react';
 import { Cpu, Layers, CheckCircle2, ChevronDown, ChevronUp, Eye } from 'lucide-react';
 import { usePortfolio } from '../context/PortfolioContext';
 import { CoreSkillsTicker } from './CoreSkillsSection';
+import { TiltCard } from './animations/TiltCard';
+import { Magnetic } from './animations/Magnetic';
 
 export const SkillsSection: React.FC = () => {
   const { data } = usePortfolio();
@@ -96,47 +98,51 @@ export const SkillsSection: React.FC = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.4 }}
-              className="p-6 sm:p-7 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-sm dark:shadow-none space-y-6"
+              className="h-full"
             >
-              <div className="flex items-center justify-between border-b border-slate-100 dark:border-zinc-800/80 pb-4">
-                <div className="space-y-0.5">
-                  <span className="text-[11px] font-mono text-purple-600 dark:text-purple-400 uppercase tracking-wider font-semibold">
-                    {category.highlight}
-                  </span>
-                  <h3 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">{category.title}</h3>
-                </div>
-                <span className="p-2 rounded-xl bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 border border-purple-200 dark:border-purple-800/50">
-                  <Layers className="w-4 h-4" />
-                </span>
-              </div>
-
-              <div className="space-y-4">
-                {category.skills.map((skill, sIdx) => (
-                  <div key={sIdx} className="space-y-1.5">
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="font-semibold text-slate-800 dark:text-zinc-200 flex items-center gap-1.5">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
-                        {skill.name}
+              <TiltCard maxTilt={5} scale={1.015} glare={true} className="h-full rounded-2xl">
+                <div className="p-6 sm:p-7 h-full rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-sm dark:shadow-none space-y-6">
+                  <div className="flex items-center justify-between border-b border-slate-100 dark:border-zinc-800/80 pb-4">
+                    <div className="space-y-0.5">
+                      <span className="text-[11px] font-mono text-purple-600 dark:text-purple-400 uppercase tracking-wider font-semibold">
+                        {category.highlight}
                       </span>
-                      <div className="flex items-center gap-2 font-mono text-slate-500 dark:text-zinc-400">
-                        <span className="text-[11px]">{skill.years}y exp</span>
-                        <span className="text-purple-600 dark:text-purple-400 font-bold">{skill.level}%</span>
-                      </div>
+                      <h3 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">{category.title}</h3>
                     </div>
-                    
-                    {/* Clean Progress Bar */}
-                    <div className="h-1.5 w-full bg-slate-100 dark:bg-zinc-950 rounded-full overflow-hidden border border-slate-200/60 dark:border-zinc-800/60">
-                      <motion.div
-                        initial={{ width: 0 }}
-                        whileInView={{ width: `${skill.level}%` }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.8, delay: sIdx * 0.04, ease: 'easeOut' }}
-                        className="h-full bg-purple-600 rounded-full"
-                      />
-                    </div>
+                    <span className="p-2 rounded-xl bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 border border-purple-200 dark:border-purple-800/50">
+                      <Layers className="w-4 h-4" />
+                    </span>
                   </div>
-                ))}
-              </div>
+
+                  <div className="space-y-4">
+                    {category.skills.map((skill, sIdx) => (
+                      <div key={sIdx} className="space-y-1.5">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="font-semibold text-slate-800 dark:text-zinc-200 flex items-center gap-1.5">
+                            <CheckCircle2 className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
+                            {skill.name}
+                          </span>
+                          <div className="flex items-center gap-2 font-mono text-slate-500 dark:text-zinc-400">
+                            <span className="text-[11px]">{skill.years}y exp</span>
+                            <span className="text-purple-600 dark:text-purple-400 font-bold">{skill.level}%</span>
+                          </div>
+                        </div>
+                        
+                        {/* Clean Progress Bar */}
+                        <div className="h-1.5 w-full bg-slate-100 dark:bg-zinc-950 rounded-full overflow-hidden border border-slate-200/60 dark:border-zinc-800/60">
+                          <motion.div
+                            initial={{ width: 0 }}
+                            whileInView={{ width: `${skill.level}%` }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 0.8, delay: sIdx * 0.04, ease: 'easeOut' }}
+                            className="h-full bg-purple-600 rounded-full"
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </TiltCard>
             </motion.div>
           ))}
         </div>
@@ -165,32 +171,38 @@ export const SkillsSection: React.FC = () => {
             {/* Buttons */}
             <div className="flex items-center gap-2.5 w-full sm:w-auto justify-end">
               {hasMore && (
-                <button
-                  onClick={handleLoadMore}
-                  className="px-5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold tracking-wide uppercase flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer flex-1 sm:flex-initial"
-                >
-                  <span>Load More (+{Math.min(STEP, filteredCategories.length - visibleCount)})</span>
-                  <ChevronDown className="w-4 h-4" />
-                </button>
+                <Magnetic strength={0.25}>
+                  <button
+                    onClick={handleLoadMore}
+                    className="px-5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold tracking-wide uppercase flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer flex-1 sm:flex-initial"
+                  >
+                    <span>Load More (+{Math.min(STEP, filteredCategories.length - visibleCount)})</span>
+                    <ChevronDown className="w-4 h-4" />
+                  </button>
+                </Magnetic>
               )}
 
               {hasMore && filteredCategories.length - visibleCount > STEP && (
-                <button
-                  onClick={() => setVisibleCount(filteredCategories.length)}
-                  className="px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 text-xs font-semibold tracking-wide transition-colors cursor-pointer"
-                >
-                  Show All ({filteredCategories.length})
-                </button>
+                <Magnetic strength={0.25}>
+                  <button
+                    onClick={() => setVisibleCount(filteredCategories.length)}
+                    className="px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 text-xs font-semibold tracking-wide transition-colors cursor-pointer"
+                  >
+                    Show All ({filteredCategories.length})
+                  </button>
+                </Magnetic>
               )}
 
               {isExpanded && (
-                <button
-                  onClick={handleShowLess}
-                  className="px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer flex-1 sm:flex-initial"
-                >
-                  <span>Show Less</span>
-                  <ChevronUp className="w-4 h-4" />
-                </button>
+                <Magnetic strength={0.25}>
+                  <button
+                    onClick={handleShowLess}
+                    className="px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer flex-1 sm:flex-initial"
+                  >
+                    <span>Show Less</span>
+                    <ChevronUp className="w-4 h-4" />
+                  </button>
+                </Magnetic>
               )}
             </div>
           </div>

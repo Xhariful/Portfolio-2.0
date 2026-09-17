@@ -9,6 +9,9 @@ import {
   Globe
 } from 'lucide-react';
 import { usePortfolio } from '../context/PortfolioContext';
+import { AnimatedCounter } from './animations/AnimatedCounter';
+import { TiltCard } from './animations/TiltCard';
+import { Magnetic } from './animations/Magnetic';
 import sharifulFull from '../assets/myhero2.jpg';
 import sharifulAlt from '../assets/myhero.jpg';
 
@@ -39,34 +42,40 @@ export const AboutSection: React.FC<{ onContactClick: () => void }> = ({ onConta
           
           {/* Left Column: Portrait & Stats (5 Cols) */}
           <div className="lg:col-span-5 space-y-4">
-            <div className="rounded-3xl overflow-hidden border border-slate-200/90 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-2.5 shadow-md shadow-slate-900/5 dark:shadow-2xl">
-              <div className="aspect-[4/5] rounded-2xl overflow-hidden bg-slate-100 dark:bg-zinc-950 relative border border-slate-200/80 dark:border-zinc-800">
-                <img
-                  src={profile.aboutImage && profile.aboutImage.trim().length > 0 ? profile.aboutImage : (sharifulFull || sharifulAlt)}
-                  alt={profile.name}
-                  className="w-full h-full object-cover filter brightness-105"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = sharifulAlt;
-                  }}
-                />
-                
-                {/* Overlay Badge */}
-                <div className="absolute bottom-3 left-3 right-3 p-3.5 rounded-xl bg-white/95 dark:bg-zinc-900/90 backdrop-blur-md border border-slate-200/90 dark:border-zinc-700/80 shadow-xs space-y-0.5">
-                  <p className="text-sm font-bold text-slate-900 dark:text-white">{profile.name}</p>
-                  <p className="text-xs text-purple-600 dark:text-purple-400 font-mono font-semibold">{profile.role}</p>
-                  <p className="text-xs text-slate-500 dark:text-zinc-400 mt-1">{profile.location}</p>
+            <TiltCard maxTilt={6} scale={1.02} glare={true} className="rounded-3xl">
+              <div className="rounded-3xl overflow-hidden border border-slate-200/90 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-2.5 shadow-md shadow-slate-900/5 dark:shadow-2xl">
+                <div className="aspect-[4/5] rounded-2xl overflow-hidden bg-slate-100 dark:bg-zinc-950 relative border border-slate-200/80 dark:border-zinc-800">
+                  <img
+                    src={profile.aboutImage && profile.aboutImage.trim().length > 0 ? profile.aboutImage : (sharifulFull || sharifulAlt)}
+                    alt={profile.name}
+                    className="w-full h-full object-cover filter brightness-105"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = sharifulAlt;
+                    }}
+                  />
+                  
+                  {/* Overlay Badge */}
+                  <div className="absolute bottom-3 left-3 right-3 p-3.5 rounded-xl bg-white/95 dark:bg-zinc-900/90 backdrop-blur-md border border-slate-200/90 dark:border-zinc-700/80 shadow-xs space-y-0.5">
+                    <p className="text-sm font-bold text-slate-900 dark:text-white">{profile.name}</p>
+                    <p className="text-xs text-purple-600 dark:text-purple-400 font-mono font-semibold">{profile.role}</p>
+                    <p className="text-xs text-slate-500 dark:text-zinc-400 mt-1">{profile.location}</p>
+                  </div>
                 </div>
               </div>
-            </div>
+            </TiltCard>
 
-            {/* Quick Stat Blocks */}
+            {/* Quick Stat Blocks with AnimatedCounter */}
             <div className="grid grid-cols-2 gap-3">
-              <div className="p-4 rounded-2xl bg-slate-50 dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 shadow-xs dark:shadow-none text-center">
-                <p className="text-2xl font-extrabold text-slate-900 dark:text-white">150+</p>
+              <div className="p-4 rounded-2xl bg-slate-50 dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 shadow-xs dark:shadow-none text-center hover:border-purple-300 dark:hover:border-purple-700 transition-colors">
+                <p className="text-2xl font-extrabold text-slate-900 dark:text-white flex items-center justify-center">
+                  <AnimatedCounter value="150" suffix="+" />
+                </p>
                 <p className="text-xs text-slate-500 dark:text-zinc-400 font-mono mt-0.5">Projects Delivered</p>
               </div>
-              <div className="p-4 rounded-2xl bg-slate-50 dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 shadow-xs dark:shadow-none text-center">
-                <p className="text-2xl font-extrabold text-emerald-600 dark:text-emerald-400">99%</p>
+              <div className="p-4 rounded-2xl bg-slate-50 dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 shadow-xs dark:shadow-none text-center hover:border-emerald-300 dark:hover:border-emerald-700 transition-colors">
+                <p className="text-2xl font-extrabold text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+                  <AnimatedCounter value="99" suffix="%" />
+                </p>
                 <p className="text-xs text-slate-500 dark:text-zinc-400 font-mono mt-0.5">Client Satisfaction</p>
               </div>
             </div>
@@ -109,15 +118,17 @@ export const AboutSection: React.FC<{ onContactClick: () => void }> = ({ onConta
               </div>
             </div>
 
-            {/* CTA */}
+            {/* CTA with Magnetic */}
             <div className="pt-2 flex items-center gap-4">
-              <button
-                onClick={onContactClick}
-                className="px-6 py-3 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-semibold text-xs tracking-wide uppercase transition-all shadow-xs hover:shadow-sm cursor-pointer flex items-center gap-2"
-              >
-                <span>Discuss Your Project</span>
-                <ArrowUpRight className="w-3.5 h-3.5" />
-              </button>
+              <Magnetic strength={0.3}>
+                <button
+                  onClick={onContactClick}
+                  className="px-6 py-3 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-semibold text-xs tracking-wide uppercase transition-all shadow-md hover:shadow-purple-500/20 cursor-pointer flex items-center gap-2"
+                >
+                  <span>Discuss Your Project</span>
+                  <ArrowUpRight className="w-3.5 h-3.5" />
+                </button>
+              </Magnetic>
             </div>
           </div>
 
