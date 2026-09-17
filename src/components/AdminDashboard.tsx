@@ -46,7 +46,11 @@ import {
   CheckCircle,
   Loader2,
   Smartphone,
-  Mail
+  Mail,
+  ArrowUp,
+  ArrowDown,
+  ArrowUpDown,
+  ListOrdered
 } from 'lucide-react';
 import { collection, onSnapshot, query, orderBy, deleteDoc, doc, updateDoc, addDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
@@ -816,6 +820,105 @@ export const AdminDashboard: React.FC = () => {
     showToast('Backup JSON downloaded!');
   };
 
+  // Manual Reordering & Sorting Handlers (instant sync to state, localStorage & Cloud Firestore)
+  const moveProject = (index: number, direction: 'up' | 'down') => {
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= data.projects.length) return;
+    const newProjects = [...data.projects];
+    const [moved] = newProjects.splice(index, 1);
+    newProjects.splice(targetIndex, 0, moved);
+    updateProjects(newProjects);
+    showToast(`Project moved ${direction === 'up' ? 'up' : 'down'} to position #${targetIndex + 1}!`);
+  };
+
+  const moveProjectToPosition = (index: number, newPosStr: string) => {
+    const pos = parseInt(newPosStr, 10);
+    if (isNaN(pos)) return;
+    const targetIndex = Math.max(0, Math.min(data.projects.length - 1, pos - 1));
+    if (targetIndex === index) return;
+    const newProjects = [...data.projects];
+    const [moved] = newProjects.splice(index, 1);
+    newProjects.splice(targetIndex, 0, moved);
+    updateProjects(newProjects);
+    showToast(`Project moved to serial position #${targetIndex + 1}!`);
+  };
+
+  const moveService = (index: number, direction: 'up' | 'down') => {
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= data.services.length) return;
+    const newServices = [...data.services];
+    const [moved] = newServices.splice(index, 1);
+    newServices.splice(targetIndex, 0, moved);
+    updateServices(newServices);
+    showToast(`Service moved ${direction === 'up' ? 'up' : 'down'} to position #${targetIndex + 1}!`);
+  };
+
+  const moveExperience = (index: number, direction: 'up' | 'down') => {
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= data.workTimeline.length) return;
+    const newTimeline = [...data.workTimeline];
+    const [moved] = newTimeline.splice(index, 1);
+    newTimeline.splice(targetIndex, 0, moved);
+    updateWorkTimeline(newTimeline);
+    showToast(`Work experience moved to position #${targetIndex + 1}!`);
+  };
+
+  const moveEducation = (index: number, direction: 'up' | 'down') => {
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= data.education.length) return;
+    const newEdu = [...data.education];
+    const [moved] = newEdu.splice(index, 1);
+    newEdu.splice(targetIndex, 0, moved);
+    updateEducation(newEdu);
+    showToast(`Education item moved to position #${targetIndex + 1}!`);
+  };
+
+  const moveCertification = (index: number, direction: 'up' | 'down') => {
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= data.certifications.length) return;
+    const newCerts = [...data.certifications];
+    const [moved] = newCerts.splice(index, 1);
+    newCerts.splice(targetIndex, 0, moved);
+    updateCertifications(newCerts);
+    showToast(`Certification moved to position #${targetIndex + 1}!`);
+  };
+
+  const moveTestimonial = (index: number, direction: 'up' | 'down') => {
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= data.testimonials.length) return;
+    const newTestimonials = [...data.testimonials];
+    const [moved] = newTestimonials.splice(index, 1);
+    newTestimonials.splice(targetIndex, 0, moved);
+    updateTestimonials(newTestimonials);
+    showToast(`Testimonial moved to position #${targetIndex + 1}!`);
+  };
+
+  const moveSkillCategory = (index: number, direction: 'up' | 'down') => {
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= data.skillCategories.length) return;
+    const nextCategories = [...data.skillCategories];
+    const [moved] = nextCategories.splice(index, 1);
+    nextCategories.splice(targetIndex, 0, moved);
+    updateSkillCategories(nextCategories);
+    showToast(`Skill category moved to position #${targetIndex + 1}!`);
+  };
+
+  const moveSkillInsideCategory = (catId: string, skillIndex: number, direction: 'up' | 'down') => {
+    const targetIndex = direction === 'up' ? skillIndex - 1 : skillIndex + 1;
+    const nextCategories = data.skillCategories.map((cat) => {
+      if (cat.id === catId) {
+        if (targetIndex < 0 || targetIndex >= cat.skills.length) return cat;
+        const skillsCopy = [...cat.skills];
+        const [moved] = skillsCopy.splice(skillIndex, 1);
+        skillsCopy.splice(targetIndex, 0, moved);
+        return { ...cat, skills: skillsCopy };
+      }
+      return cat;
+    });
+    updateSkillCategories(nextCategories);
+    showToast(`Skill moved ${direction === 'up' ? 'up' : 'down'}!`);
+  };
+
   if (!isDashboardOpen) return null;
 
   return (
@@ -824,10 +927,10 @@ export const AdminDashboard: React.FC = () => {
         initial={{ opacity: 0, scale: 0.96 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.96 }}
-        className="w-full max-w-6xl h-[94vh] bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-3xl shadow-2xl flex flex-col overflow-hidden text-slate-900 dark:text-zinc-100"
+        className="w-full max-w-6xl h-[94vh] max-h-[94vh] bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-3xl shadow-2xl flex flex-col overflow-hidden min-h-0 text-slate-900 dark:text-zinc-100"
       >
         {/* Top Header Bar */}
-        <div className="px-6 py-4 border-b border-slate-200 dark:border-zinc-800 flex items-center justify-between bg-slate-50 dark:bg-zinc-950/50">
+        <div className="px-6 py-4 border-b border-slate-200 dark:border-zinc-800 flex items-center justify-between bg-slate-50 dark:bg-zinc-950/50 shrink-0">
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-xl bg-purple-600 text-white shadow-sm">
               <Sliders className="w-5 h-5" />
@@ -919,10 +1022,10 @@ export const AdminDashboard: React.FC = () => {
         </div>
 
         {/* Main Body with Sidebar Tabs & Content */}
-        <div className="flex-1 flex overflow-hidden">
+        <div className="flex-1 flex overflow-hidden min-h-0 min-w-0">
           
           {/* Sidebar Navigation */}
-          <div className="w-56 sm:w-64 border-r border-slate-200 dark:border-zinc-800 bg-slate-50/70 dark:bg-zinc-950/40 p-3 space-y-1 overflow-y-auto">
+          <div className="hidden md:block w-56 lg:w-64 border-r border-slate-200 dark:border-zinc-800 bg-slate-50/70 dark:bg-zinc-950/40 p-3 space-y-1 overflow-y-auto shrink-0 min-h-0">
             <TabButton
               active={activeTab === 'profile'}
               onClick={() => setActiveTab('profile')}
@@ -1031,7 +1134,7 @@ export const AdminDashboard: React.FC = () => {
           </div>
 
           {/* Tab Content Panel */}
-          <div className="flex-1 p-6 sm:p-8 overflow-y-auto bg-white dark:bg-zinc-900">
+          <div className="flex-1 p-4 sm:p-6 md:p-8 overflow-y-auto min-h-0 min-w-0 bg-white dark:bg-zinc-900 overscroll-contain">
             
             {/* Mobile Tab Selector (shown only on small screens < md) */}
             <div className="md:hidden pb-4 mb-4 border-b border-slate-200 dark:border-zinc-800">
@@ -1820,10 +1923,13 @@ export const AdminDashboard: React.FC = () => {
                   {data.education.map((edu, idx) => (
                     <div
                       key={edu.id || idx}
-                      className="p-5 rounded-2xl bg-white dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 flex items-start justify-between gap-4 hover:border-purple-400 dark:hover:border-purple-600 transition-colors shadow-sm"
+                      className="p-5 rounded-2xl bg-white dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:border-purple-400 dark:hover:border-purple-600 transition-colors shadow-sm"
                     >
                       <div className="space-y-1 flex-1">
                         <div className="flex flex-wrap items-center gap-2">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-lg bg-purple-600 text-white text-xs font-mono font-bold shadow-xs">
+                            #{idx + 1}
+                          </span>
                           <h4 className="text-base font-bold text-slate-900 dark:text-white">{edu.degree}</h4>
                           <span className="px-2 py-0.5 rounded-md bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 text-xs font-mono">
                             {edu.period}
@@ -1850,21 +1956,45 @@ export const AdminDashboard: React.FC = () => {
                         )}
                       </div>
 
-                      <div className="flex items-center gap-1.5">
-                        <button
-                          onClick={() => startEditEducation(edu)}
-                          className="p-2 rounded-lg bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 cursor-pointer"
-                          title="Edit degree"
-                        >
-                          <Edit2 className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => deleteEducation(edu.id)}
-                          className="p-2 rounded-lg text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 cursor-pointer"
-                          title="Delete degree"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                      <div className="flex items-center gap-2 self-end sm:self-center">
+                        {/* Serial Reorder Buttons */}
+                        <div className="flex items-center gap-1 bg-slate-50 dark:bg-zinc-900 p-1 rounded-xl border border-slate-200 dark:border-zinc-800">
+                          <button
+                            type="button"
+                            disabled={idx === 0}
+                            onClick={() => moveEducation(idx, 'up')}
+                            className="p-1.5 rounded-lg text-slate-700 dark:text-zinc-300 hover:bg-slate-200 dark:hover:bg-zinc-800 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors"
+                            title="Move Up"
+                          >
+                            <ArrowUp className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            disabled={idx === data.education.length - 1}
+                            onClick={() => moveEducation(idx, 'down')}
+                            className="p-1.5 rounded-lg text-slate-700 dark:text-zinc-300 hover:bg-slate-200 dark:hover:bg-zinc-800 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors"
+                            title="Move Down"
+                          >
+                            <ArrowDown className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            onClick={() => startEditEducation(edu)}
+                            className="p-2 rounded-lg bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 cursor-pointer transition-colors"
+                            title="Edit degree"
+                          >
+                            <Edit2 className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => deleteEducation(edu.id)}
+                            className="p-2 rounded-lg text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 cursor-pointer transition-colors"
+                            title="Delete degree"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -2142,14 +2272,17 @@ export const AdminDashboard: React.FC = () => {
 
                 {/* Certificates List */}
                 <div className="grid sm:grid-cols-2 gap-4">
-                  {data.certifications.map((cert) => (
+                  {data.certifications.map((cert, cIdx) => (
                     <div
                       key={cert.id}
-                      className="p-5 rounded-2xl bg-white dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 flex flex-col justify-between space-y-4 shadow-sm"
+                      className="p-5 rounded-2xl bg-white dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 flex flex-col justify-between space-y-4 shadow-sm hover:border-purple-300 dark:hover:border-purple-800 transition-colors"
                     >
                       <div className="space-y-2.5">
                         <div className="flex items-start justify-between gap-2">
                           <div className="flex items-center gap-2.5">
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-lg bg-purple-600 text-white text-xs font-mono font-bold shadow-xs">
+                              #{cIdx + 1}
+                            </span>
                             {cert.imageUrl ? (
                               <img
                                 src={cert.imageUrl}
@@ -2217,24 +2350,46 @@ export const AdminDashboard: React.FC = () => {
                           <span className="text-[11px] text-slate-400">No URL</span>
                         )}
 
-                        <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-1.5">
+                          {/* Serial Reorder Buttons */}
+                          <div className="flex items-center gap-0.5 bg-slate-50 dark:bg-zinc-900 p-0.5 rounded-lg border border-slate-200 dark:border-zinc-800">
+                            <button
+                              type="button"
+                              disabled={cIdx === 0}
+                              onClick={() => moveCertification(cIdx, 'up')}
+                              className="p-1 rounded text-slate-700 dark:text-zinc-300 hover:bg-slate-200 dark:hover:bg-zinc-800 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors"
+                              title="Move Up"
+                            >
+                              <ArrowUp className="w-3 h-3" />
+                            </button>
+                            <button
+                              type="button"
+                              disabled={cIdx === data.certifications.length - 1}
+                              onClick={() => moveCertification(cIdx, 'down')}
+                              className="p-1 rounded text-slate-700 dark:text-zinc-300 hover:bg-slate-200 dark:hover:bg-zinc-800 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors"
+                              title="Move Down"
+                            >
+                              <ArrowDown className="w-3 h-3" />
+                            </button>
+                          </div>
+
                           <button
                             onClick={() => {
                               setCertForm({ ...cert });
                               setEditingCertId(cert.id);
                               setIsAddingCert(false);
                             }}
-                            className="p-2 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 cursor-pointer"
+                            className="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 cursor-pointer transition-colors"
                             title="Edit Certificate"
                           >
-                            <Edit2 className="w-4 h-4" />
+                            <Edit2 className="w-3.5 h-3.5" />
                           </button>
                           <button
                             onClick={() => deleteCertification(cert.id)}
-                            className="p-2 rounded-lg text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 cursor-pointer"
+                            className="p-1.5 rounded-lg text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 cursor-pointer transition-colors"
                             title="Delete Certificate"
                           >
-                            <Trash2 className="w-4 h-4" />
+                            <Trash2 className="w-3.5 h-3.5" />
                           </button>
                         </div>
                       </div>
@@ -2403,10 +2558,13 @@ export const AdminDashboard: React.FC = () => {
                   {data.workTimeline.map((exp, idx) => (
                     <div
                       key={exp.id || idx}
-                      className="p-5 rounded-2xl bg-white dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 flex items-start justify-between gap-4 shadow-sm"
+                      className="p-5 rounded-2xl bg-white dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm hover:border-purple-300 dark:hover:border-purple-800 transition-colors"
                     >
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-lg bg-purple-600 text-white text-xs font-mono font-bold shadow-xs">
+                            #{idx + 1}
+                          </span>
                           <h4 className="text-base font-bold text-slate-900 dark:text-white">{exp.role}</h4>
                           <span className="px-2 py-0.5 rounded bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 text-xs font-mono">
                             {exp.period}
@@ -2426,23 +2584,47 @@ export const AdminDashboard: React.FC = () => {
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-1.5">
-                        <button
-                          onClick={() => {
-                            setExpForm({ ...exp });
-                            setEditingExpId(exp.id || exp.role);
-                            setIsAddingExp(false);
-                          }}
-                          className="p-2 rounded-lg bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 cursor-pointer"
-                        >
-                          <Edit2 className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => deleteExperience(exp.id || exp.role)}
-                          className="p-2 rounded-lg text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 cursor-pointer"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                      <div className="flex items-center gap-2 self-end sm:self-center">
+                        {/* Serial Reorder Buttons */}
+                        <div className="flex items-center gap-1 bg-slate-50 dark:bg-zinc-900 p-1 rounded-xl border border-slate-200 dark:border-zinc-800">
+                          <button
+                            type="button"
+                            disabled={idx === 0}
+                            onClick={() => moveExperience(idx, 'up')}
+                            className="p-1.5 rounded-lg text-slate-700 dark:text-zinc-300 hover:bg-slate-200 dark:hover:bg-zinc-800 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors"
+                            title="Move Up"
+                          >
+                            <ArrowUp className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            disabled={idx === data.workTimeline.length - 1}
+                            onClick={() => moveExperience(idx, 'down')}
+                            className="p-1.5 rounded-lg text-slate-700 dark:text-zinc-300 hover:bg-slate-200 dark:hover:bg-zinc-800 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors"
+                            title="Move Down"
+                          >
+                            <ArrowDown className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            onClick={() => {
+                              setExpForm({ ...exp });
+                              setEditingExpId(exp.id || exp.role);
+                              setIsAddingExp(false);
+                            }}
+                            className="p-2 rounded-lg bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 hover:bg-slate-200 dark:hover:bg-zinc-700 cursor-pointer transition-colors"
+                          >
+                            <Edit2 className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => deleteExperience(exp.id || exp.role)}
+                            className="p-2 rounded-lg text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 cursor-pointer transition-colors"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -2668,6 +2850,28 @@ export const AdminDashboard: React.FC = () => {
                         </div>
 
                         <div className="flex items-center gap-2">
+                          {/* Category Reorder Buttons */}
+                          <div className="flex items-center gap-0.5 bg-white dark:bg-zinc-900 p-0.5 rounded-lg border border-slate-200 dark:border-zinc-800">
+                            <button
+                              type="button"
+                              disabled={catIdx === 0}
+                              onClick={() => moveSkillCategory(catIdx, 'up')}
+                              className="p-1 rounded text-slate-700 dark:text-zinc-300 hover:bg-slate-200 dark:hover:bg-zinc-800 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors"
+                              title="Move Category Up"
+                            >
+                              <ArrowUp className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              type="button"
+                              disabled={catIdx === data.skillCategories.length - 1}
+                              onClick={() => moveSkillCategory(catIdx, 'down')}
+                              className="p-1 rounded text-slate-700 dark:text-zinc-300 hover:bg-slate-200 dark:hover:bg-zinc-800 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors"
+                              title="Move Category Down"
+                            >
+                              <ArrowDown className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+
                           <button
                             onClick={() => startAddSkillItem(cat.id)}
                             className="px-3 py-1.5 rounded-xl bg-purple-100 dark:bg-purple-950/60 hover:bg-purple-200 dark:hover:bg-purple-900/60 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800/60 text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
@@ -2715,6 +2919,29 @@ export const AdminDashboard: React.FC = () => {
                                   <span className="text-xs font-mono text-purple-600 dark:text-purple-400 font-bold">
                                     {skill.level}%
                                   </span>
+
+                                  {/* Skill Item Reorder */}
+                                  <div className="flex items-center gap-0.5 bg-slate-100 dark:bg-zinc-800 p-0.5 rounded">
+                                    <button
+                                      type="button"
+                                      disabled={sIdx === 0}
+                                      onClick={() => moveSkillInsideCategory(cat.id, sIdx, 'up')}
+                                      className="p-1 rounded text-slate-700 dark:text-zinc-300 hover:bg-slate-200 dark:hover:bg-zinc-700 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                                      title="Move Skill Up"
+                                    >
+                                      <ArrowUp className="w-3 h-3" />
+                                    </button>
+                                    <button
+                                      type="button"
+                                      disabled={sIdx === cat.skills.length - 1}
+                                      onClick={() => moveSkillInsideCategory(cat.id, sIdx, 'down')}
+                                      className="p-1 rounded text-slate-700 dark:text-zinc-300 hover:bg-slate-200 dark:hover:bg-zinc-700 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                                      title="Move Skill Down"
+                                    >
+                                      <ArrowDown className="w-3 h-3" />
+                                    </button>
+                                  </div>
+
                                   <button
                                     onClick={() => startEditSkillItem(cat.id, sIdx, skill)}
                                     className="p-1 rounded text-slate-400 hover:text-purple-600 dark:hover:text-purple-400 cursor-pointer"
@@ -2929,15 +3156,20 @@ export const AdminDashboard: React.FC = () => {
                 )}
 
                 <div className="grid sm:grid-cols-2 gap-4">
-                  {data.services.map((serv, idx) => (
+                  {data.services.map((serv, sIdx) => (
                     <div
-                      key={serv.id || idx}
-                      className="p-5 rounded-2xl bg-white dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 flex flex-col justify-between space-y-3 shadow-sm"
+                      key={serv.id || sIdx}
+                      className="p-5 rounded-2xl bg-white dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 flex flex-col justify-between space-y-3 shadow-sm hover:border-purple-300 dark:hover:border-purple-800 transition-colors"
                     >
                       <div className="space-y-2">
-                        <div className="flex items-center justify-between">
-                          <h4 className="text-base font-bold text-slate-900 dark:text-white">{serv.title}</h4>
-                          <span className="text-xs font-mono text-purple-600 font-bold">{serv.icon}</span>
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2">
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-lg bg-purple-600 text-white text-xs font-mono font-bold shadow-xs">
+                              #{sIdx + 1}
+                            </span>
+                            <h4 className="text-base font-bold text-slate-900 dark:text-white line-clamp-1">{serv.title}</h4>
+                          </div>
+                          <span className="text-xs font-mono text-purple-600 font-bold shrink-0">{serv.icon}</span>
                         </div>
                         <p className="text-xs text-slate-600 dark:text-zinc-300 leading-relaxed">{serv.description}</p>
                         <div className="flex flex-wrap gap-1 pt-1">
@@ -2952,23 +3184,50 @@ export const AdminDashboard: React.FC = () => {
                         </div>
                       </div>
 
-                      <div className="flex items-center justify-end gap-1.5 pt-2 border-t border-slate-100 dark:border-zinc-800">
-                        <button
-                          onClick={() => {
-                            setServiceForm({ ...serv });
-                            setEditingServiceId(serv.id);
-                            setIsAddingService(false);
-                          }}
-                          className="p-2 rounded-lg bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 cursor-pointer"
-                        >
-                          <Edit2 className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => deleteService(serv.id)}
-                          className="p-2 rounded-lg text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 cursor-pointer"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                      <div className="flex items-center justify-between gap-2 pt-2 border-t border-slate-100 dark:border-zinc-800">
+                        {/* Serial Reorder Buttons */}
+                        <div className="flex items-center gap-1 bg-slate-50 dark:bg-zinc-900 p-1 rounded-xl border border-slate-200 dark:border-zinc-800">
+                          <button
+                            type="button"
+                            disabled={sIdx === 0}
+                            onClick={() => moveService(sIdx, 'up')}
+                            className="p-1.5 rounded-lg text-slate-700 dark:text-zinc-300 hover:bg-slate-200 dark:hover:bg-zinc-800 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors"
+                            title="Move Service Up"
+                          >
+                            <ArrowUp className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            disabled={sIdx === data.services.length - 1}
+                            onClick={() => moveService(sIdx, 'down')}
+                            className="p-1.5 rounded-lg text-slate-700 dark:text-zinc-300 hover:bg-slate-200 dark:hover:bg-zinc-800 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors"
+                            title="Move Service Down"
+                          >
+                            <ArrowDown className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+
+                        {/* Edit & Delete */}
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            onClick={() => {
+                              setServiceForm({ ...serv });
+                              setEditingServiceId(serv.id);
+                              setIsAddingService(false);
+                            }}
+                            className="p-2 rounded-lg bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 hover:bg-slate-200 dark:hover:bg-zinc-700 cursor-pointer transition-colors"
+                            title="Edit Service"
+                          >
+                            <Edit2 className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => deleteService(serv.id)}
+                            className="p-2 rounded-lg text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 cursor-pointer transition-colors"
+                            title="Delete Service"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -3218,16 +3477,39 @@ export const AdminDashboard: React.FC = () => {
                   </form>
                 )}
 
+                {/* Manual Sort and Serialization Banner */}
+                <div className="p-3.5 rounded-2xl bg-purple-50 dark:bg-purple-950/40 border border-purple-200/70 dark:border-purple-800/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-purple-900 dark:text-purple-200 shadow-sm">
+                  <div className="flex items-center gap-2.5">
+                    <div className="p-1.5 rounded-lg bg-purple-600 text-white shrink-0">
+                      <ListOrdered className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <p className="font-bold text-slate-900 dark:text-white">Manual Priority & Serial Sorting</p>
+                      <p className="text-[11px] text-purple-700 dark:text-purple-300">
+                        Use the <strong>Up (↑)</strong> and <strong>Down (↓)</strong> buttons or the <strong>Serial Jump</strong> selector on each card to change project order. Changes immediately sync to website and Firestore.
+                      </p>
+                    </div>
+                  </div>
+                  <span className="font-mono font-bold text-[11px] px-2.5 py-1 rounded-lg bg-white dark:bg-zinc-900 border border-purple-200 dark:border-purple-800 self-start sm:self-center shrink-0">
+                    {data.projects.length} Showcase Items
+                  </span>
+                </div>
+
                 <div className="grid sm:grid-cols-2 gap-4">
-                  {data.projects.map((proj) => (
+                  {data.projects.map((proj, pIdx) => (
                     <div
                       key={proj.slug}
-                      className="p-5 rounded-2xl bg-white dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 flex flex-col justify-between space-y-3 shadow-sm"
+                      className="p-5 rounded-2xl bg-white dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 flex flex-col justify-between space-y-3 shadow-sm hover:border-purple-300 dark:hover:border-purple-800 transition-colors"
                     >
                       <div className="space-y-2">
-                        <div className="flex items-center justify-between">
-                          <h4 className="text-base font-bold text-slate-900 dark:text-white">{proj.title}</h4>
-                          <span className="px-2 py-0.5 rounded bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 text-xs font-mono">
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2">
+                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-purple-600 text-white text-xs font-mono font-bold shadow-xs">
+                              #{pIdx + 1}
+                            </span>
+                            <h4 className="text-base font-bold text-slate-900 dark:text-white line-clamp-1">{proj.title}</h4>
+                          </div>
+                          <span className="px-2 py-0.5 rounded bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 text-xs font-mono shrink-0">
                             {proj.category}
                           </span>
                         </div>
@@ -3244,23 +3526,66 @@ export const AdminDashboard: React.FC = () => {
                         </div>
                       </div>
 
-                      <div className="flex items-center justify-end gap-1.5 pt-2 border-t border-slate-100 dark:border-zinc-800">
-                        <button
-                          onClick={() => {
-                            setProjectForm({ ...proj });
-                            setEditingProjectSlug(proj.slug);
-                            setIsAddingProject(false);
-                          }}
-                          className="p-2 rounded-lg bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 cursor-pointer"
-                        >
-                          <Edit2 className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => deleteProject(proj.slug)}
-                          className="p-2 rounded-lg text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 cursor-pointer"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                      <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-100 dark:border-zinc-800">
+                        {/* Serial Reorder Buttons */}
+                        <div className="flex items-center gap-1 bg-slate-50 dark:bg-zinc-900 p-1 rounded-xl border border-slate-200 dark:border-zinc-800">
+                          <button
+                            type="button"
+                            disabled={pIdx === 0}
+                            onClick={() => moveProject(pIdx, 'up')}
+                            className="p-1.5 rounded-lg text-slate-700 dark:text-zinc-300 hover:bg-slate-200 dark:hover:bg-zinc-800 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors"
+                            title="Move Project Up (Higher Priority)"
+                          >
+                            <ArrowUp className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            disabled={pIdx === data.projects.length - 1}
+                            onClick={() => moveProject(pIdx, 'down')}
+                            className="p-1.5 rounded-lg text-slate-700 dark:text-zinc-300 hover:bg-slate-200 dark:hover:bg-zinc-800 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors"
+                            title="Move Project Down (Lower Priority)"
+                          >
+                            <ArrowDown className="w-3.5 h-3.5" />
+                          </button>
+                          
+                          <div className="flex items-center gap-1 pl-1 pr-1.5 border-l border-slate-200 dark:border-zinc-700 text-[11px] font-mono">
+                            <span className="text-slate-400">Pos:</span>
+                            <select
+                              value={pIdx + 1}
+                              onChange={(e) => moveProjectToPosition(pIdx, e.target.value)}
+                              className="bg-transparent font-bold text-purple-600 dark:text-purple-400 focus:outline-none cursor-pointer"
+                              title="Jump directly to position number"
+                            >
+                              {data.projects.map((_, i) => (
+                                <option key={i} value={i + 1} className="bg-white dark:bg-zinc-900 text-slate-900 dark:text-white">
+                                  #{i + 1}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                        </div>
+
+                        {/* Edit & Delete */}
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            onClick={() => {
+                              setProjectForm({ ...proj });
+                              setEditingProjectSlug(proj.slug);
+                              setIsAddingProject(false);
+                            }}
+                            className="p-2 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 cursor-pointer transition-colors"
+                            title="Edit Project"
+                          >
+                            <Edit2 className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => deleteProject(proj.slug)}
+                            className="p-2 rounded-lg text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 cursor-pointer transition-colors"
+                            title="Delete Project"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -3632,6 +3957,28 @@ export const AdminDashboard: React.FC = () => {
                         </div>
 
                         <div className="flex items-center gap-1.5 self-end sm:self-start flex-shrink-0">
+                          {/* Serial Reorder Buttons */}
+                          <div className="flex items-center gap-0.5 bg-slate-100 dark:bg-zinc-800 p-0.5 rounded-lg">
+                            <button
+                              type="button"
+                              disabled={idx === 0}
+                              onClick={() => moveTestimonial(idx, 'up')}
+                              className="p-1 rounded text-slate-700 dark:text-zinc-300 hover:bg-slate-200 dark:hover:bg-zinc-700 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                              title="Move Review Up"
+                            >
+                              <ArrowUp className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              type="button"
+                              disabled={idx === data.testimonials.length - 1}
+                              onClick={() => moveTestimonial(idx, 'down')}
+                              className="p-1 rounded text-slate-700 dark:text-zinc-300 hover:bg-slate-200 dark:hover:bg-zinc-700 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                              title="Move Review Down"
+                            >
+                              <ArrowDown className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+
                           <button
                             onClick={() => {
                               setTestimonialForm({
