@@ -30,6 +30,21 @@
         "authKey": { "type": "string", "description": "Secondary authorization key" },
         "updatedAt": { "type": "string", "description": "ISO timestamp of last update" }
       }
+    },
+    "InquiryMessage": {
+      "title": "Contact Form Inquiry",
+      "description": "Messages and inquiries submitted by clients through the portfolio contact form.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Client full name" },
+        "email": { "type": "string", "description": "Client email address" },
+        "service": { "type": "string", "description": "Requested service" },
+        "budget": { "type": "string", "description": "Estimated budget" },
+        "message": { "type": "string", "description": "Project brief and details" },
+        "targetEmail": { "type": "string", "description": "Destination email of the portfolio owner" },
+        "status": { "type": "string", "description": "Status (new, replied, archived)" },
+        "createdAt": { "type": "string", "description": "Submission ISO timestamp" }
+      }
     }
   },
   "firestore": {
@@ -40,6 +55,10 @@
     "/admin_auth/master_credentials": {
       "schema": "AdminCredentials",
       "description": "Master credentials enabling admin dashboard access across any computer."
+    },
+    "/inquiries/{inquiryId}": {
+      "schema": "InquiryMessage",
+      "description": "Client contact messages and project requests delivered to the site owner."
     }
   }
 }

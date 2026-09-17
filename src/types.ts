@@ -168,6 +168,20 @@ export interface BackgroundEffectsConfig {
   radius?: number;
   opacity?: number;
   connectParticles?: boolean;
+  mobileTouchEffect?: boolean;
+  touchGlowColor?: string;
+}
+
+export interface InquiryItem {
+  id?: string;
+  name: string;
+  email: string;
+  service: string;
+  budget: string;
+  message: string;
+  targetEmail?: string;
+  status?: 'new' | 'replied' | 'archived';
+  createdAt: string;
 }
 
 export interface PortfolioData {

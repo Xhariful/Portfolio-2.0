@@ -15,6 +15,12 @@ service cloud.firestore {
       allow write: if true;
     }
 
+    // Client contact inquiries and briefs
+    match /inquiries/{documentId} {
+      allow create: if true;
+      allow read, update, delete: if true;
+    }
+
     // Diagnostics / health connection test document
     match /test/{documentId} {
       allow read, write: if true;

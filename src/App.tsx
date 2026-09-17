@@ -20,6 +20,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { useLenisScroll, getLenis } from './hooks/useLenisScroll';
 import { ScrollProgress } from './components/animations/ScrollProgress';
 import { CustomCursor } from './components/animations/CustomCursor';
+import { MobileTouchEffect } from './components/animations/MobileTouchEffect';
 import { Floating3DParticles } from './components/ui/floating-3d-particles';
 
 function PortfolioApp() {
@@ -162,6 +163,12 @@ function PortfolioApp() {
 
       {/* Pro-Level Interactive Fluid Custom Cursor (Desktop) */}
       <CustomCursor />
+
+      {/* Pro-Level Interactive Touch Ripple & Hover Halo Effect (Mobile & Tablets) */}
+      <MobileTouchEffect
+        enabled={bgFx?.mobileTouchEffect !== false}
+        color={bgFx?.touchGlowColor || bgFx?.color || '#8B5CF6'}
+      />
 
       {/* Floating Navigation Bar */}
       <Navbar

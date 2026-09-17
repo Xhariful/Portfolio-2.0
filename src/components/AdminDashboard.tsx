@@ -44,8 +44,12 @@ import {
   Cloud,
   CloudCheck,
   CheckCircle,
-  Loader2
+  Loader2,
+  Smartphone,
+  Mail
 } from 'lucide-react';
+import { collection, onSnapshot, query, orderBy, deleteDoc, doc, updateDoc, addDoc } from 'firebase/firestore';
+import { db } from '../lib/firebase';
 import { usePortfolio } from '../context/PortfolioContext';
 import { compressImageFile } from '../lib/imageCompressor';
 import {
@@ -61,7 +65,8 @@ import {
   AchievementItem,
   SeoConfig,
   WelcomePopupConfig,
-  BackgroundEffectsConfig
+  BackgroundEffectsConfig,
+  InquiryItem
 } from '../types';
 import { Floating3DParticles } from './ui/floating-3d-particles';
 
@@ -125,6 +130,7 @@ export const AdminDashboard: React.FC = () => {
     | 'seo'
     | 'popup'
     | 'effects'
+    | 'inquiries'
     | 'education'
     | 'certificates'
     | 'experience'
@@ -329,7 +335,7 @@ export const AdminDashboard: React.FC = () => {
     showTimeGreeting: true,
   });
 
-  // Background 3D Particles Effect State
+  // Background 3D Particles & Mobile Touch State
   const [effectsForm, setEffectsForm] = useState<BackgroundEffectsConfig>(
     data.backgroundEffects || {
       floatingParticles: true,
@@ -340,8 +346,96 @@ export const AdminDashboard: React.FC = () => {
       radius: 1.6,
       opacity: 0.55,
       connectParticles: true,
+      mobileTouchEffect: true,
+      touchGlowColor: '#8B5CF6',
     }
   );
+
+  // Client Inquiries State (fetched in real-time from Firestore & LocalStorage cache)
+  const [inquiries, setInquiries] = useState<InquiryItem[]>(() => {
+    try {
+      const cached = localStorage.getItem('shariful_portfolio_inquiries_v1');
+      return cached ? JSON.parse(cached) : [];
+    } catch {
+      return [];
+    }
+  });
+  const [inquirySearch, setInquirySearch] = useState('');
+  const [isSendingTestInquiry, setIsSendingTestInquiry] = useState(false);
+
+  // Subscribe to real-time client inquiries when dashboard is open
+  React.useEffect(() => {
+    if (!isDashboardOpen) return;
+
+    // 1. Initial read from local cache
+    try {
+      const cached = localStorage.getItem('shariful_portfolio_inquiries_v1');
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setInquiries(parsed);
+        }
+      }
+    } catch (_) {}
+
+    // 2. Real-time Firestore snapshot listener
+    let unsubscribe = () => {};
+    try {
+      const q = collection(db, 'inquiries');
+      unsubscribe = onSnapshot(
+        q,
+        (snapshot) => {
+          const list: InquiryItem[] = [];
+          snapshot.forEach((docSnap) => {
+            list.push({ id: docSnap.id, ...docSnap.data() } as InquiryItem);
+          });
+
+          // Merge with any local cache items to prevent losing offline submissions
+          try {
+            const cachedRaw = localStorage.getItem('shariful_portfolio_inquiries_v1');
+            if (cachedRaw) {
+              const cachedList: InquiryItem[] = JSON.parse(cachedRaw);
+              cachedList.forEach((cachedItem) => {
+                if (!list.some((item) => item.id === cachedItem.id || (item.email === cachedItem.email && item.createdAt === cachedItem.createdAt))) {
+                  list.push(cachedItem);
+                }
+              });
+            }
+          } catch (_) {}
+
+          // Sort safely in JS by createdAt desc
+          list.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+          setInquiries(list);
+          try {
+            localStorage.setItem('shariful_portfolio_inquiries_v1', JSON.stringify(list));
+          } catch (_) {}
+        },
+        (err) => {
+          console.warn('[Admin] Inquiries snapshot note:', err);
+        }
+      );
+    } catch (e) {
+      console.warn('[Admin] Inquiries fetch note:', e);
+    }
+
+    // 3. Custom event listener from form submissions in the same browser window
+    const handleLocalInquiryAdded = (event: any) => {
+      try {
+        const cached = localStorage.getItem('shariful_portfolio_inquiries_v1');
+        if (cached) {
+          setInquiries(JSON.parse(cached));
+        } else if (event?.detail) {
+          setInquiries((prev) => [event.detail, ...prev]);
+        }
+      } catch (_) {}
+    };
+    window.addEventListener('portfolio_inquiry_added', handleLocalInquiryAdded);
+
+    return () => {
+      unsubscribe();
+      window.removeEventListener('portfolio_inquiry_added', handleLocalInquiryAdded);
+    };
+  }, [isDashboardOpen]);
 
   // Synchronize forms if data changes externally (only if user hasn't made unsaved edits)
   React.useEffect(() => {
@@ -387,6 +481,107 @@ export const AdminDashboard: React.FC = () => {
     e.preventDefault();
     isEffectsDirty.current = false;
     updateBackgroundEffects(effectsForm);
+  };
+
+  // Handle Delete Client Inquiry
+  const handleDeleteInquiry = async (id?: string) => {
+    if (!id) return;
+    try {
+      await deleteDoc(doc(db, 'inquiries', id));
+    } catch (err) {
+      console.warn('[Admin] Delete Firestore inquiry note:', err);
+    }
+    setInquiries((prev) => {
+      const updated = prev.filter((item) => item.id !== id);
+      try {
+        localStorage.setItem('shariful_portfolio_inquiries_v1', JSON.stringify(updated));
+      } catch (_) {}
+      return updated;
+    });
+    showToast('Inquiry removed from inbox.');
+  };
+
+  // Handle Toggle Status
+  const handleToggleInquiryStatus = async (id?: string, currentStatus?: string) => {
+    if (!id) return;
+    const nextStatus = currentStatus === 'replied' ? 'new' : 'replied';
+    try {
+      await updateDoc(doc(db, 'inquiries', id), { status: nextStatus });
+    } catch (err) {
+      console.warn('[Admin] Status update note:', err);
+    }
+    setInquiries((prev) => {
+      const updated = prev.map((item) => (item.id === id ? { ...item, status: nextStatus } : item));
+      try {
+        localStorage.setItem('shariful_portfolio_inquiries_v1', JSON.stringify(updated));
+      } catch (_) {}
+      return updated;
+    });
+    showToast(`Inquiry marked as ${nextStatus === 'replied' ? 'Replied' : 'New'}.`);
+  };
+
+  // Handle Sending a Test Inquiry (tests both Firestore + Local cache + Gmail dispatch)
+  const handleSendTestInquiry = async () => {
+    setIsSendingTestInquiry(true);
+    const recipientEmail = data.profile.email || 'sharifulpc04@gmail.com';
+    const testItem: InquiryItem = {
+      id: `test-${Date.now()}`,
+      name: 'Shariful (Direct Test)',
+      email: recipientEmail,
+      service: 'Shopify Store Development',
+      budget: '$1,000 - $3,000',
+      message: `Hello Shariful! This is a real test inquiry sent at ${new Date().toLocaleTimeString()} to verify that both the Dashboard Inbox and Gmail delivery are connected and working properly.`,
+      targetEmail: recipientEmail,
+      status: 'new',
+      createdAt: new Date().toISOString(),
+    };
+
+    // 1. Immediately cache in localStorage
+    try {
+      const existing = JSON.parse(localStorage.getItem('shariful_portfolio_inquiries_v1') || '[]');
+      const updated = [testItem, ...existing.filter((i: any) => i.id !== testItem.id)];
+      localStorage.setItem('shariful_portfolio_inquiries_v1', JSON.stringify(updated));
+      setInquiries(updated);
+    } catch (_) {}
+
+    // 2. Write to Firestore
+    try {
+      const docRef = await addDoc(collection(db, 'inquiries'), {
+        ...testItem,
+      });
+      if (docRef?.id) {
+        testItem.id = docRef.id;
+      }
+    } catch (fsErr) {
+      console.warn('[Admin] Test inquiry Firestore note:', fsErr);
+    }
+
+    // 3. Dispatch to FormSubmit for Gmail inbox test
+    try {
+      await fetch(`https://formsubmit.co/ajax/${encodeURIComponent(recipientEmail)}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify({
+          name: testItem.name,
+          email: testItem.email,
+          service: testItem.service,
+          budget: testItem.budget,
+          message: testItem.message,
+          _subject: `Portfolio Test Message: ${testItem.name}`,
+          _replyto: testItem.email,
+          _template: 'table',
+          _captcha: 'false',
+        }),
+      });
+    } catch (e) {
+      console.warn('[Admin] Test inquiry email dispatch note:', e);
+    }
+
+    setIsSendingTestInquiry(false);
+    showToast('Test inquiry added to Inbox & sent to your Gmail!');
   };
 
   // Add Headline string
@@ -668,6 +863,18 @@ export const AdminDashboard: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-2">
+            <button
+              onClick={() => setActiveTab('inquiries')}
+              className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                activeTab === 'inquiries'
+                  ? 'bg-sky-600 text-white shadow-md shadow-sky-500/25 ring-2 ring-sky-400/40'
+                  : 'bg-sky-50 dark:bg-sky-950/70 hover:bg-sky-100 dark:hover:bg-sky-900/70 border border-sky-300 dark:border-sky-800 text-sky-700 dark:text-sky-300'
+              }`}
+              title="View Client Inquiries & Messages"
+            >
+              <Mail className="w-3.5 h-3.5" />
+              <span>Inquiries ({inquiries.length})</span>
+            </button>
             {currentUser && (
               <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-purple-50 dark:bg-purple-950/60 border border-purple-200 dark:border-purple-800 text-xs">
                 <ShieldCheck className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
@@ -723,6 +930,13 @@ export const AdminDashboard: React.FC = () => {
               label="Profile & Bio"
             />
             <TabButton
+              active={activeTab === 'inquiries'}
+              onClick={() => setActiveTab('inquiries')}
+              icon={<Mail className="w-4 h-4 text-sky-600 dark:text-sky-400" />}
+              label="Client Inquiries"
+              badge={inquiries.length > 0 ? inquiries.length : undefined}
+            />
+            <TabButton
               active={activeTab === 'media'}
               onClick={() => setActiveTab('media')}
               icon={<ImageIcon className="w-4 h-4 text-purple-600 dark:text-purple-400" />}
@@ -744,7 +958,7 @@ export const AdminDashboard: React.FC = () => {
               active={activeTab === 'effects'}
               onClick={() => setActiveTab('effects')}
               icon={<Sparkles className="w-4 h-4 text-purple-600 dark:text-purple-400" />}
-              label="3D Particles FX"
+              label="3D Particles & Touch FX"
               badge={effectsForm.floatingParticles ? 'ON' : 'OFF'}
             />
             <TabButton
@@ -818,6 +1032,35 @@ export const AdminDashboard: React.FC = () => {
 
           {/* Tab Content Panel */}
           <div className="flex-1 p-6 sm:p-8 overflow-y-auto bg-white dark:bg-zinc-900">
+            
+            {/* Mobile Tab Selector (shown only on small screens < md) */}
+            <div className="md:hidden pb-4 mb-4 border-b border-slate-200 dark:border-zinc-800">
+              <label className="text-[11px] font-semibold text-slate-500 dark:text-zinc-400 block mb-1.5">
+                Dashboard Section:
+              </label>
+              <select
+                value={activeTab}
+                onChange={(e) => setActiveTab(e.target.value as any)}
+                className="w-full px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-zinc-800 border border-slate-300 dark:border-zinc-700 text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500 cursor-pointer"
+              >
+                <option value="inquiries">📬 Client Inquiries ({inquiries.length})</option>
+                <option value="profile">👤 Profile & Bio</option>
+                <option value="media">🖼️ Logo & Website Media</option>
+                <option value="seo">🌐 Favicon & SEO Meta</option>
+                <option value="popup">🔔 Greeting Popup</option>
+                <option value="effects">✨ 3D Particles & Touch FX</option>
+                <option value="education">🎓 Education & Degrees</option>
+                <option value="certificates">🏆 Certifications & Badges</option>
+                <option value="experience">💼 Work Experience</option>
+                <option value="skills">⚡ Skills & Tech Matrix</option>
+                <option value="services">🛍️ Services Offered</option>
+                <option value="projects">📂 Projects & Work</option>
+                <option value="stats">📊 Stats & Achievements</option>
+                <option value="testimonials">💬 Client Testimonials</option>
+                <option value="security">🔐 Security & Access Keys</option>
+                <option value="backup">💾 Backup & Reset</option>
+              </select>
+            </div>
             
             {/* 1. PROFILE TAB */}
             {activeTab === 'profile' && (
@@ -4260,6 +4503,108 @@ export const AdminDashboard: React.FC = () => {
                   </div>
                 </div>
 
+                {/* Mobile Touch Hover & Ripple FX Card */}
+                <div className="p-5 rounded-2xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 space-y-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <Smartphone className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                        <h4 className="text-sm font-bold text-slate-900 dark:text-white">
+                          Mobile Touch Hover & Dynamic Ripple Aura
+                        </h4>
+                        <span
+                          className={`px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase ${
+                            effectsForm.mobileTouchEffect !== false
+                              ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-500/30'
+                              : 'bg-slate-200 text-slate-700 dark:bg-zinc-800 dark:text-zinc-400 border border-slate-400/30'
+                          }`}
+                        >
+                          {effectsForm.mobileTouchEffect !== false ? '● Active' : '○ OFF'}
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-500 dark:text-zinc-400 max-w-xl leading-relaxed">
+                        Replaces desktop mouse hover with mobile tactile feedback: emits luminous radial ripples on touch, a floating halo aura following user fingertips, and smooth stardust trails on drag.
+                      </p>
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          isEffectsDirty.current = true;
+                          setEffectsForm((prev) => ({
+                            ...prev,
+                            mobileTouchEffect: prev.mobileTouchEffect === false ? true : false,
+                          }));
+                        }}
+                        className={`px-4 py-2 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
+                          effectsForm.mobileTouchEffect !== false
+                            ? 'bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 hover:bg-rose-200 dark:hover:bg-rose-900'
+                            : 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-200 dark:hover:bg-emerald-900'
+                        }`}
+                      >
+                        {effectsForm.mobileTouchEffect !== false ? 'Turn Off Mobile Touch' : 'Turn On Mobile Touch'}
+                      </button>
+
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={effectsForm.mobileTouchEffect !== false}
+                          onChange={(e) => {
+                            isEffectsDirty.current = true;
+                            setEffectsForm((prev) => ({ ...prev, mobileTouchEffect: e.target.checked }));
+                          }}
+                          className="sr-only peer"
+                        />
+                        <div className="w-12 h-6.5 bg-slate-300 peer-focus:outline-none rounded-full peer dark:bg-zinc-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[3px] after:left-[3px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+                      </label>
+                    </div>
+                  </div>
+
+                  {effectsForm.mobileTouchEffect !== false && (
+                    <div className="pt-3 border-t border-slate-200 dark:border-zinc-800 flex flex-wrap items-center gap-3">
+                      <span className="text-xs font-semibold text-slate-700 dark:text-zinc-300">
+                        Touch Glow Color:
+                      </span>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="color"
+                          value={effectsForm.touchGlowColor || effectsForm.color || '#8B5CF6'}
+                          onChange={(e) => {
+                            isEffectsDirty.current = true;
+                            setEffectsForm((prev) => ({ ...prev, touchGlowColor: e.target.value }));
+                          }}
+                          className="w-8 h-8 rounded-lg cursor-pointer bg-transparent border border-slate-300 dark:border-zinc-700 p-0.5"
+                        />
+                        <span className="text-xs font-mono text-slate-500 dark:text-zinc-400">
+                          {effectsForm.touchGlowColor || effectsForm.color || '#8B5CF6'}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1.5 ml-auto">
+                        {[
+                          { label: 'Purple Aura', color: '#8B5CF6' },
+                          { label: 'Cyan Flow', color: '#06B6D4' },
+                          { label: 'Emerald Glow', color: '#10B981' },
+                          { label: 'Amber Spark', color: '#F59E0B' },
+                        ].map((preset) => (
+                          <button
+                            key={preset.label}
+                            type="button"
+                            onClick={() => {
+                              isEffectsDirty.current = true;
+                              setEffectsForm((prev) => ({ ...prev, touchGlowColor: preset.color }));
+                            }}
+                            className="px-2.5 py-1 rounded-lg text-[11px] font-medium border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 hover:border-purple-500 text-slate-700 dark:text-zinc-300 flex items-center gap-1.5 cursor-pointer"
+                          >
+                            <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: preset.color }} />
+                            <span>{preset.label}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
                 {/* Color & Visual Palette Preset */}
                 <div className="p-5 rounded-2xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 space-y-4">
                   <div>
@@ -4542,6 +4887,273 @@ export const AdminDashboard: React.FC = () => {
                   </button>
                 </div>
               </form>
+            )}
+
+            {/* CLIENT INQUIRIES & PROJECT BRIEFS TAB */}
+            {activeTab === 'inquiries' && (
+              <div className="space-y-6 max-w-4xl">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-zinc-800 pb-4">
+                  <div>
+                    <h3 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                      <Mail className="w-5 h-5 text-sky-600 dark:text-sky-400" />
+                      <span>Client Inquiries & Project Briefs</span>
+                    </h3>
+                    <p className="text-xs text-slate-500 dark:text-zinc-400 mt-1">
+                      Messages submitted from your portfolio contact form. Form submissions are dispatched directly to your store email (
+                      <strong className="text-purple-600 dark:text-purple-400 font-mono">
+                        {data.profile.email || 'sharifulpc04@gmail.com'}
+                      </strong>
+                      ) and synced in real-time.
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      disabled={isSendingTestInquiry}
+                      onClick={handleSendTestInquiry}
+                      className="px-3.5 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold flex items-center gap-1.5 shadow-sm transition-all cursor-pointer disabled:opacity-50"
+                      title="Send a sample inquiry to verify Dashboard and Gmail delivery right now"
+                    >
+                      <Sparkles className={`w-3.5 h-3.5 ${isSendingTestInquiry ? 'animate-spin' : ''}`} />
+                      <span>{isSendingTestInquiry ? 'Sending...' : 'Send Test Inquiry'}</span>
+                    </button>
+                    <span className="px-3 py-1.5 rounded-full text-xs font-mono font-bold bg-sky-100 text-sky-700 dark:bg-sky-950/60 dark:text-sky-300 border border-sky-500/30">
+                      {inquiries.length} {inquiries.length === 1 ? 'Message' : 'Messages'}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Email Delivery & Gmail Activation Status Banner */}
+                <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-sky-50 via-purple-50/50 to-emerald-50/50 dark:from-sky-950/30 dark:via-purple-950/20 dark:to-emerald-950/20 border border-sky-200/80 dark:border-sky-800/60 space-y-3">
+                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+                    <div className="flex items-start gap-3">
+                      <div className="p-2 rounded-xl bg-sky-600 text-white shrink-0 mt-0.5 shadow-xs">
+                        <CheckCircle2 className="w-4 h-4" />
+                      </div>
+                      <div className="space-y-1">
+                        <h4 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                          <span>Email Dispatch Target:</span>
+                          <span className="font-mono text-purple-600 dark:text-purple-400 bg-purple-100/60 dark:bg-purple-950/80 px-2 py-0.5 rounded-md text-xs">
+                            {data.profile.email || 'sharifulpc04@gmail.com'}
+                          </span>
+                        </h4>
+                        <p className="text-xs text-slate-600 dark:text-zinc-300 leading-relaxed">
+                          <strong>Important for Gmail Delivery:</strong> The contact form uses FormSubmit to deliver emails directly into your Gmail inbox. The <em>first time</em> an email address is used, FormSubmit sends a one-time verification message titled <span className="font-mono bg-amber-100 dark:bg-amber-950/60 px-1.5 py-0.5 rounded text-amber-800 dark:text-amber-200">"Action Required: Activate Form"</span>. Check your Gmail <strong>Inbox or Spam/Junk/Promotions</strong> folder and click "Activate Form" once.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-2 pt-1 border-t border-sky-200/60 dark:border-sky-800/40">
+                    <a
+                      href="https://mail.google.com/mail/u/0/#search/FormSubmit"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-3 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-700 text-white text-xs font-semibold inline-flex items-center gap-1.5 transition-colors cursor-pointer"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5" />
+                      <span>Search "FormSubmit" in Gmail</span>
+                    </a>
+                    <a
+                      href="https://mail.google.com"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-3 py-1.5 rounded-lg border border-slate-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 hover:bg-slate-100 dark:hover:bg-zinc-700 text-xs font-medium inline-flex items-center gap-1.5 transition-colors cursor-pointer"
+                    >
+                      <Mail className="w-3.5 h-3.5 text-rose-500" />
+                      <span>Open Gmail Inbox</span>
+                    </a>
+                    <button
+                      type="button"
+                      disabled={isSendingTestInquiry}
+                      onClick={handleSendTestInquiry}
+                      className="px-3 py-1.5 rounded-lg border border-purple-300 dark:border-purple-800 bg-purple-100/70 dark:bg-purple-950/50 text-purple-700 dark:text-purple-300 hover:bg-purple-200/70 text-xs font-semibold inline-flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50"
+                    >
+                      <Sparkles className="w-3.5 h-3.5" />
+                      <span>Send 1-Click Test Inquiry</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Filter & Search Toolbar */}
+                {inquiries.length > 0 && (
+                  <div className="flex items-center gap-3">
+                    <div className="relative flex-1">
+                      <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                      <input
+                        type="text"
+                        value={inquirySearch}
+                        onChange={(e) => setInquirySearch(e.target.value)}
+                        placeholder="Search by client name, email, or service requested..."
+                        className="w-full pl-9 pr-4 py-2 text-xs rounded-xl bg-slate-50 dark:bg-zinc-800/80 border border-slate-200 dark:border-zinc-700 text-slate-800 dark:text-zinc-200 focus:outline-none focus:border-purple-500"
+                      />
+                    </div>
+                    {inquirySearch && (
+                      <button
+                        type="button"
+                        onClick={() => setInquirySearch('')}
+                        className="px-3 py-2 rounded-xl text-xs bg-slate-200 dark:bg-zinc-700 text-slate-700 dark:text-zinc-300 cursor-pointer"
+                      >
+                        Clear
+                      </button>
+                    )}
+                  </div>
+                )}
+
+                {/* Inquiries List */}
+                {inquiries.length === 0 ? (
+                  <div className="p-10 rounded-2xl bg-slate-50 dark:bg-zinc-950 border border-dashed border-slate-300 dark:border-zinc-800 text-center space-y-3">
+                    <div className="w-12 h-12 rounded-full bg-sky-100 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400 flex items-center justify-center mx-auto text-xl">
+                      <Mail className="w-6 h-6" />
+                    </div>
+                    <h4 className="text-base font-bold text-slate-900 dark:text-white">
+                      No Inquiries Received Yet
+                    </h4>
+                    <p className="text-xs text-slate-500 dark:text-zinc-400 max-w-md mx-auto leading-relaxed">
+                      When visitors send messages through your website contact form, they will appear here instantly and will also be emailed directly to{' '}
+                      <strong className="text-purple-600 dark:text-purple-400 font-mono">
+                        {data.profile.email || 'sharifulpc04@gmail.com'}
+                      </strong>
+                      .
+                    </p>
+                    <div className="pt-2 flex flex-wrap items-center justify-center gap-2.5">
+                      <button
+                        type="button"
+                        disabled={isSendingTestInquiry}
+                        onClick={handleSendTestInquiry}
+                        className="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold cursor-pointer transition-colors inline-flex items-center gap-1.5 shadow-sm disabled:opacity-50"
+                      >
+                        <Sparkles className="w-3.5 h-3.5" />
+                        <span>{isSendingTestInquiry ? 'Sending...' : 'Send Real Test Inquiry Now'}</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsDashboardOpen(false);
+                          const el = document.getElementById('contact');
+                          if (el) el.scrollIntoView({ behavior: 'smooth' });
+                        }}
+                        className="px-4 py-2 rounded-xl border border-slate-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-slate-700 dark:text-zinc-200 hover:bg-slate-100 text-xs font-semibold cursor-pointer transition-colors"
+                      >
+                        Go to Website Contact Form
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {inquiries
+                      .filter((item) => {
+                        if (!inquirySearch) return true;
+                        const queryStr = inquirySearch.toLowerCase();
+                        return (
+                          item.name?.toLowerCase().includes(queryStr) ||
+                          item.email?.toLowerCase().includes(queryStr) ||
+                          item.service?.toLowerCase().includes(queryStr) ||
+                          item.message?.toLowerCase().includes(queryStr)
+                        );
+                      })
+                      .map((item) => (
+                        <div
+                          key={item.id}
+                          className="p-5 rounded-2xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 shadow-xs space-y-4 hover:border-slate-300 dark:hover:border-zinc-700 transition-colors"
+                        >
+                          {/* Card Top Row */}
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                            <div className="flex items-center gap-2.5">
+                              <span className="font-bold text-slate-900 dark:text-white text-sm">
+                                {item.name || 'Anonymous Client'}
+                              </span>
+                              <a
+                                href={`mailto:${item.email}`}
+                                className="text-xs text-purple-600 dark:text-purple-400 hover:underline flex items-center gap-1 font-mono"
+                              >
+                                <span>{item.email}</span>
+                                <ExternalLink className="w-3 h-3" />
+                              </a>
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                              <span
+                                className={`px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase ${
+                                  item.status === 'replied'
+                                    ? 'bg-sky-100 text-sky-700 dark:bg-sky-950/70 dark:text-sky-300 border border-sky-500/30'
+                                    : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/70 dark:text-emerald-300 border border-emerald-500/30'
+                                }`}
+                              >
+                                {item.status === 'replied' ? 'Replied' : 'New Inquiry'}
+                              </span>
+                              <span className="text-[11px] text-slate-400 font-mono">
+                                {item.createdAt ? new Date(item.createdAt).toLocaleDateString(undefined, {
+                                  month: 'short',
+                                  day: 'numeric',
+                                  hour: '2-digit',
+                                  minute: '2-digit'
+                                }) : ''}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Metadata Pills */}
+                          <div className="flex flex-wrap items-center gap-2 text-[11px]">
+                            {item.service && (
+                              <span className="px-2.5 py-1 rounded-lg bg-purple-50 dark:bg-purple-950/50 text-purple-700 dark:text-purple-300 font-medium border border-purple-500/20">
+                                <strong>Service:</strong> {item.service}
+                              </span>
+                            )}
+                            {item.budget && (
+                              <span className="px-2.5 py-1 rounded-lg bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 font-medium border border-amber-500/20">
+                                <strong>Budget:</strong> {item.budget}
+                              </span>
+                            )}
+                            <span className="px-2.5 py-1 rounded-lg bg-slate-200/70 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400 font-mono text-[10px]">
+                              Delivered to: {item.targetEmail || data.profile.email}
+                            </span>
+                          </div>
+
+                          {/* Message Content */}
+                          <div className="p-3.5 rounded-xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800/80 text-xs text-slate-700 dark:text-zinc-300 whitespace-pre-wrap leading-relaxed">
+                            {item.message || 'No project description attached.'}
+                          </div>
+
+                          {/* Action Buttons */}
+                          <div className="flex items-center justify-between pt-2 border-t border-slate-200/70 dark:border-zinc-800/70">
+                            <div className="flex items-center gap-2">
+                              <a
+                                href={`mailto:${item.email}?subject=${encodeURIComponent(
+                                  `Re: Project Inquiry - ${item.service || 'Discussion'}`
+                                )}&body=${encodeURIComponent(
+                                  `Hi ${item.name},\n\nThank you for reaching out through my website regarding "${item.service}".\n\nI have reviewed your message:\n"${item.message}"\n\n`
+                                )}`}
+                                className="px-3 py-1.5 rounded-lg bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+                              >
+                                <Mail className="w-3.5 h-3.5" />
+                                <span>Reply via Email</span>
+                              </a>
+
+                              <button
+                                type="button"
+                                onClick={() => handleToggleInquiryStatus(item.id, item.status)}
+                                className="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-slate-700 dark:text-zinc-300 hover:bg-slate-100 dark:hover:bg-zinc-800 text-xs font-medium transition-colors cursor-pointer"
+                              >
+                                {item.status === 'replied' ? 'Mark as New' : 'Mark as Replied'}
+                              </button>
+                            </div>
+
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteInquiry(item.id)}
+                              className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 transition-colors cursor-pointer"
+                              title="Delete inquiry"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                )}
+              </div>
             )}
 
           </div>

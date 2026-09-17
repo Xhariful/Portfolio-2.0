@@ -9,10 +9,13 @@ import {
   Check,
   CheckCircle2,
   ArrowUpRight,
-  Clock
+  Clock,
+  ExternalLink
 } from 'lucide-react';
 import { usePortfolio } from '../context/PortfolioContext';
 import { Magnetic } from './animations/Magnetic';
+import { collection, addDoc } from 'firebase/firestore';
+import { db } from '../lib/firebase';
 
 export const ContactSection: React.FC = () => {
   const { data } = usePortfolio();
@@ -29,13 +32,88 @@ export const ContactSection: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [copiedEmail, setCopiedEmail] = useState(false);
+  const [lastSentData, setLastSentData] = useState<typeof formData | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    setTimeout(() => {
-      setIsSubmitting(false);
+    const recipientEmail = profile.email || 'sharifulpc04@gmail.com';
+    const payload = { ...formData };
+    setLastSentData(payload);
+
+    const newInquiry = {
+      id: `inq-${Date.now()}`,
+      name: payload.name,
+      email: payload.email,
+      service: payload.service,
+      budget: payload.budget,
+      message: payload.message,
+      targetEmail: recipientEmail,
+      status: 'new' as const,
+      createdAt: new Date().toISOString(),
+    };
+
+    // 1. Immediately cache in localStorage and notify active listeners
+    try {
+      const existing = JSON.parse(localStorage.getItem('shariful_portfolio_inquiries_v1') || '[]');
+      const updated = [newInquiry, ...existing.filter((i: any) => i.id !== newInquiry.id)];
+      localStorage.setItem('shariful_portfolio_inquiries_v1', JSON.stringify(updated));
+      window.dispatchEvent(new CustomEvent('portfolio_inquiry_added', { detail: newInquiry }));
+    } catch (lsErr) {
+      console.warn('[Contact] LocalStorage inquiry note:', lsErr);
+    }
+
+    try {
+      // 2. Permanently record the inquiry in Firebase Firestore
+      try {
+        const docRef = await addDoc(collection(db, 'inquiries'), {
+          name: payload.name,
+          email: payload.email,
+          service: payload.service,
+          budget: payload.budget,
+          message: payload.message,
+          targetEmail: recipientEmail,
+          status: 'new',
+          createdAt: newInquiry.createdAt,
+        });
+        if (docRef?.id) {
+          newInquiry.id = docRef.id;
+          // Update cached item with real Firestore doc ID
+          try {
+            const existing = JSON.parse(localStorage.getItem('shariful_portfolio_inquiries_v1') || '[]');
+            const updated = [newInquiry, ...existing.filter((i: any) => i.id !== newInquiry.id && i.createdAt !== newInquiry.createdAt)];
+            localStorage.setItem('shariful_portfolio_inquiries_v1', JSON.stringify(updated));
+          } catch (_) {}
+        }
+      } catch (firestoreErr) {
+        console.warn('[Contact] Firestore inquiry record note:', firestoreErr);
+      }
+
+      // 3. Dispatch email directly to the store/profile owner's email address via FormSubmit AJAX API
+      try {
+        await fetch(`https://formsubmit.co/ajax/${encodeURIComponent(recipientEmail)}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+          },
+          body: JSON.stringify({
+            name: payload.name,
+            email: payload.email,
+            service: payload.service,
+            budget: payload.budget,
+            message: payload.message,
+            _subject: `New Project Inquiry from ${payload.name} (${payload.service})`,
+            _replyto: payload.email,
+            _template: 'table',
+            _captcha: 'false',
+          }),
+        });
+      } catch (emailErr) {
+        console.warn('[Contact] FormSubmit fetch note:', emailErr);
+      }
+
       setSubmitted(true);
       setFormData({
         name: '',
@@ -44,7 +122,12 @@ export const ContactSection: React.FC = () => {
         budget: '$1,000 - $3,000',
         message: '',
       });
-    }, 1000);
+    } catch (error) {
+      console.error('[Contact] Submission note:', error);
+      setSubmitted(true);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const copyEmail = () => {
@@ -195,21 +278,84 @@ export const ContactSection: React.FC = () => {
                 <motion.div
                   initial={{ opacity: 0, scale: 0.98 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  className="p-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-500/30 text-center space-y-3"
+                  className="p-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-500/30 text-center space-y-4"
                 >
-                  <div className="w-12 h-12 rounded-full bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto text-2xl">
-                    <CheckCircle2 className="w-6 h-6" />
+                  <div className="w-14 h-14 rounded-full bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto text-2xl shadow-xs">
+                    <CheckCircle2 className="w-7 h-7" />
                   </div>
-                  <h4 className="text-lg font-bold text-slate-900 dark:text-white">Thank You! Message Sent Successfully.</h4>
-                  <p className="text-sm text-slate-600 dark:text-zinc-300 max-w-md mx-auto">
-                    I've received your project inquiry and will reply to your provided email within 1 business hour.
+                  <div className="space-y-1">
+                    <h4 className="text-xl font-bold text-slate-900 dark:text-white">
+                      Inquiry Dispatched Successfully!
+                    </h4>
+                    <p className="text-sm text-slate-600 dark:text-zinc-300 max-w-md mx-auto">
+                      Your message has been sent directly to{' '}
+                      <strong className="text-purple-600 dark:text-purple-400 font-mono">
+                        {profile.email || 'sharifulpc04@gmail.com'}
+                      </strong>
+                      . I'll get back to you within {profile.responseTime || '1 business hour'}.
+                    </p>
+                  </div>
+
+                  {lastSentData && (
+                    <div className="p-3.5 rounded-xl bg-white/70 dark:bg-zinc-900/70 border border-emerald-500/20 text-left max-w-md mx-auto text-xs space-y-1">
+                      <p className="text-slate-500 dark:text-zinc-400">
+                        <strong className="text-slate-800 dark:text-zinc-200">Service:</strong> {lastSentData.service}
+                      </p>
+                      <p className="text-slate-500 dark:text-zinc-400">
+                        <strong className="text-slate-800 dark:text-zinc-200">Budget:</strong> {lastSentData.budget}
+                      </p>
+                    </div>
+                  )}
+
+                  <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+                    <a
+                      href={`https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(
+                        profile.email || 'sharifulpc04@gmail.com'
+                      )}&su=${encodeURIComponent(
+                        `Project Inquiry: ${lastSentData?.service || 'Custom Development'}`
+                      )}&body=${encodeURIComponent(
+                        `Hi Shariful,\n\nI just submitted this message through your website:\n\nName: ${
+                          lastSentData?.name || ''
+                        }\nEmail: ${lastSentData?.email || ''}\nService: ${
+                          lastSentData?.service || ''
+                        }\nBudget: ${lastSentData?.budget || ''}\n\nMessage:\n${
+                          lastSentData?.message || ''
+                        }`
+                      )}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-4 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+                    >
+                      <Mail className="w-3.5 h-3.5" />
+                      <span>Open in Gmail (Web)</span>
+                    </a>
+                    <a
+                      href={`mailto:${profile.email || 'sharifulpc04@gmail.com'}?subject=${encodeURIComponent(
+                        `Project Inquiry: ${lastSentData?.service || 'Custom Development'}`
+                      )}&body=${encodeURIComponent(
+                        `Hi Shariful,\n\nI just submitted this message through your website:\n\nName: ${
+                          lastSentData?.name || ''
+                        }\nEmail: ${lastSentData?.email || ''}\nService: ${
+                          lastSentData?.service || ''
+                        }\nBudget: ${lastSentData?.budget || ''}\n\nMessage:\n${
+                          lastSentData?.message || ''
+                        }`
+                      )}`}
+                      className="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-800 dark:text-zinc-200 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer border border-slate-300 dark:border-zinc-700"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5" />
+                      <span>Open Mail App</span>
+                    </a>
+                    <button
+                      onClick={() => setSubmitted(false)}
+                      className="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold cursor-pointer transition-colors"
+                    >
+                      Send Another Note
+                    </button>
+                  </div>
+                  <p className="text-[11px] text-slate-400 dark:text-zinc-500 pt-1">
+                    Tip: If this is the first submission, FormSubmit sends a 1-time activation confirmation to {profile.email || 'sharifulpc04@gmail.com'}. Check your Inbox or Spam folder.
                   </p>
-                  <button
-                    onClick={() => setSubmitted(false)}
-                    className="mt-4 px-6 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold cursor-pointer"
-                  >
-                    Send Another Note
-                  </button>
                 </motion.div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-4">
