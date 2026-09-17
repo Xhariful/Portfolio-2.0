@@ -159,6 +159,17 @@ export interface WelcomePopupConfig {
   whatsappMessage?: string;
 }
 
+export interface BackgroundEffectsConfig {
+  floatingParticles: boolean;
+  quantity?: number;
+  color?: string;
+  speed?: number;
+  depth?: number;
+  radius?: number;
+  opacity?: number;
+  connectParticles?: boolean;
+}
+
 export interface PortfolioData {
   profile: ProfileData;
   stats: StatItem[];
@@ -172,6 +183,7 @@ export interface PortfolioData {
   achievements: AchievementItem[];
   seo?: SeoConfig;
   welcomePopup?: WelcomePopupConfig;
+  backgroundEffects?: BackgroundEffectsConfig;
 }
 
 export interface SecurityCredentials {

@@ -20,6 +20,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { useLenisScroll, getLenis } from './hooks/useLenisScroll';
 import { ScrollProgress } from './components/animations/ScrollProgress';
 import { CustomCursor } from './components/animations/CustomCursor';
+import { Floating3DParticles } from './components/ui/floating-3d-particles';
 
 function PortfolioApp() {
   // Initialize buttery-smooth Lenis inertial scroll linked with GSAP ScrollTrigger
@@ -33,7 +34,8 @@ function PortfolioApp() {
     }
     return true;
   });
-  const { toastMessage } = usePortfolio();
+  const { data, toastMessage } = usePortfolio();
+  const bgFx = data.backgroundEffects;
 
   // Toggle Theme Class on HTML root
   const toggleTheme = () => {
@@ -140,7 +142,21 @@ function PortfolioApp() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-zinc-950 text-slate-900 dark:text-zinc-100 selection:bg-purple-600 selection:text-white transition-colors duration-300 antialiased">
+    <div className="min-h-screen bg-slate-50 dark:bg-zinc-950 text-slate-900 dark:text-zinc-100 selection:bg-purple-600 selection:text-white transition-colors duration-300 antialiased relative">
+      {/* Magic UI Floating 3D Particles Background Effect */}
+      {bgFx?.floatingParticles !== false && (
+        <Floating3DParticles
+          className="fixed inset-0 pointer-events-none z-0"
+          quantity={bgFx?.quantity ?? 220}
+          color={bgFx?.color ?? (isDark ? '#8B5CF6' : '#7c3aed')}
+          speed={bgFx?.speed ?? 0.35}
+          depth={bgFx?.depth ?? 0.65}
+          radius={bgFx?.radius ?? 1.6}
+          opacity={bgFx?.opacity ?? (isDark ? 0.55 : 0.35)}
+          connectParticles={bgFx?.connectParticles ?? true}
+        />
+      )}
+
       {/* Top GSAP Scroll Progress Indicator */}
       <ScrollProgress />
 

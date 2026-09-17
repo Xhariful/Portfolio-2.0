@@ -526,6 +526,17 @@ export const initialPortfolioData: PortfolioData = {
     dismissText: "Maybe Later",
     showTimeGreeting: true,
   },
+
+  backgroundEffects: {
+    floatingParticles: true,
+    quantity: 220,
+    color: "#8B5CF6",
+    speed: 0.35,
+    depth: 0.65,
+    radius: 1.6,
+    opacity: 0.55,
+    connectParticles: true,
+  },
 };
 
 // Backwards compatibility convenience exports

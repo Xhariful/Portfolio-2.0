@@ -60,8 +60,10 @@ import {
   CertificationItem,
   AchievementItem,
   SeoConfig,
-  WelcomePopupConfig
+  WelcomePopupConfig,
+  BackgroundEffectsConfig
 } from '../types';
+import { Floating3DParticles } from './ui/floating-3d-particles';
 
 export const AdminDashboard: React.FC = () => {
   const {
@@ -80,6 +82,7 @@ export const AdminDashboard: React.FC = () => {
     updateAchievements,
     updateSeo,
     updateWelcomePopup,
+    updateBackgroundEffects,
     addEducation,
     editEducation,
     deleteEducation,
@@ -121,6 +124,7 @@ export const AdminDashboard: React.FC = () => {
     | 'media'
     | 'seo'
     | 'popup'
+    | 'effects'
     | 'education'
     | 'certificates'
     | 'experience'
@@ -187,6 +191,7 @@ export const AdminDashboard: React.FC = () => {
   const isProfileDirty = useRef(false);
   const isSeoDirty = useRef(false);
   const isPopupDirty = useRef(false);
+  const isEffectsDirty = useRef(false);
   const [editingEduId, setEditingEduId] = useState<string | null>(null);
   const [eduForm, setEduForm] = useState<EducationItem>({
     id: '',
@@ -324,6 +329,20 @@ export const AdminDashboard: React.FC = () => {
     showTimeGreeting: true,
   });
 
+  // Background 3D Particles Effect State
+  const [effectsForm, setEffectsForm] = useState<BackgroundEffectsConfig>(
+    data.backgroundEffects || {
+      floatingParticles: true,
+      quantity: 220,
+      color: '#8B5CF6',
+      speed: 0.35,
+      depth: 0.65,
+      radius: 1.6,
+      opacity: 0.55,
+      connectParticles: true,
+    }
+  );
+
   // Synchronize forms if data changes externally (only if user hasn't made unsaved edits)
   React.useEffect(() => {
     if (!isProfileDirty.current) {
@@ -335,7 +354,10 @@ export const AdminDashboard: React.FC = () => {
     if (!isPopupDirty.current && data.welcomePopup) {
       setPopupForm(data.welcomePopup);
     }
-  }, [data.profile, data.seo, data.welcomePopup]);
+    if (!isEffectsDirty.current && data.backgroundEffects) {
+      setEffectsForm(data.backgroundEffects);
+    }
+  }, [data.profile, data.seo, data.welcomePopup, data.backgroundEffects]);
 
   if (!isDashboardOpen) return null;
 
@@ -358,6 +380,13 @@ export const AdminDashboard: React.FC = () => {
     e.preventDefault();
     isPopupDirty.current = false;
     updateWelcomePopup(popupForm);
+  };
+
+  // Handle Background 3D Particles Save
+  const handleSaveEffects = (e: React.FormEvent) => {
+    e.preventDefault();
+    isEffectsDirty.current = false;
+    updateBackgroundEffects(effectsForm);
   };
 
   // Add Headline string
@@ -710,6 +739,13 @@ export const AdminDashboard: React.FC = () => {
               onClick={() => setActiveTab('popup')}
               icon={<Bell className="w-4 h-4 text-amber-500" />}
               label="Greeting Popup"
+            />
+            <TabButton
+              active={activeTab === 'effects'}
+              onClick={() => setActiveTab('effects')}
+              icon={<Sparkles className="w-4 h-4 text-purple-600 dark:text-purple-400" />}
+              label="3D Particles FX"
+              badge={effectsForm.floatingParticles ? 'ON' : 'OFF'}
             />
             <TabButton
               active={activeTab === 'education'}
@@ -4098,6 +4134,411 @@ export const AdminDashboard: React.FC = () => {
                   >
                     <Save className="w-4 h-4" />
                     <span>Save Popup Configuration</span>
+                  </button>
+                </div>
+              </form>
+            )}
+
+            {/* 3D FLOATING PARTICLES BACKGROUND TAB */}
+            {activeTab === 'effects' && (
+              <form onSubmit={handleSaveEffects} className="space-y-6 max-w-4xl">
+                <div className="flex items-center justify-between border-b border-slate-200 dark:border-zinc-800 pb-4">
+                  <div>
+                    <h3 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                      <Sparkles className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                      <span>Floating 3D Particles Background (Magic UI)</span>
+                    </h3>
+                    <p className="text-xs text-slate-500 dark:text-zinc-400">
+                      Enable or disable the interactive 3D floating canvas particles, adjust colors, speed, density, and depth.
+                    </p>
+                  </div>
+                  <button
+                    type="submit"
+                    className="px-5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold tracking-wide uppercase flex items-center gap-1.5 shadow-sm cursor-pointer"
+                  >
+                    <Save className="w-4 h-4" />
+                    <span>Save FX Settings</span>
+                  </button>
+                </div>
+
+                {/* Master Switch Card */}
+                <div className="p-5 rounded-2xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <h4 className="text-sm font-bold text-slate-900 dark:text-white">
+                        Background 3D Particle Animation
+                      </h4>
+                      <span
+                        className={`px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase ${
+                          effectsForm.floatingParticles
+                            ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-500/30'
+                            : 'bg-slate-200 text-slate-700 dark:bg-zinc-800 dark:text-zinc-400 border border-slate-400/30'
+                        }`}
+                      >
+                        {effectsForm.floatingParticles ? '● ON (Active Everywhere)' : '○ OFF (Disabled)'}
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-500 dark:text-zinc-400 max-w-xl leading-relaxed">
+                      Renders buttery-smooth, hardware-accelerated 3D particles drifting smoothly across the background canvas with subtle mouse parallax and inertia.
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        isEffectsDirty.current = true;
+                        setEffectsForm((prev) => ({ ...prev, floatingParticles: !prev.floatingParticles }));
+                      }}
+                      className={`px-4 py-2 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
+                        effectsForm.floatingParticles
+                          ? 'bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 hover:bg-rose-200 dark:hover:bg-rose-900'
+                          : 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-200 dark:hover:bg-emerald-900'
+                      }`}
+                    >
+                      {effectsForm.floatingParticles ? 'Turn Off Particles' : 'Turn On Particles'}
+                    </button>
+
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={effectsForm.floatingParticles}
+                        onChange={(e) => {
+                          isEffectsDirty.current = true;
+                          setEffectsForm((prev) => ({ ...prev, floatingParticles: e.target.checked }));
+                        }}
+                        className="sr-only peer"
+                      />
+                      <div className="w-12 h-6.5 bg-slate-300 peer-focus:outline-none rounded-full peer dark:bg-zinc-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[3px] after:left-[3px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+                    </label>
+                  </div>
+                </div>
+
+                {/* Live Interactive Preview Box */}
+                <div className="p-5 rounded-2xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Eye className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                      <h4 className="text-sm font-bold text-slate-900 dark:text-white">
+                        Live 3D Effect Sandbox Preview
+                      </h4>
+                    </div>
+                    <span className="text-[11px] font-mono text-slate-500 dark:text-zinc-400">
+                      Move mouse over preview to test 3D parallax
+                    </span>
+                  </div>
+
+                  <div className="relative h-44 rounded-xl overflow-hidden bg-slate-900 dark:bg-zinc-900/90 border border-slate-700 dark:border-zinc-800 flex items-center justify-center">
+                    {effectsForm.floatingParticles ? (
+                      <Floating3DParticles
+                        quantity={Math.min(effectsForm.quantity || 150, 200)}
+                        color={effectsForm.color || '#8B5CF6'}
+                        speed={effectsForm.speed || 0.35}
+                        depth={effectsForm.depth || 0.65}
+                        radius={effectsForm.radius || 1.6}
+                        opacity={effectsForm.opacity || 0.65}
+                        connectParticles={effectsForm.connectParticles ?? true}
+                      />
+                    ) : (
+                      <div className="text-center p-4">
+                        <p className="text-xs text-slate-400 font-mono">
+                          Particles are currently turned OFF. Enable the switch above to activate.
+                        </p>
+                      </div>
+                    )}
+
+                    {effectsForm.floatingParticles && (
+                      <div className="relative z-10 text-center pointer-events-none px-4 py-2 rounded-xl bg-black/40 backdrop-blur-md border border-white/10">
+                        <p className="text-xs font-semibold text-white tracking-wide">
+                          Interactive 3D Motion Canvas
+                        </p>
+                        <p className="text-[10px] text-purple-300 font-mono mt-0.5">
+                          {effectsForm.quantity} Particles • Speed: {effectsForm.speed}x • Depth: {effectsForm.depth}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Color & Visual Palette Preset */}
+                <div className="p-5 rounded-2xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 space-y-4">
+                  <div>
+                    <h4 className="text-sm font-bold text-slate-900 dark:text-white">
+                      Particle Color & Theme
+                    </h4>
+                    <p className="text-xs text-slate-500 dark:text-zinc-400">
+                      Pick a custom hex tint or choose a curated aesthetic preset.
+                    </p>
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-2.5">
+                    {[
+                      { name: 'Royal Violet (Default)', hex: '#8B5CF6' },
+                      { name: 'Electric Indigo', hex: '#6366F1' },
+                      { name: 'Cyan Glow', hex: '#06B6D4' },
+                      { name: 'Emerald Spark', hex: '#10B981' },
+                      { name: 'Sunset Amber', hex: '#F59E0B' },
+                      { name: 'Rose Neon', hex: '#F43F5E' },
+                      { name: 'Pure White', hex: '#FFFFFF' },
+                    ].map((preset) => (
+                      <button
+                        key={preset.hex}
+                        type="button"
+                        onClick={() => {
+                          isEffectsDirty.current = true;
+                          setEffectsForm((prev) => ({ ...prev, color: preset.hex }));
+                        }}
+                        className={`px-3 py-1.5 rounded-xl text-xs font-medium border flex items-center gap-2 cursor-pointer transition-all ${
+                          effectsForm.color?.toLowerCase() === preset.hex.toLowerCase()
+                            ? 'border-purple-600 bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 shadow-xs'
+                            : 'border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-slate-700 dark:text-zinc-300 hover:border-slate-300'
+                        }`}
+                      >
+                        <span
+                          className="w-3.5 h-3.5 rounded-full border border-black/20 shadow-xs flex-shrink-0"
+                          style={{ backgroundColor: preset.hex }}
+                        />
+                        <span>{preset.name}</span>
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="grid sm:grid-cols-2 gap-4 pt-2">
+                    <FormField label="Custom Hex Color Code">
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="color"
+                          value={effectsForm.color || '#8B5CF6'}
+                          onChange={(e) => {
+                            isEffectsDirty.current = true;
+                            setEffectsForm((prev) => ({ ...prev, color: e.target.value }));
+                          }}
+                          className="w-10 h-10 rounded-xl cursor-pointer border border-slate-300 dark:border-zinc-700 bg-transparent p-0.5"
+                        />
+                        <input
+                          type="text"
+                          value={effectsForm.color || '#8B5CF6'}
+                          onChange={(e) => {
+                            isEffectsDirty.current = true;
+                            setEffectsForm((prev) => ({ ...prev, color: e.target.value }));
+                          }}
+                          placeholder="#8B5CF6"
+                          className="input-field font-mono text-xs flex-1"
+                        />
+                      </div>
+                    </FormField>
+
+                    {/* Constellation Lines Switch */}
+                    <div className="flex flex-col justify-center space-y-1">
+                      <label className="text-xs font-mono font-semibold uppercase text-slate-600 dark:text-zinc-400">
+                        Constellation Lines
+                      </label>
+                      <label className="flex items-center gap-2.5 cursor-pointer pt-1">
+                        <input
+                          type="checkbox"
+                          checked={effectsForm.connectParticles ?? true}
+                          onChange={(e) => {
+                            isEffectsDirty.current = true;
+                            setEffectsForm((prev) => ({ ...prev, connectParticles: e.target.checked }));
+                          }}
+                          className="rounded text-purple-600 focus:ring-purple-500 w-4 h-4 cursor-pointer"
+                        />
+                        <span className="text-xs text-slate-700 dark:text-zinc-300">
+                          Draw faint subtle link lines between neighboring particles
+                        </span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Physics & Tuning Sliders */}
+                <div className="p-5 rounded-2xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 space-y-5">
+                  <div className="flex items-center justify-between border-b border-slate-200 dark:border-zinc-800 pb-3">
+                    <div>
+                      <h4 className="text-sm font-bold text-slate-900 dark:text-white">
+                        Physics & Density Fine-Tuning
+                      </h4>
+                      <p className="text-xs text-slate-500 dark:text-zinc-400">
+                        Calibrate particle quantity, drift velocity, 3D perspective depth, and size.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        isEffectsDirty.current = true;
+                        setEffectsForm({
+                          floatingParticles: true,
+                          quantity: 220,
+                          color: '#8B5CF6',
+                          speed: 0.35,
+                          depth: 0.65,
+                          radius: 1.6,
+                          opacity: 0.55,
+                          connectParticles: true,
+                        });
+                      }}
+                      className="text-xs text-purple-600 dark:text-purple-400 hover:underline flex items-center gap-1 cursor-pointer"
+                    >
+                      <RotateCcw className="w-3.5 h-3.5" />
+                      <span>Reset FX Defaults</span>
+                    </button>
+                  </div>
+
+                  <div className="grid sm:grid-cols-2 gap-6">
+                    {/* Quantity */}
+                    <div className="space-y-1.5">
+                      <div className="flex justify-between text-xs">
+                        <span className="font-semibold text-slate-700 dark:text-zinc-300">
+                          Particle Quantity / Density:
+                        </span>
+                        <span className="font-mono font-bold text-purple-600 dark:text-purple-400">
+                          {effectsForm.quantity || 220} dots
+                        </span>
+                      </div>
+                      <input
+                        type="range"
+                        min="50"
+                        max="400"
+                        step="10"
+                        value={effectsForm.quantity || 220}
+                        onChange={(e) => {
+                          isEffectsDirty.current = true;
+                          setEffectsForm((prev) => ({ ...prev, quantity: parseInt(e.target.value) || 220 }));
+                        }}
+                        className="w-full accent-purple-600 cursor-pointer"
+                      />
+                      <div className="flex justify-between text-[10px] text-slate-400">
+                        <span>Minimal (50)</span>
+                        <span>Balanced (220)</span>
+                        <span>Dense (400)</span>
+                      </div>
+                    </div>
+
+                    {/* Speed */}
+                    <div className="space-y-1.5">
+                      <div className="flex justify-between text-xs">
+                        <span className="font-semibold text-slate-700 dark:text-zinc-300">
+                          Drift Speed:
+                        </span>
+                        <span className="font-mono font-bold text-purple-600 dark:text-purple-400">
+                          {effectsForm.speed || 0.35}x
+                        </span>
+                      </div>
+                      <input
+                        type="range"
+                        min="0.1"
+                        max="1.0"
+                        step="0.05"
+                        value={effectsForm.speed || 0.35}
+                        onChange={(e) => {
+                          isEffectsDirty.current = true;
+                          setEffectsForm((prev) => ({ ...prev, speed: parseFloat(e.target.value) || 0.35 }));
+                        }}
+                        className="w-full accent-purple-600 cursor-pointer"
+                      />
+                      <div className="flex justify-between text-[10px] text-slate-400">
+                        <span>Zen (0.1x)</span>
+                        <span>Smooth (0.35x)</span>
+                        <span>Brisk (1.0x)</span>
+                      </div>
+                    </div>
+
+                    {/* Depth */}
+                    <div className="space-y-1.5">
+                      <div className="flex justify-between text-xs">
+                        <span className="font-semibold text-slate-700 dark:text-zinc-300">
+                          3D Parallax Depth:
+                        </span>
+                        <span className="font-mono font-bold text-purple-600 dark:text-purple-400">
+                          {effectsForm.depth || 0.65}
+                        </span>
+                      </div>
+                      <input
+                        type="range"
+                        min="0.2"
+                        max="1.0"
+                        step="0.05"
+                        value={effectsForm.depth || 0.65}
+                        onChange={(e) => {
+                          isEffectsDirty.current = true;
+                          setEffectsForm((prev) => ({ ...prev, depth: parseFloat(e.target.value) || 0.65 }));
+                        }}
+                        className="w-full accent-purple-600 cursor-pointer"
+                      />
+                      <div className="flex justify-between text-[10px] text-slate-400">
+                        <span>Subtle (0.2)</span>
+                        <span>Realistic 3D (0.65)</span>
+                        <span>Deep (1.0)</span>
+                      </div>
+                    </div>
+
+                    {/* Radius */}
+                    <div className="space-y-1.5">
+                      <div className="flex justify-between text-xs">
+                        <span className="font-semibold text-slate-700 dark:text-zinc-300">
+                          Particle Radius:
+                        </span>
+                        <span className="font-mono font-bold text-purple-600 dark:text-purple-400">
+                          {effectsForm.radius || 1.6} px
+                        </span>
+                      </div>
+                      <input
+                        type="range"
+                        min="0.8"
+                        max="3.5"
+                        step="0.2"
+                        value={effectsForm.radius || 1.6}
+                        onChange={(e) => {
+                          isEffectsDirty.current = true;
+                          setEffectsForm((prev) => ({ ...prev, radius: parseFloat(e.target.value) || 1.6 }));
+                        }}
+                        className="w-full accent-purple-600 cursor-pointer"
+                      />
+                      <div className="flex justify-between text-[10px] text-slate-400">
+                        <span>Fine (0.8px)</span>
+                        <span>Standard (1.6px)</span>
+                        <span>Bold (3.5px)</span>
+                      </div>
+                    </div>
+
+                    {/* Opacity */}
+                    <div className="space-y-1.5">
+                      <div className="flex justify-between text-xs">
+                        <span className="font-semibold text-slate-700 dark:text-zinc-300">
+                          Canvas Opacity:
+                        </span>
+                        <span className="font-mono font-bold text-purple-600 dark:text-purple-400">
+                          {Math.round((effectsForm.opacity || 0.55) * 100)}%
+                        </span>
+                      </div>
+                      <input
+                        type="range"
+                        min="0.15"
+                        max="0.95"
+                        step="0.05"
+                        value={effectsForm.opacity || 0.55}
+                        onChange={(e) => {
+                          isEffectsDirty.current = true;
+                          setEffectsForm((prev) => ({ ...prev, opacity: parseFloat(e.target.value) || 0.55 }));
+                        }}
+                        className="w-full accent-purple-600 cursor-pointer"
+                      />
+                      <div className="flex justify-between text-[10px] text-slate-400">
+                        <span>Faint (15%)</span>
+                        <span>Vibrant (55%)</span>
+                        <span>Opaque (95%)</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-200 dark:border-zinc-800">
+                  <button
+                    type="submit"
+                    className="px-6 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold tracking-wide uppercase flex items-center gap-2 shadow-sm cursor-pointer"
+                  >
+                    <Save className="w-4 h-4" />
+                    <span>Save FX Settings & Sync to Cloud</span>
                   </button>
                 </div>
               </form>
