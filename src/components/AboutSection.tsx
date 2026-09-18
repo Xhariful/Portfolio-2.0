@@ -47,7 +47,7 @@ export const AboutSection: React.FC<{ onContactClick: () => void }> = ({ onConta
                 <div className="aspect-[4/5] rounded-2xl overflow-hidden bg-slate-100 dark:bg-zinc-950 relative border border-slate-200/80 dark:border-zinc-800">
                   <img
                     src={profile.aboutImage && profile.aboutImage.trim().length > 0 ? profile.aboutImage : (sharifulFull || sharifulAlt)}
-                    alt={profile.name}
+                    alt={`${profile.name} - Senior Full-Stack Engineer and Shopify Expert`}
                     className="w-full h-full object-cover filter brightness-105"
                     onError={(e) => {
                       (e.target as HTMLImageElement).src = sharifulAlt;

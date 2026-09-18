@@ -1,5 +1,6 @@
 User-agent: *
 Allow: /
 
-# Sitemap
+# Sitemaps
+Sitemap: https://sharifulportfolio.vercel.app/sitemap.xml
 Sitemap: https://sharif-ul-islam.vercel.app/sitemap.xml

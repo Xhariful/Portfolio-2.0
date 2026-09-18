@@ -118,7 +118,7 @@ export const ProjectsSection: React.FC = () => {
                   >
                     <img
                       src={project.image || 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1000'}
-                      alt={project.title}
+                      alt={`${project.title} - ${project.category} project by Shariful Islam`}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       loading="lazy"
                       onError={(e) => {
