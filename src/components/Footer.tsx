@@ -148,6 +148,10 @@ export const Footer: React.FC<{ onNavigate: (sectionId: string) => void }> = ({ 
                   <img
                     src={profile.logoUrl}
                     alt={profile.logoText || profile.name}
+                    width={140}
+                    height={36}
+                    loading="lazy"
+                    decoding="async"
                     onError={() => setLogoImgError(true)}
                     className="max-h-9 w-auto max-w-[160px] object-contain transition-transform group-hover:scale-105"
                   />
@@ -159,6 +163,10 @@ export const Footer: React.FC<{ onNavigate: (sectionId: string) => void }> = ({ 
                       <img
                         src={profile.logoUrl}
                         alt={profile.logoText || profile.name}
+                        width={36}
+                        height={36}
+                        loading="lazy"
+                        decoding="async"
                         onError={() => setLogoImgError(true)}
                         className="w-full h-full object-contain"
                       />

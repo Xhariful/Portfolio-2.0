@@ -48,6 +48,10 @@ export const AboutSection: React.FC<{ onContactClick: () => void }> = ({ onConta
                   <img
                     src={profile.aboutImage && profile.aboutImage.trim().length > 0 ? profile.aboutImage : (sharifulFull || sharifulAlt)}
                     alt={`${profile.name} - Senior Full-Stack Engineer and Shopify Expert`}
+                    width={400}
+                    height={500}
+                    loading="lazy"
+                    decoding="async"
                     className="w-full h-full object-cover filter brightness-105"
                     onError={(e) => {
                       (e.target as HTMLImageElement).src = sharifulAlt;

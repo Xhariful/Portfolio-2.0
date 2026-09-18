@@ -11,14 +11,23 @@ export const getLenis = () => globalLenis;
 
 export const useLenisScroll = () => {
   useEffect(() => {
-    // Avoid running on mobile if desired or run with lightweight settings
+    // Only run on desktop/laptop devices with mouse or trackpad
+    // Native mobile devices (iOS / Android) have native hardware momentum scrolling
+    const isMobile =
+      typeof window !== 'undefined' &&
+      (window.innerWidth < 768 || window.matchMedia('(pointer: coarse)').matches);
+
+    if (isMobile) {
+      return;
+    }
+
     const lenis = new Lenis({
       duration: 1.15,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       orientation: 'vertical',
       gestureOrientation: 'vertical',
       smoothWheel: true,
-      touchMultiplier: 1.5,
+      touchMultiplier: 1.0,
     });
 
     globalLenis = lenis;

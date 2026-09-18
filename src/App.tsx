@@ -12,9 +12,6 @@ import { TestimonialsSection } from './components/TestimonialsSection';
 import { ContactSection } from './components/ContactSection';
 import { Footer } from './components/Footer';
 import { BackToTop } from './components/BackToTop';
-import { WelcomeGreetingModal } from './components/WelcomeGreetingModal';
-import { AdminDashboard } from './components/AdminDashboard';
-import { AdminLoginModal } from './components/AdminLoginModal';
 import { CheckCircle2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useLenisScroll, getLenis } from './hooks/useLenisScroll';
@@ -22,6 +19,17 @@ import { ScrollProgress } from './components/animations/ScrollProgress';
 import { CustomCursor } from './components/animations/CustomCursor';
 import { MobileTouchEffect } from './components/animations/MobileTouchEffect';
 import { Floating3DParticles } from './components/ui/floating-3d-particles';
+
+// Lazy-load non-critical modals and heavy admin portal to keep mobile bundle ultra-lightweight
+const WelcomeGreetingModal = React.lazy(() =>
+  import('./components/WelcomeGreetingModal').then((m) => ({ default: m.WelcomeGreetingModal }))
+);
+const AdminLoginModal = React.lazy(() =>
+  import('./components/AdminLoginModal').then((m) => ({ default: m.AdminLoginModal }))
+);
+const AdminDashboard = React.lazy(() =>
+  import('./components/AdminDashboard').then((m) => ({ default: m.AdminDashboard }))
+);
 
 function PortfolioApp() {
   // Initialize buttery-smooth Lenis inertial scroll linked with GSAP ScrollTrigger
@@ -217,14 +225,17 @@ function PortfolioApp() {
       {/* Floating Back To Top Button (Shows on scroll at bottom right) */}
       <BackToTop />
 
-      {/* Dynamic Time-Based Greeting & Project Inquiry Popup */}
-      <WelcomeGreetingModal onContactClick={() => scrollToSection('contact')} />
+      {/* Lazy Loaded Admin Portal & Modals */}
+      <React.Suspense fallback={null}>
+        {/* Dynamic Time-Based Greeting & Project Inquiry Popup */}
+        <WelcomeGreetingModal onContactClick={() => scrollToSection('contact')} />
 
-      {/* Admin Login Popup (Triggered when accessing /admin, #admin, or ?admin=true) */}
-      <AdminLoginModal />
+        {/* Admin Login Popup (Triggered when accessing /admin, #admin, or ?admin=true) */}
+        <AdminLoginModal />
 
-      {/* Admin Content Management Dashboard Modal (Accessible only after successful authentication) */}
-      <AdminDashboard />
+        {/* Admin Content Management Dashboard Modal (Accessible only after successful authentication) */}
+        <AdminDashboard />
+      </React.Suspense>
 
       {/* Live Toast Feedback Notification */}
       <AnimatePresence>

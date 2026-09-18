@@ -283,6 +283,11 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onContactClick, onProj
                     <img
                       src={profile.heroImage && profile.heroImage.trim().length > 0 ? profile.heroImage : (sharifulImg || portraitBackup)}
                       alt={`${profile.name} - Senior Full-Stack Developer & Shopify Specialist`}
+                      width={400}
+                      height={500}
+                      loading="eager"
+                      fetchPriority="high"
+                      decoding="async"
                       className="w-full h-full object-cover object-center filter brightness-105"
                       onError={(e) => {
                         (e.target as HTMLImageElement).src = portraitBackup;

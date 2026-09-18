@@ -119,6 +119,14 @@ export const MobileTouchEffect: React.FC<MobileTouchEffectProps> = ({
       });
     };
 
+    let isLooping = false;
+    const startLoop = () => {
+      if (!isLooping) {
+        isLooping = true;
+        animFrameId.current = requestAnimationFrame(render);
+      }
+    };
+
     const handleTouchStart = (e: TouchEvent) => {
       const touch = e.touches[0];
       if (!touch) return;
@@ -135,6 +143,7 @@ export const MobileTouchEffect: React.FC<MobileTouchEffectProps> = ({
       touchState.current.targetAlpha = isInteractive ? 0.75 : 0.55;
 
       triggerRipple(touch.clientX, touch.clientY, isInteractive);
+      startLoop();
     };
 
     const handleTouchMove = (e: TouchEvent) => {
@@ -148,12 +157,14 @@ export const MobileTouchEffect: React.FC<MobileTouchEffectProps> = ({
       if (Math.random() < 0.6) {
         spawnDragParticle(touch.clientX, touch.clientY);
       }
+      startLoop();
     };
 
     const handleTouchEnd = () => {
       touchState.current.active = false;
       touchState.current.targetAlpha = 0;
       touchState.current.targetRadius = touchState.current.radius * 1.4;
+      startLoop();
     };
 
     window.addEventListener('touchstart', handleTouchStart, { passive: true });
@@ -266,10 +277,16 @@ export const MobileTouchEffect: React.FC<MobileTouchEffectProps> = ({
         ctx.fill();
       }
 
-      animFrameId.current = requestAnimationFrame(render);
+      const hasActiveObjects = ts.alpha > 0.01 || ripplesRef.current.length > 0 || particlesRef.current.length > 0;
+      if (hasActiveObjects) {
+        animFrameId.current = requestAnimationFrame(render);
+      } else {
+        isLooping = false;
+        ctx.clearRect(0, 0, width, height);
+      }
     };
 
-    animFrameId.current = requestAnimationFrame(render);
+    // Only starts on user touch interaction
 
     return () => {
       window.removeEventListener('resize', onResize);

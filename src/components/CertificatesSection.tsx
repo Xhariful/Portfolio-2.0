@@ -199,6 +199,10 @@ export const CertificatesSection: React.FC = () => {
                       <img
                         src={cert.imageUrl}
                         alt={cert.title}
+                        width={48}
+                        height={48}
+                        loading="lazy"
+                        decoding="async"
                         className="w-full h-full object-cover rounded-xl"
                         referrerPolicy="no-referrer"
                       />
@@ -383,6 +387,8 @@ export const CertificatesSection: React.FC = () => {
                   <img
                     src={selectedCert.imageUrl}
                     alt={selectedCert.title}
+                    loading="lazy"
+                    decoding="async"
                     className="w-full h-full object-contain p-2"
                     referrerPolicy="no-referrer"
                   />

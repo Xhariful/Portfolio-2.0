@@ -22,7 +22,28 @@ export default defineConfig(() => {
       minify: 'esbuild',
       cssMinify: true,
       sourcemap: false,
-      chunkSizeWarningLimit: 1000,
+      chunkSizeWarningLimit: 600,
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            if (id.includes('node_modules/react/') || id.includes('node_modules/react-dom/')) {
+              return 'vendor-react';
+            }
+            if (id.includes('node_modules/firebase/')) {
+              return 'vendor-firebase';
+            }
+            if (id.includes('node_modules/motion/')) {
+              return 'vendor-motion';
+            }
+            if (id.includes('node_modules/gsap/') || id.includes('node_modules/lenis/')) {
+              return 'vendor-animation';
+            }
+            if (id.includes('node_modules/lucide-react/') || id.includes('node_modules/react-icons/')) {
+              return 'vendor-icons';
+            }
+          },
+        },
+      },
     },
     esbuild: {
       legalComments: 'none',

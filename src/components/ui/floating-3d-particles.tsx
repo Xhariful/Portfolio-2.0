@@ -53,6 +53,11 @@ export const Floating3DParticles: React.FC<Floating3DParticlesProps> = ({
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
+    // Only run on desktop/tablet viewports (>= 768px) to maximize mobile performance
+    if (typeof window !== 'undefined' && window.innerWidth < 768) {
+      return;
+    }
+
     const canvas = canvasRef.current;
     if (!canvas) return;
 

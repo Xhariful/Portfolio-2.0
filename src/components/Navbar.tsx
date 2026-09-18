@@ -83,6 +83,10 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <img
                   src={profile.logoUrl}
                   alt={profile.logoText || profile.name}
+                  width={140}
+                  height={36}
+                  loading="eager"
+                  decoding="async"
                   onError={() => setLogoImgError(true)}
                   className="max-h-9 w-auto max-w-[160px] sm:max-w-[200px] object-contain transition-transform group-hover:scale-105"
                   style={{ maxHeight: `${profile.logoWidth ? Math.min(48, Math.max(28, profile.logoWidth / 3)) : 36}px` }}
@@ -95,6 +99,10 @@ export const Navbar: React.FC<NavbarProps> = ({
                     <img
                       src={profile.logoUrl}
                       alt={profile.logoText || profile.name}
+                      width={36}
+                      height={36}
+                      loading="eager"
+                      decoding="async"
                       onError={() => setLogoImgError(true)}
                       className="w-full h-full object-contain"
                     />
