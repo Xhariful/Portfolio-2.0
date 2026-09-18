@@ -158,7 +158,7 @@ export const ServicesSection: React.FC<{ onContactClick: () => void }> = ({ onCo
                 <Magnetic strength={0.25}>
                   <button
                     onClick={handleLoadMore}
-                    className="px-5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold tracking-wide uppercase flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer flex-1 sm:flex-initial"
+                    className="px-5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 active:bg-purple-700 text-white text-xs font-semibold tracking-wide flex items-center justify-center gap-2 shadow-md shadow-purple-600/20 hover:shadow-lg hover:shadow-purple-500/30 dark:shadow-purple-900/30 border border-purple-400/30 hover:border-purple-300/60 transition-all duration-300 cursor-pointer flex-1 sm:flex-initial hover:scale-[1.02] active:scale-[0.98]"
                   >
                     <span>Load More (+{Math.min(STEP, services.length - visibleCount)})</span>
                     <ChevronDown className="w-4 h-4" />
@@ -170,7 +170,7 @@ export const ServicesSection: React.FC<{ onContactClick: () => void }> = ({ onCo
                 <Magnetic strength={0.25}>
                   <button
                     onClick={() => setVisibleCount(services.length)}
-                    className="px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 text-xs font-semibold tracking-wide transition-colors cursor-pointer"
+                    className="px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 text-xs font-semibold tracking-wide border border-slate-200 dark:border-zinc-700 transition-all cursor-pointer hover:scale-[1.02]"
                   >
                     Show All ({services.length})
                   </button>
@@ -181,7 +181,7 @@ export const ServicesSection: React.FC<{ onContactClick: () => void }> = ({ onCo
                 <Magnetic strength={0.25}>
                   <button
                     onClick={handleShowLess}
-                    className="px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer flex-1 sm:flex-initial"
+                    className="px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 text-xs font-semibold flex items-center justify-center gap-1.5 border border-slate-200 dark:border-zinc-700 transition-all cursor-pointer flex-1 sm:flex-initial hover:scale-[1.02]"
                   >
                     <span>Show Less</span>
                     <ChevronUp className="w-4 h-4" />
@@ -193,16 +193,16 @@ export const ServicesSection: React.FC<{ onContactClick: () => void }> = ({ onCo
         )}
 
         {/* Clean Consultation Banner */}
-        <div className="rounded-2xl bg-purple-50 dark:bg-zinc-900 border border-purple-200 dark:border-zinc-800 p-8 sm:p-10 flex flex-col md:flex-row items-center justify-between gap-6 shadow-sm dark:shadow-none">
+        <div className="rounded-3xl bg-purple-50/70 dark:bg-zinc-900/80 border border-purple-200/80 dark:border-zinc-800/80 p-8 sm:p-10 flex flex-col md:flex-row items-center justify-between gap-6 shadow-sm dark:shadow-none hover:border-purple-300/70 dark:hover:border-purple-800/60 transition-all duration-300">
           <div className="space-y-1.5 text-center md:text-left">
             <h3 className="text-2xl font-bold text-slate-900 dark:text-white">Have a unique technical challenge?</h3>
-            <p className="text-sm text-slate-600 dark:text-zinc-300 max-w-xl">
+            <p className="text-sm text-slate-600 dark:text-zinc-300 max-w-xl leading-relaxed">
               Let's schedule a free 30-minute discovery call to evaluate your requirements, timeline, and architectural approach.
             </p>
           </div>
           <button
             onClick={onContactClick}
-            className="px-7 py-3 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs tracking-wider uppercase transition-all shadow-sm hover:shadow-md whitespace-nowrap cursor-pointer"
+            className="px-7 py-3.5 rounded-xl bg-purple-600 hover:bg-purple-500 active:bg-purple-700 text-white font-semibold text-sm transition-all shadow-md shadow-purple-600/20 hover:shadow-lg hover:shadow-purple-500/30 dark:shadow-purple-900/30 dark:hover:shadow-purple-500/25 border border-purple-400/30 hover:border-purple-300/60 whitespace-nowrap cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
           >
             Schedule Free Call
           </button>

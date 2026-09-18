@@ -123,10 +123,10 @@ export const AboutSection: React.FC<{ onContactClick: () => void }> = ({ onConta
               <Magnetic strength={0.3}>
                 <button
                   onClick={onContactClick}
-                  className="px-6 py-3 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-semibold text-xs tracking-wide uppercase transition-all shadow-md hover:shadow-purple-500/20 cursor-pointer flex items-center gap-2"
+                  className="px-6 py-3.5 rounded-xl bg-purple-600 hover:bg-purple-500 active:bg-purple-700 text-white font-semibold text-sm shadow-md shadow-purple-600/20 hover:shadow-lg hover:shadow-purple-500/30 dark:shadow-purple-900/30 dark:hover:shadow-purple-500/25 border border-purple-400/30 hover:border-purple-300/60 transition-all duration-300 flex items-center gap-2 cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
                 >
                   <span>Discuss Your Project</span>
-                  <ArrowUpRight className="w-3.5 h-3.5" />
+                  <ArrowUpRight className="w-4 h-4" />
                 </button>
               </Magnetic>
             </div>
@@ -149,7 +149,7 @@ export const AboutSection: React.FC<{ onContactClick: () => void }> = ({ onConta
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.4, delay: idx * 0.1 }}
-                className="p-6 rounded-2xl bg-slate-50 dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 space-y-3 shadow-xs dark:shadow-none hover:border-purple-300 dark:hover:border-purple-600 transition-colors"
+                className="p-6 rounded-2xl bg-slate-50 dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 space-y-3 shadow-xs dark:shadow-none hover:border-purple-300 dark:hover:border-purple-600 hover:-translate-y-1 transition-all duration-300"
               >
                 <div className="flex items-center justify-between">
                   <span className="px-2.5 py-1 rounded-lg bg-purple-50 dark:bg-purple-950/60 border border-purple-200 dark:border-purple-800/50 text-purple-700 dark:text-purple-300 font-mono text-xs font-semibold">
@@ -196,13 +196,16 @@ export const AboutSection: React.FC<{ onContactClick: () => void }> = ({ onConta
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {achievements.map((ach, idx) => (
-              <div key={idx} className="p-4 rounded-xl bg-white dark:bg-zinc-950 border border-slate-200/80 dark:border-zinc-800 space-y-1.5 shadow-xs dark:shadow-none">
-                <span className="text-[10px] font-mono uppercase text-purple-600 dark:text-purple-400 font-semibold tracking-wider">
+              <div
+                key={idx}
+                className="p-4 rounded-xl bg-white dark:bg-zinc-950 border border-slate-200/80 dark:border-zinc-800 space-y-1.5 shadow-xs dark:shadow-none hover:border-purple-400/80 dark:hover:border-purple-500/50 hover:-translate-y-1 hover:shadow-md transition-all duration-300 group"
+              >
+                <span className="text-[10px] font-mono uppercase text-purple-600 dark:text-purple-400 font-semibold tracking-wider group-hover:text-purple-500 dark:group-hover:text-purple-300 transition-colors">
                   {ach.category}
                 </span>
                 <h4 className="text-sm font-bold text-slate-900 dark:text-white">{ach.title}</h4>
                 <p className="text-xs text-slate-500 dark:text-zinc-400">{ach.organization} • {ach.year}</p>
-                <p className="text-xs text-slate-600 dark:text-zinc-300 mt-1">{ach.description}</p>
+                <p className="text-xs text-slate-600 dark:text-zinc-300 mt-1 leading-relaxed">{ach.description}</p>
               </div>
             ))}
           </div>

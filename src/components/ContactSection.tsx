@@ -139,8 +139,13 @@ export const ContactSection: React.FC = () => {
   };
 
   return (
-    <section id="contact" className="py-24 px-4 sm:px-6 lg:px-8 relative border-t border-slate-200/60 dark:border-zinc-800/60 bg-slate-100/30 dark:bg-zinc-950/30 scroll-mt-24">
-      <div className="max-w-7xl mx-auto space-y-16">
+    <section id="contact" className="py-24 px-4 sm:px-6 lg:px-8 relative border-t border-slate-200/80 dark:border-zinc-800/80 bg-slate-50/60 dark:bg-zinc-950/60 scroll-mt-24 overflow-hidden">
+      {/* Subtle Background Grid & Ambient Glow matching Hero & Other Sections */}
+      <div className="absolute inset-0 bg-grid-clean opacity-60 pointer-events-none" />
+      <div className="absolute top-12 left-1/4 w-80 h-80 bg-purple-500/10 dark:bg-purple-600/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-12 right-1/4 w-80 h-80 bg-indigo-500/10 dark:bg-indigo-600/10 rounded-full blur-3xl pointer-events-none" />
+
+      <div className="max-w-7xl mx-auto space-y-16 relative z-10">
         
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto space-y-3">
@@ -154,7 +159,7 @@ export const ContactSection: React.FC = () => {
           <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
             Let's Build Something <span className="gradient-text">Exceptional</span>
           </h2>
-          <p className="text-base text-slate-600 dark:text-zinc-400">
+          <p className="text-base text-slate-600 dark:text-zinc-400 max-w-2xl mx-auto leading-relaxed">
             Have a project in mind, need custom Shopify liquid development, or want to consult on Python automation? Reach out directly.
           </p>
         </div>
@@ -165,32 +170,32 @@ export const ContactSection: React.FC = () => {
           {/* Left Column: Direct Contact Info (5 Cols) */}
           <div className="lg:col-span-5 space-y-6">
             
-            <div className="p-7 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 space-y-5 shadow-sm dark:shadow-none">
+            <div className="p-7 rounded-3xl bg-white dark:bg-zinc-900/80 border border-slate-200/90 dark:border-zinc-800/90 space-y-5 shadow-sm dark:shadow-none hover:border-slate-300 dark:hover:border-zinc-700/80 transition-all duration-300 backdrop-blur-xs">
               <h3 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
                 Direct Contact Channels
               </h3>
               <p className="text-sm text-slate-600 dark:text-zinc-400 leading-relaxed">
-                I typically respond within <strong className="text-purple-600 dark:text-purple-400">{profile.responseTime || '1 hour'}</strong> during business hours. Choose the communication method that fits your team.
+                I typically respond within <strong className="text-purple-600 dark:text-purple-400 font-semibold">{profile.responseTime || '1 hour'}</strong> during business hours. Choose the communication method that fits your team.
               </p>
 
               <div className="space-y-3">
                 
                 {/* Email Item */}
-                <div className="p-4 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 border border-purple-200 dark:border-purple-800/60">
+                <div className="p-4 rounded-2xl bg-slate-50/80 dark:bg-zinc-950/70 border border-slate-200/90 dark:border-zinc-800/80 hover:border-purple-400/60 dark:hover:border-purple-500/50 hover:bg-white dark:hover:bg-zinc-900/90 transition-all duration-300 shadow-xs dark:shadow-none flex items-center justify-between group">
+                  <div className="flex items-center gap-3.5">
+                    <div className="w-10 h-10 rounded-xl bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 border border-purple-200 dark:border-purple-800/60 flex items-center justify-center transition-colors group-hover:bg-purple-100 dark:group-hover:bg-purple-900/60 flex-shrink-0">
                       <Mail className="w-4 h-4" />
                     </div>
                     <div>
-                      <p className="text-[10px] font-mono text-slate-400 dark:text-zinc-500 uppercase">Direct Email</p>
-                      <a href={`mailto:${profile.email}`} className="text-sm font-semibold text-slate-900 dark:text-white hover:text-purple-600 dark:hover:text-purple-300 transition-colors">
+                      <p className="text-[10px] font-mono text-purple-600 dark:text-purple-400 uppercase font-semibold tracking-wider">Direct Email</p>
+                      <a href={`mailto:${profile.email}`} className="text-sm font-semibold text-slate-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-300 transition-colors">
                         {profile.email}
                       </a>
                     </div>
                   </div>
                   <button
                     onClick={copyEmail}
-                    className="p-2 rounded-lg bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300 text-xs transition-colors cursor-pointer hover:bg-slate-100"
+                    className="p-2.5 rounded-xl bg-white dark:bg-zinc-800/80 border border-slate-200 dark:border-zinc-700/80 text-slate-700 dark:text-zinc-300 hover:text-purple-600 dark:hover:text-purple-300 hover:border-purple-300 dark:hover:border-purple-600 text-xs transition-all cursor-pointer shadow-xs"
                     title="Copy Email"
                   >
                     {copiedEmail ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
@@ -199,18 +204,18 @@ export const ContactSection: React.FC = () => {
 
                 {/* WhatsApp Quick Chat Item */}
                 {profile.socials?.whatsapp && (
-                  <div className="p-4 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-emerald-500/30 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                  <div className="p-4 rounded-2xl bg-slate-50/80 dark:bg-zinc-950/70 border border-emerald-500/30 hover:border-emerald-500/60 hover:bg-white dark:hover:bg-zinc-900/90 transition-all duration-300 shadow-xs dark:shadow-none flex items-center justify-between group">
+                    <div className="flex items-center gap-3.5">
+                      <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 flex items-center justify-center transition-colors group-hover:bg-emerald-100 dark:group-hover:bg-emerald-900/60 flex-shrink-0">
                         <MessageCircle className="w-4 h-4" />
                       </div>
                       <div>
-                        <p className="text-[10px] font-mono text-emerald-600 dark:text-emerald-400 uppercase">WhatsApp Instant</p>
+                        <p className="text-[10px] font-mono text-emerald-600 dark:text-emerald-400 uppercase font-semibold tracking-wider">WhatsApp Instant</p>
                         <a
                           href={profile.socials.whatsapp}
                           target="_blank"
                           rel="noreferrer"
-                          className="text-sm font-semibold text-slate-900 dark:text-white hover:text-emerald-600 dark:hover:text-emerald-300 transition-colors"
+                          className="text-sm font-semibold text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-300 transition-colors"
                         >
                           {profile.phone}
                         </a>
@@ -220,7 +225,7 @@ export const ContactSection: React.FC = () => {
                       href={profile.socials.whatsapp}
                       target="_blank"
                       rel="noreferrer"
-                      className="p-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs transition-colors cursor-pointer"
+                      className="p-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs transition-all cursor-pointer shadow-xs hover:scale-[1.05]"
                       title="Open WhatsApp Chat"
                     >
                       <ArrowUpRight className="w-4 h-4" />
@@ -229,12 +234,12 @@ export const ContactSection: React.FC = () => {
                 )}
 
                 {/* Location & Timezone */}
-                <div className="p-4 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-sky-50 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400 border border-sky-200 dark:border-sky-800/60">
+                <div className="p-4 rounded-2xl bg-slate-50/80 dark:bg-zinc-950/70 border border-slate-200/90 dark:border-zinc-800/80 hover:border-sky-400/50 dark:hover:border-sky-500/40 hover:bg-white dark:hover:bg-zinc-900/90 transition-all duration-300 shadow-xs dark:shadow-none flex items-center gap-3.5 group">
+                  <div className="w-10 h-10 rounded-xl bg-sky-50 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400 border border-sky-200 dark:border-sky-800/60 flex items-center justify-center flex-shrink-0">
                     <MapPin className="w-4 h-4" />
                   </div>
                   <div>
-                    <p className="text-[10px] font-mono text-slate-400 dark:text-zinc-500 uppercase">Location & Timezone</p>
+                    <p className="text-[10px] font-mono text-sky-600 dark:text-sky-400 uppercase font-semibold tracking-wider">Location & Timezone</p>
                     <p className="text-sm font-semibold text-slate-900 dark:text-white">{profile.location}</p>
                     <p className="text-xs text-slate-500 dark:text-zinc-400 font-mono mt-0.5">{profile.timezone}</p>
                   </div>
@@ -244,21 +249,21 @@ export const ContactSection: React.FC = () => {
             </div>
 
             {/* Commitments Box */}
-            <div className="p-6 rounded-2xl bg-purple-50 dark:bg-zinc-900 border border-purple-200 dark:border-zinc-800 space-y-3">
+            <div className="p-6 rounded-3xl bg-purple-50/70 dark:bg-zinc-900/80 border border-purple-200/80 dark:border-zinc-800/80 hover:border-purple-300 dark:hover:border-purple-800/60 transition-all duration-300 space-y-3 shadow-xs dark:shadow-none">
               <h4 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
                 <Clock className="w-4 h-4 text-purple-600 dark:text-purple-400" />
                 <span>Client Commitments:</span>
               </h4>
-              <ul className="text-xs text-slate-600 dark:text-zinc-300 space-y-2">
-                <li className="flex items-center gap-2">
+              <ul className="text-xs text-slate-600 dark:text-zinc-300 space-y-2.5">
+                <li className="flex items-center gap-2.5">
                   <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0" />
                   <span>Fixed milestones with 100% transparent delivery schedules</span>
                 </li>
-                <li className="flex items-center gap-2">
+                <li className="flex items-center gap-2.5">
                   <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0" />
                   <span>30 days post-launch support and warranty</span>
                 </li>
-                <li className="flex items-center gap-2">
+                <li className="flex items-center gap-2.5">
                   <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0" />
                   <span>Strict NDA adherence and complete IP handover</span>
                 </li>
@@ -269,16 +274,21 @@ export const ContactSection: React.FC = () => {
 
           {/* Right Column: Project Inquiry Form (7 Cols) */}
           <div className="lg:col-span-7">
-            <div className="p-7 sm:p-9 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-sm dark:shadow-none space-y-6">
-              <h3 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
-                Send a Message or Project Brief
-              </h3>
+            <div className="p-7 sm:p-9 rounded-3xl bg-white dark:bg-zinc-900/80 border border-slate-200/90 dark:border-zinc-800/90 shadow-sm dark:shadow-none hover:border-slate-300 dark:hover:border-zinc-700/80 transition-all duration-300 backdrop-blur-xs space-y-6">
+              <div className="space-y-1">
+                <h3 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
+                  Send a Message or Project Brief
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-500 dark:text-zinc-400">
+                  Fill in your project requirements below to receive a detailed breakdown and estimate.
+                </p>
+              </div>
 
               {submitted ? (
                 <motion.div
                   initial={{ opacity: 0, scale: 0.98 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  className="p-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-500/30 text-center space-y-4"
+                  className="p-8 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-500/30 text-center space-y-4"
                 >
                   <div className="w-14 h-14 rounded-full bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto text-2xl shadow-xs">
                     <CheckCircle2 className="w-7 h-7" />
@@ -324,7 +334,7 @@ export const ContactSection: React.FC = () => {
                       )}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="px-4 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+                      className="px-4 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer shadow-md hover:shadow-purple-500/25 border border-purple-400/30 hover:scale-[1.02]"
                     >
                       <Mail className="w-3.5 h-3.5" />
                       <span>Open in Gmail (Web)</span>
@@ -341,14 +351,14 @@ export const ContactSection: React.FC = () => {
                           lastSentData?.message || ''
                         }`
                       )}`}
-                      className="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-800 dark:text-zinc-200 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer border border-slate-300 dark:border-zinc-700"
+                      className="px-4 py-2.5 rounded-xl bg-white hover:bg-slate-50 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-800 dark:text-zinc-200 text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer border border-slate-200 dark:border-zinc-700 hover:scale-[1.02]"
                     >
                       <ExternalLink className="w-3.5 h-3.5" />
                       <span>Open Mail App</span>
                     </a>
                     <button
                       onClick={() => setSubmitted(false)}
-                      className="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold cursor-pointer transition-colors"
+                      className="px-5 py-2.5 rounded-xl border border-slate-300/90 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-slate-800 dark:text-zinc-200 hover:bg-slate-50 dark:hover:bg-zinc-800 text-xs font-semibold cursor-pointer transition-all hover:scale-[1.02]"
                     >
                       Send Another Note
                     </button>
@@ -362,7 +372,7 @@ export const ContactSection: React.FC = () => {
                   
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div className="space-y-1.5">
-                      <label className="text-xs font-mono font-semibold uppercase text-slate-600 dark:text-zinc-400">
+                      <label className="block text-xs font-mono font-semibold uppercase tracking-wider text-slate-700 dark:text-zinc-300">
                         Your Name *
                       </label>
                       <input
@@ -371,12 +381,12 @@ export const ContactSection: React.FC = () => {
                         value={formData.name}
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                         placeholder="e.g. Alex Morgan"
-                        className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 focus:border-purple-600 focus:outline-none text-slate-900 dark:text-white text-sm transition-colors"
+                        className="w-full px-4 py-3 rounded-xl bg-slate-50/80 dark:bg-zinc-950/80 border border-slate-200 dark:border-zinc-800/90 hover:border-slate-300 dark:hover:border-zinc-700 focus:border-purple-500 dark:focus:border-purple-400 focus:ring-2 focus:ring-purple-500/20 focus:bg-white dark:focus:bg-zinc-900/90 focus:outline-none text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-zinc-500 text-sm transition-all duration-200 shadow-xs"
                       />
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="text-xs font-mono font-semibold uppercase text-slate-600 dark:text-zinc-400">
+                      <label className="block text-xs font-mono font-semibold uppercase tracking-wider text-slate-700 dark:text-zinc-300">
                         Your Email *
                       </label>
                       <input
@@ -385,20 +395,20 @@ export const ContactSection: React.FC = () => {
                         value={formData.email}
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                         placeholder="e.g. alex@brand.com"
-                        className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 focus:border-purple-600 focus:outline-none text-slate-900 dark:text-white text-sm transition-colors"
+                        className="w-full px-4 py-3 rounded-xl bg-slate-50/80 dark:bg-zinc-950/80 border border-slate-200 dark:border-zinc-800/90 hover:border-slate-300 dark:hover:border-zinc-700 focus:border-purple-500 dark:focus:border-purple-400 focus:ring-2 focus:ring-purple-500/20 focus:bg-white dark:focus:bg-zinc-900/90 focus:outline-none text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-zinc-500 text-sm transition-all duration-200 shadow-xs"
                       />
                     </div>
                   </div>
 
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div className="space-y-1.5">
-                      <label className="text-xs font-mono font-semibold uppercase text-slate-600 dark:text-zinc-400">
+                      <label className="block text-xs font-mono font-semibold uppercase tracking-wider text-slate-700 dark:text-zinc-300">
                         Project Type / Service
                       </label>
                       <select
                         value={formData.service}
                         onChange={(e) => setFormData({ ...formData, service: e.target.value })}
-                        className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 focus:border-purple-600 focus:outline-none text-slate-900 dark:text-white text-sm transition-colors"
+                        className="w-full px-4 py-3 rounded-xl bg-slate-50/80 dark:bg-zinc-950/80 border border-slate-200 dark:border-zinc-800/90 hover:border-slate-300 dark:hover:border-zinc-700 focus:border-purple-500 dark:focus:border-purple-400 focus:ring-2 focus:ring-purple-500/20 focus:bg-white dark:focus:bg-zinc-900/90 focus:outline-none text-slate-900 dark:text-white text-sm transition-all duration-200 shadow-xs cursor-pointer"
                       >
                         <option>Shopify Store Development</option>
                         <option>Shopify Theme Customization</option>
@@ -410,13 +420,13 @@ export const ContactSection: React.FC = () => {
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="text-xs font-mono font-semibold uppercase text-slate-600 dark:text-zinc-400">
+                      <label className="block text-xs font-mono font-semibold uppercase tracking-wider text-slate-700 dark:text-zinc-300">
                         Estimated Budget
                       </label>
                       <select
                         value={formData.budget}
                         onChange={(e) => setFormData({ ...formData, budget: e.target.value })}
-                        className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 focus:border-purple-600 focus:outline-none text-slate-900 dark:text-white text-sm transition-colors"
+                        className="w-full px-4 py-3 rounded-xl bg-slate-50/80 dark:bg-zinc-950/80 border border-slate-200 dark:border-zinc-800/90 hover:border-slate-300 dark:hover:border-zinc-700 focus:border-purple-500 dark:focus:border-purple-400 focus:ring-2 focus:ring-purple-500/20 focus:bg-white dark:focus:bg-zinc-900/90 focus:outline-none text-slate-900 dark:text-white text-sm transition-all duration-200 shadow-xs cursor-pointer"
                       >
                         <option>&lt; $1,000</option>
                         <option>$1,000 - $3,000</option>
@@ -427,7 +437,7 @@ export const ContactSection: React.FC = () => {
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-xs font-mono font-semibold uppercase text-slate-600 dark:text-zinc-400">
+                    <label className="block text-xs font-mono font-semibold uppercase tracking-wider text-slate-700 dark:text-zinc-300">
                       Project Details & Goals *
                     </label>
                     <textarea
@@ -436,26 +446,37 @@ export const ContactSection: React.FC = () => {
                       value={formData.message}
                       onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                       placeholder="Describe your goals, requirements, timeline constraints, or current storefront..."
-                      className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 focus:border-purple-600 focus:outline-none text-slate-900 dark:text-white text-sm transition-colors resize-none"
+                      className="w-full px-4 py-3 rounded-xl bg-slate-50/80 dark:bg-zinc-950/80 border border-slate-200 dark:border-zinc-800/90 hover:border-slate-300 dark:hover:border-zinc-700 focus:border-purple-500 dark:focus:border-purple-400 focus:ring-2 focus:ring-purple-500/20 focus:bg-white dark:focus:bg-zinc-900/90 focus:outline-none text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-zinc-500 text-sm transition-all duration-200 resize-none shadow-xs"
                     />
                   </div>
 
-                  <Magnetic strength={0.2}>
-                    <button
-                      type="submit"
-                      disabled={isSubmitting}
-                      className="w-full py-3.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs tracking-wider uppercase shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
-                    >
-                      {isSubmitting ? (
-                        <span>Sending inquiry...</span>
-                      ) : (
-                        <>
-                          <span>Submit Project Brief</span>
-                          <Send className="w-4 h-4" />
-                        </>
-                      )}
-                    </button>
-                  </Magnetic>
+                  {/* Submit Button styled with identical luxury theme as Hero / Portfolio buttons */}
+                  <div className="pt-2">
+                    <Magnetic strength={0.25}>
+                      <button
+                        type="submit"
+                        disabled={isSubmitting}
+                        className="group relative w-full py-3.5 px-6 rounded-xl bg-purple-600 hover:bg-purple-500 active:bg-purple-700 text-white font-semibold text-sm shadow-md shadow-purple-600/20 hover:shadow-lg hover:shadow-purple-500/30 dark:shadow-purple-900/30 dark:hover:shadow-purple-500/25 border border-purple-400/30 hover:border-purple-300/60 transition-all duration-300 flex items-center justify-center gap-2.5 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.01] active:scale-[0.99] overflow-hidden"
+                      >
+                        {/* Shimmer light sweep across button on hover */}
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out pointer-events-none" />
+
+                        {isSubmitting ? (
+                          <div className="flex items-center gap-2">
+                            <span className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                            <span className="text-white font-medium">Sending inquiry...</span>
+                          </div>
+                        ) : (
+                          <>
+                            <span className="text-white drop-shadow-xs font-semibold tracking-wide">
+                              Submit Project Brief
+                            </span>
+                            <Send className="w-4 h-4 text-purple-100 group-hover:text-white transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                          </>
+                        )}
+                      </button>
+                    </Magnetic>
+                  </div>
                 </form>
               )}
             </div>
