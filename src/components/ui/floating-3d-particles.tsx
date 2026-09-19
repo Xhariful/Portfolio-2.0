@@ -53,11 +53,6 @@ export const Floating3DParticles: React.FC<Floating3DParticlesProps> = ({
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
-    // Only run on desktop/tablet viewports (>= 768px) to maximize mobile performance
-    if (typeof window !== 'undefined' && window.innerWidth < 768) {
-      return;
-    }
-
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -73,7 +68,7 @@ export const Floating3DParticles: React.FC<Floating3DParticlesProps> = ({
     const focalLength = 400 + (1 - depth) * 400; // Focal distance for perspective projection
     const maxDepth = 600 * Math.max(0.2, depth);
 
-    // Mouse coordinates and gentle parallax target
+    // Mouse & Touch coordinates and gentle parallax target
     const mouse = {
       x: 0,
       y: 0,
@@ -90,32 +85,38 @@ export const Floating3DParticles: React.FC<Floating3DParticlesProps> = ({
     // Resize Handler
     const handleResize = () => {
       if (!canvas) return;
+      // Cap DPR to 2 for high-density AMOLED mobile displays (e.g. S20 Ultra 3x/4x DPR) to keep 60-120 FPS
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
       width = window.innerWidth;
       height = window.innerHeight;
 
-      canvas.width = width * dpr;
-      canvas.height = height * dpr;
+      canvas.width = Math.floor(width * dpr);
+      canvas.height = Math.floor(height * dpr);
       canvas.style.width = `${width}px`;
       canvas.style.height = `${height}px`;
 
+      ctx.setTransform(1, 0, 0, 1, 0, 0); // Reset transform before scale
       ctx.scale(dpr, dpr);
 
-      // Re-init particles based on viewport (scale down for mobile < 768px to 30%)
+      // Re-init particles based on viewport: on mobile, use a crisp optimized set (50-70 particles)
       const isMobile = width < 768;
-      const count = isMobile ? Math.max(40, Math.floor(quantity * 0.3)) : quantity;
+      const count = isMobile ? Math.max(45, Math.floor(quantity * 0.35)) : quantity;
+
+      // On mobile, boost particle radius slightly so they are clearly visible on high-res AMOLED screens
+      const effectiveRadius = isMobile ? Math.max(1.8, radius * 1.2) : radius;
+      const effectiveOpacity = isMobile ? Math.max(0.5, opacity * 1.2) : opacity;
 
       particles = [];
       for (let i = 0; i < count; i++) {
         particles.push({
-          x: (Math.random() - 0.5) * width * 1.5,
-          y: (Math.random() - 0.5) * height * 1.5,
+          x: (Math.random() - 0.5) * width * 1.4,
+          y: (Math.random() - 0.5) * height * 1.4,
           z: (Math.random() - 0.5) * maxDepth,
           vx: (Math.random() - 0.5) * 0.15,
           vy: -Math.abs(speed) * (0.6 + Math.random() * 0.8), // Upward buoyant drift
           vz: (Math.random() - 0.5) * 0.15,
-          baseRadius: radius * (0.6 + Math.random() * 0.8),
-          baseOpacity: Math.min(1, Math.max(0.1, opacity + (Math.random() - 0.5) * 0.3)),
+          baseRadius: effectiveRadius * (0.65 + Math.random() * 0.8),
+          baseOpacity: Math.min(1, Math.max(0.2, effectiveOpacity + (Math.random() - 0.5) * 0.3)),
           phase: Math.random() * Math.PI * 2,
         });
       }
@@ -124,7 +125,7 @@ export const Floating3DParticles: React.FC<Floating3DParticlesProps> = ({
     handleResize();
     window.addEventListener('resize', handleResize, { passive: true });
 
-    // Mouse Move Listener for interactive 3D camera tilt
+    // Mouse Move Listener for desktop interactive 3D camera tilt
     const handleMouseMove = (e: MouseEvent) => {
       const halfW = width / 2;
       const halfH = height / 2;
@@ -132,7 +133,31 @@ export const Floating3DParticles: React.FC<Floating3DParticlesProps> = ({
       mouse.targetY = (e.clientY - halfH) * 0.05;
     };
 
+    // Touch Move Listener for mobile camera parallax
+    const handleTouchMove = (e: TouchEvent) => {
+      if (!e.touches[0]) return;
+      const touch = e.touches[0];
+      const halfW = width / 2;
+      const halfH = height / 2;
+      mouse.targetX = (touch.clientX - halfW) * 0.04;
+      mouse.targetY = (touch.clientY - halfH) * 0.04;
+    };
+
+    // Device orientation gyroscope parallax tilt for smartphones
+    const handleOrientation = (e: DeviceOrientationEvent) => {
+      if (e.gamma !== null && e.beta !== null) {
+        // gamma: left-to-right tilt [-90, 90]
+        // beta: front-to-back tilt [-180, 180]
+        mouse.targetX = Math.max(-25, Math.min(25, e.gamma)) * 0.8;
+        mouse.targetY = Math.max(-25, Math.min(25, (e.beta - 45))) * 0.8;
+      }
+    };
+
     window.addEventListener('mousemove', handleMouseMove, { passive: true });
+    window.addEventListener('touchmove', handleTouchMove, { passive: true });
+    if (typeof window !== 'undefined' && 'DeviceOrientationEvent' in window) {
+      window.addEventListener('deviceorientation', handleOrientation, { passive: true });
+    }
 
     let lastTime = performance.now();
 
@@ -288,6 +313,10 @@ export const Floating3DParticles: React.FC<Floating3DParticlesProps> = ({
       cancelAnimationFrame(animationFrameId);
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('touchmove', handleTouchMove);
+      if (typeof window !== 'undefined' && 'DeviceOrientationEvent' in window) {
+        window.removeEventListener('deviceorientation', handleOrientation);
+      }
     };
   }, [quantity, color, radius, opacity, speed, depth, connectParticles]);
 
