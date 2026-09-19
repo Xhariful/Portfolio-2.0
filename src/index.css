@@ -92,6 +92,17 @@
   background-color: #121215;
 }
 
+/* 3D Transform Utilities for Magic UI Text3DFlip */
+.transform-3d {
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+}
+
+.backface-hidden {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
 /* Infinite Marquee Animations */
 @keyframes marquee-left {
   0% {

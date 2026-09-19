@@ -20,6 +20,7 @@ import { usePortfolio } from '../context/PortfolioContext';
 import { Magnetic } from './animations/Magnetic';
 import { TiltCard } from './animations/TiltCard';
 import { AnimatedCounter } from './animations/AnimatedCounter';
+import Text3DFlip from '@/registry/magicui/text-3d-flip';
 import sharifulImg from '../assets/onlyshariful1.webp';
 import portraitBackup from '../assets/Shariful.jpg';
 
@@ -164,8 +165,18 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onContactClick, onProj
               transition={{ duration: 0.5, delay: 0.1 }}
               className="space-y-3"
             >
-              <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-[1.12]">
-                Hi, I'm <span className="gradient-text">{profile.name}</span>
+              <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-[1.15]">
+                <Text3DFlip
+                  className="font-extrabold"
+                  textClassName="text-slate-900 dark:text-white"
+                  flipTextClassName="text-purple-600 dark:text-purple-400"
+                  rotateDirection="top"
+                  staggerDuration={0.03}
+                  staggerFrom="first"
+                  transition={{ type: "spring", damping: 25, stiffness: 160 }}
+                >
+                  {`Hi, I'm ${profile.name || 'Shariful Islam'}`}
+                </Text3DFlip>
               </h1>
 
               {/* Clean Typewriter Subtitle */}
