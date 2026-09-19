@@ -17,6 +17,7 @@
         "achievements": { "type": "array", "description": "Key milestone achievements" },
         "seo": { "type": "object", "description": "SEO, favicon, and meta tags" },
         "welcomePopup": { "type": "object", "description": "Greeting popup settings" },
+        "animatedBeam": { "type": "object", "description": "Interactive animated beam technology ecosystem configuration" },
         "updatedAt": { "type": "string", "description": "ISO timestamp of last update" }
       }
     },

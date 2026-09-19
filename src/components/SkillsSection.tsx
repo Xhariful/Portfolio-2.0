@@ -3,8 +3,10 @@ import { motion } from 'motion/react';
 import { Cpu, Layers, CheckCircle2, ChevronDown, ChevronUp, Eye } from 'lucide-react';
 import { usePortfolio } from '../context/PortfolioContext';
 import { CoreSkillsTicker } from './CoreSkillsSection';
+import { TechBeamSection } from './TechBeamSection';
 import { TiltCard } from './animations/TiltCard';
 import { Magnetic } from './animations/Magnetic';
+import { Text3DFlip } from './ui/text-3d-flip';
 
 export const SkillsSection: React.FC = () => {
   const { data } = usePortfolio();
@@ -52,7 +54,15 @@ export const SkillsSection: React.FC = () => {
             <span>TECHNICAL CAPABILITIES</span>
           </div>
           <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
-            Skills & <span className="gradient-text">Proficiency Matrix</span>
+            <Text3DFlip
+              className="font-extrabold justify-center"
+              textClassName="text-slate-900 dark:text-white"
+              flipTextClassName="text-sky-500 dark:text-sky-400"
+              rotateDirection="top"
+              staggerDuration={0.025}
+            >
+              Skills & <span className="gradient-text">Proficiency Matrix</span>
+            </Text3DFlip>
           </h2>
           <p className="text-base text-slate-600 dark:text-zinc-400">
             A comprehensive overview of programming languages, e-commerce architectures, and frontend toolkits I specialize in.
@@ -61,6 +71,9 @@ export const SkillsSection: React.FC = () => {
 
         {/* Dynamic Core Skills Ticker Showcase */}
         <CoreSkillsTicker />
+
+        {/* Dynamic Animated Beam Integration Architecture */}
+        <TechBeamSection />
 
         {/* Category Filters */}
         <div className="flex flex-wrap items-center justify-center gap-2">

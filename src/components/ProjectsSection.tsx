@@ -15,6 +15,8 @@ import { usePortfolio } from '../context/PortfolioContext';
 import { ProjectItem } from '../types';
 import { TiltCard } from './animations/TiltCard';
 import { Magnetic } from './animations/Magnetic';
+import { ShimmerCard } from './ui/shimmer-card';
+import { Text3DFlip } from './ui/text-3d-flip';
 
 export const ProjectsSection: React.FC = () => {
   const { data } = usePortfolio();
@@ -73,7 +75,15 @@ export const ProjectsSection: React.FC = () => {
             <span>PORTFOLIO & CASE STUDIES</span>
           </div>
           <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
-            Featured <span className="gradient-text">Work & Implementations</span>
+            <Text3DFlip
+              className="font-extrabold justify-center"
+              textClassName="text-slate-900 dark:text-white"
+              flipTextClassName="text-purple-600 dark:text-purple-400"
+              rotateDirection="top"
+              staggerDuration={0.025}
+            >
+              Featured <span className="gradient-text">Work & Implementations</span>
+            </Text3DFlip>
           </h2>
           <p className="text-base text-slate-600 dark:text-zinc-400">
             A selection of live e-commerce storefronts, Python backends, and modern web applications built for international businesses.
@@ -108,117 +118,125 @@ export const ProjectsSection: React.FC = () => {
               transition={{ duration: 0.3, delay: idx * 0.05 }}
               className="h-full"
             >
-              <TiltCard maxTilt={5} scale={1.015} glare={true} className="h-full rounded-2xl">
-                <div className="group h-full rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 hover:border-purple-400 dark:hover:border-purple-600 transition-all overflow-hidden shadow-sm dark:shadow-none flex flex-col justify-between">
-                  {/* Project Image Preview */}
-                  <div
-                    className="relative aspect-[16/10] overflow-hidden bg-slate-100 dark:bg-zinc-950 cursor-pointer"
-                    onClick={() => setSelectedProject(project)}
-                    data-cursor="View"
-                  >
-                    <img
-                      src={project.image || 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1000'}
-                      alt={`${project.title} - ${project.category} project by Shariful Islam`}
-                      width={640}
-                      height={400}
-                      loading="lazy"
-                      decoding="async"
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1000';
-                      }}
-                    />
+              <TiltCard maxTilt={5} scale={1.015} glare={false} className="h-full rounded-2xl">
+                <ShimmerCard
+                  borderRadius="1rem"
+                  shimmerColor="#a855f7"
+                  duration="4s"
+                  featured={idx === 0}
+                  className="h-full shadow-sm dark:shadow-none"
+                >
+                  <div className="group h-full bg-white dark:bg-zinc-900 overflow-hidden flex flex-col justify-between">
+                    {/* Project Image Preview */}
+                    <div
+                      className="relative aspect-[16/10] overflow-hidden bg-slate-100 dark:bg-zinc-950 cursor-pointer"
+                      onClick={() => setSelectedProject(project)}
+                      data-cursor="View"
+                    >
+                      <img
+                        src={project.image || 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1000'}
+                        alt={`${project.title} - ${project.category} project by Shariful Islam`}
+                        width={640}
+                        height={400}
+                        loading="lazy"
+                        decoding="async"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1000';
+                        }}
+                      />
 
-                    {/* Top Badge: Category & Year */}
-                    <div className="absolute top-3 left-3 right-3 flex items-center justify-between pointer-events-none">
-                      <span className="px-3 py-1 rounded-lg bg-white/90 dark:bg-zinc-950/90 backdrop-blur-md border border-slate-200 dark:border-zinc-700 text-purple-700 dark:text-purple-300 text-xs font-mono font-semibold">
-                        {project.category}
-                      </span>
-                      <span className="px-2.5 py-1 rounded-lg bg-white/90 dark:bg-zinc-950/90 backdrop-blur-md border border-slate-200 dark:border-zinc-700 text-slate-600 dark:text-zinc-400 text-xs font-mono">
-                        {project.year}
-                      </span>
-                    </div>
-
-                    {/* Bottom Highlight Tag */}
-                    {project.highlight && (
-                      <div className="absolute bottom-3 left-3 pointer-events-none">
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-emerald-50/90 dark:bg-emerald-950/90 border border-emerald-500/40 text-emerald-700 dark:text-emerald-300 text-xs font-semibold backdrop-blur-md">
-                          <TrendingUp className="w-3.5 h-3.5" />
-                          {project.highlight}
+                      {/* Top Badge: Category & Year */}
+                      <div className="absolute top-3 left-3 right-3 flex items-center justify-between pointer-events-none">
+                        <span className="px-3 py-1 rounded-lg bg-white/90 dark:bg-zinc-950/90 backdrop-blur-md border border-slate-200 dark:border-zinc-700 text-purple-700 dark:text-purple-300 text-xs font-mono font-semibold">
+                          {project.category}
+                        </span>
+                        <span className="px-2.5 py-1 rounded-lg bg-white/90 dark:bg-zinc-950/90 backdrop-blur-md border border-slate-200 dark:border-zinc-700 text-slate-600 dark:text-zinc-400 text-xs font-mono">
+                          {project.year}
                         </span>
                       </div>
-                    )}
-                  </div>
 
-                  {/* Project Body */}
-                  <div className="p-6 space-y-4 flex-1 flex flex-col justify-between">
-                    <div className="space-y-2">
-                      <h3
-                        onClick={() => setSelectedProject(project)}
-                        className="text-xl font-bold text-slate-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors cursor-pointer"
-                      >
-                        {project.title}
-                      </h3>
-                      <p className="text-sm text-slate-600 dark:text-zinc-300 leading-relaxed line-clamp-2">
-                        {project.description}
-                      </p>
+                      {/* Bottom Highlight Tag */}
+                      {project.highlight && (
+                        <div className="absolute bottom-3 left-3 pointer-events-none">
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-emerald-50/90 dark:bg-emerald-950/90 border border-emerald-500/40 text-emerald-700 dark:text-emerald-300 text-xs font-semibold backdrop-blur-md">
+                            <TrendingUp className="w-3.5 h-3.5" />
+                            {project.highlight}
+                          </span>
+                        </div>
+                      )}
                     </div>
 
-                    {/* Tech Stack Badges */}
-                    <div className="flex flex-wrap gap-1.5 pt-1">
-                      {project.tech.map((t, tIdx) => (
-                        <span
-                          key={tIdx}
-                          className="px-2.5 py-1 rounded-md bg-slate-100 dark:bg-zinc-950 text-slate-700 dark:text-zinc-400 border border-slate-200 dark:border-zinc-800 text-[11px] font-mono"
-                        >
-                          {t}
-                        </span>
-                      ))}
-                    </div>
-
-                    {/* Action Links */}
-                    <div className="pt-4 border-t border-slate-100 dark:border-zinc-800/80 flex items-center justify-between">
-                      <Magnetic strength={0.3}>
-                        <button
+                    {/* Project Body */}
+                    <div className="p-6 space-y-4 flex-1 flex flex-col justify-between">
+                      <div className="space-y-2">
+                        <h3
                           onClick={() => setSelectedProject(project)}
-                          className="text-xs font-bold text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 tracking-wide uppercase flex items-center gap-1 cursor-pointer"
+                          className="text-xl font-bold text-slate-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors cursor-pointer"
                         >
-                          <span>View Details</span>
-                          <ArrowUpRight className="w-3.5 h-3.5" />
-                        </button>
-                      </Magnetic>
+                          {project.title}
+                        </h3>
+                        <p className="text-sm text-slate-600 dark:text-zinc-300 leading-relaxed line-clamp-2">
+                          {project.description}
+                        </p>
+                      </div>
 
-                      <div className="flex items-center gap-2">
-                        {project.githubUrl && (
-                          <Magnetic strength={0.4}>
-                            <a
-                              href={project.githubUrl}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="p-2 rounded-lg bg-slate-100 dark:bg-zinc-950 hover:bg-slate-200 dark:hover:bg-zinc-800 border border-slate-200 dark:border-zinc-800 text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer block"
-                              title="GitHub Source"
-                            >
-                              <Github className="w-4 h-4" />
-                            </a>
-                          </Magnetic>
-                        )}
-                        {project.liveUrl && (
-                          <Magnetic strength={0.4}>
-                            <a
-                              href={project.liveUrl}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="p-2 rounded-lg bg-slate-100 dark:bg-zinc-950 hover:bg-slate-200 dark:hover:bg-zinc-800 border border-slate-200 dark:border-zinc-800 text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer block"
-                              title="Live Demo"
-                            >
-                              <ExternalLink className="w-4 h-4" />
-                            </a>
-                          </Magnetic>
-                        )}
+                      {/* Tech Stack Badges */}
+                      <div className="flex flex-wrap gap-1.5 pt-1">
+                        {project.tech.map((t, tIdx) => (
+                          <span
+                            key={tIdx}
+                            className="px-2.5 py-1 rounded-md bg-slate-100 dark:bg-zinc-950 text-slate-700 dark:text-zinc-400 border border-slate-200 dark:border-zinc-800 text-[11px] font-mono"
+                          >
+                            {t}
+                          </span>
+                        ))}
+                      </div>
+
+                      {/* Action Links */}
+                      <div className="pt-4 border-t border-slate-100 dark:border-zinc-800/80 flex items-center justify-between">
+                        <Magnetic strength={0.3}>
+                          <button
+                            onClick={() => setSelectedProject(project)}
+                            className="text-xs font-bold text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 tracking-wide uppercase flex items-center gap-1 cursor-pointer"
+                          >
+                            <span>View Details</span>
+                            <ArrowUpRight className="w-3.5 h-3.5" />
+                          </button>
+                        </Magnetic>
+
+                        <div className="flex items-center gap-2">
+                          {project.githubUrl && (
+                            <Magnetic strength={0.4}>
+                              <a
+                                href={project.githubUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="p-2 rounded-lg bg-slate-100 dark:bg-zinc-950 hover:bg-slate-200 dark:hover:bg-zinc-800 border border-slate-200 dark:border-zinc-800 text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer block"
+                                title="GitHub Source"
+                              >
+                                <Github className="w-4 h-4" />
+                              </a>
+                            </Magnetic>
+                          )}
+                          {project.liveUrl && (
+                            <Magnetic strength={0.4}>
+                              <a
+                                href={project.liveUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="p-2 rounded-lg bg-slate-100 dark:bg-zinc-950 hover:bg-slate-200 dark:hover:bg-zinc-800 border border-slate-200 dark:border-zinc-800 text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer block"
+                                title="Live Demo"
+                              >
+                                <ExternalLink className="w-4 h-4" />
+                              </a>
+                            </Magnetic>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
+                </ShimmerCard>
               </TiltCard>
             </motion.div>
           ))}

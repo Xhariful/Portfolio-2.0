@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   X,
@@ -50,7 +50,8 @@ import {
   ArrowUp,
   ArrowDown,
   ArrowUpDown,
-  ListOrdered
+  ListOrdered,
+  Workflow
 } from 'lucide-react';
 import { collection, onSnapshot, query, orderBy, deleteDoc, doc, updateDoc, addDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
@@ -70,9 +71,11 @@ import {
   SeoConfig,
   WelcomePopupConfig,
   BackgroundEffectsConfig,
+  AnimatedBeamConfig,
   InquiryItem
 } from '../types';
 import { Floating3DParticles } from './ui/floating-3d-particles';
+import { AdminAnimatedBeamTab } from './AdminAnimatedBeamTab';
 
 export const AdminDashboard: React.FC = () => {
   const {
@@ -92,6 +95,7 @@ export const AdminDashboard: React.FC = () => {
     updateSeo,
     updateWelcomePopup,
     updateBackgroundEffects,
+    updateAnimatedBeam,
     addEducation,
     editEducation,
     deleteEducation,
@@ -134,6 +138,7 @@ export const AdminDashboard: React.FC = () => {
     | 'seo'
     | 'popup'
     | 'effects'
+    | 'animatedBeam'
     | 'inquiries'
     | 'education'
     | 'certificates'
@@ -355,6 +360,40 @@ export const AdminDashboard: React.FC = () => {
     }
   );
 
+  // Animated Beam Ecosystem State (Strictly max 9 slots)
+  const defaultBeamState: AnimatedBeamConfig = {
+    enabled: true,
+    sectionBadge: 'INTERACTIVE ECOSYSTEM',
+    sectionTitle: 'Full-Stack Integration Architecture',
+    sectionSubtitle: 'Live visualization showing how custom Shopify storefronts, reactive frontend clients, and Python/Django backend engines seamlessly interconnect.',
+    beamDuration: 4.5,
+    beamPathColor: 'rgba(139, 92, 246, 0.15)',
+    gradientStartColor: '#a855f7',
+    gradientStopColor: '#3b82f6',
+    nodes: [
+      { id: 'node-1', title: 'Shopify OS 2.0', subtitle: 'Liquid Architecture', icon: 'ShoppingBag', position: 'left', connectedTo: 'node-center', color: '#10b981', curvature: -35 },
+      { id: 'node-2', title: 'React.js', subtitle: 'Interactive UI', icon: 'Atom', position: 'left', connectedTo: 'node-center', color: '#06b6d4', curvature: -15 },
+      { id: 'node-3', title: 'Next.js', subtitle: 'SSR & Headless', icon: 'Globe', position: 'left', connectedTo: 'node-center', color: '#8b5cf6', curvature: 15 },
+      { id: 'node-4', title: 'Tailwind CSS', subtitle: 'Responsive Design', icon: 'Palette', position: 'left', connectedTo: 'node-center', color: '#3b82f6', curvature: 35 },
+      { id: 'node-center', title: 'Shariful Islam', subtitle: 'Full-Stack Core Hub', icon: 'User', position: 'center', color: '#9333ea' },
+      { id: 'node-6', title: 'Python & Django', subtitle: 'RESTful Backend', icon: 'Terminal', position: 'right', connectedTo: 'node-center', color: '#f59e0b', curvature: -35 },
+      { id: 'node-7', title: 'PostgreSQL', subtitle: 'Relational DB', icon: 'Database', position: 'right', connectedTo: 'node-center', color: '#3b82f6', curvature: -15 },
+      { id: 'node-8', title: 'Cloud & Firebase', subtitle: 'Realtime Sync', icon: 'Zap', position: 'right', connectedTo: 'node-center', color: '#ef4444', curvature: 15 },
+      { id: 'node-9', title: 'Stripe & APIs', subtitle: 'Payment Gateways', icon: 'Shield', position: 'right', connectedTo: 'node-center', color: '#6366f1', curvature: 35 },
+    ],
+  };
+
+  const [beamForm, setBeamForm] = useState<AnimatedBeamConfig>(
+    data.animatedBeam || defaultBeamState
+  );
+  const isBeamDirty = useRef(false);
+
+  useEffect(() => {
+    if (!isBeamDirty.current && data.animatedBeam) {
+      setBeamForm(data.animatedBeam);
+    }
+  }, [data.animatedBeam]);
+
   // Client Inquiries State (fetched in real-time from Firestore & LocalStorage cache)
   const [inquiries, setInquiries] = useState<InquiryItem[]>(() => {
     try {
@@ -485,6 +524,18 @@ export const AdminDashboard: React.FC = () => {
     e.preventDefault();
     isEffectsDirty.current = false;
     updateBackgroundEffects(effectsForm);
+  };
+
+  // Handle Animated Beam Architecture Save
+  const handleSaveAnimatedBeam = (config: AnimatedBeamConfig) => {
+    isBeamDirty.current = false;
+    updateAnimatedBeam(config);
+  };
+
+  const handleResetBeamDefaults = () => {
+    isBeamDirty.current = true;
+    setBeamForm(defaultBeamState);
+    updateAnimatedBeam(defaultBeamState);
   };
 
   // Handle Delete Client Inquiry
@@ -1065,6 +1116,13 @@ export const AdminDashboard: React.FC = () => {
               badge={effectsForm.floatingParticles ? 'ON' : 'OFF'}
             />
             <TabButton
+              active={activeTab === 'animatedBeam'}
+              onClick={() => setActiveTab('animatedBeam')}
+              icon={<Workflow className="w-4 h-4 text-purple-600 dark:text-purple-400" />}
+              label="Animated Beam (9 Slots)"
+              badge={`${(beamForm.nodes || []).filter((n) => n && n.title && n.title.trim().length > 0).length}/9`}
+            />
+            <TabButton
               active={activeTab === 'education'}
               onClick={() => setActiveTab('education')}
               icon={<GraduationCap className="w-4 h-4" />}
@@ -1152,6 +1210,7 @@ export const AdminDashboard: React.FC = () => {
                 <option value="seo">🌐 Favicon & SEO Meta</option>
                 <option value="popup">🔔 Greeting Popup</option>
                 <option value="effects">✨ 3D Particles & Touch FX</option>
+                <option value="animatedBeam">⚡ Animated Beam (9 Slots)</option>
                 <option value="education">🎓 Education & Degrees</option>
                 <option value="certificates">🏆 Certifications & Badges</option>
                 <option value="experience">💼 Work Experience</option>
@@ -5234,6 +5293,17 @@ export const AdminDashboard: React.FC = () => {
                   </button>
                 </div>
               </form>
+            )}
+
+            {/* ANIMATED BEAM ARCHITECTURE TAB (MAX 9 SLOTS) */}
+            {activeTab === 'animatedBeam' && (
+              <AdminAnimatedBeamTab
+                beamForm={beamForm}
+                setBeamForm={setBeamForm}
+                isBeamDirty={isBeamDirty}
+                onSave={handleSaveAnimatedBeam}
+                onResetDefaults={handleResetBeamDefaults}
+              />
             )}
 
             {/* CLIENT INQUIRIES & PROJECT BRIEFS TAB */}

@@ -12,6 +12,7 @@ import { usePortfolio } from '../context/PortfolioContext';
 import { AnimatedCounter } from './animations/AnimatedCounter';
 import { TiltCard } from './animations/TiltCard';
 import { Magnetic } from './animations/Magnetic';
+import { Text3DFlip } from './ui/text-3d-flip';
 import sharifulFull from '../assets/myhero2.jpg';
 import sharifulAlt from '../assets/myhero.jpg';
 
@@ -30,7 +31,15 @@ export const AboutSection: React.FC<{ onContactClick: () => void }> = ({ onConta
             <span>BACKGROUND & EXPERIENCE</span>
           </div>
           <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
-            Engineering High-Impact <span className="gradient-text">Digital Solutions</span>
+            <Text3DFlip
+              className="font-extrabold justify-center"
+              textClassName="text-slate-900 dark:text-white"
+              flipTextClassName="text-purple-600 dark:text-purple-400"
+              rotateDirection="top"
+              staggerDuration={0.025}
+            >
+              Engineering High-Impact <span className="gradient-text">Digital Solutions</span>
+            </Text3DFlip>
           </h2>
           <p className="text-base text-slate-600 dark:text-zinc-400">
             A look into my background, engineering philosophy, and hands-on milestones across e-commerce and full-stack software development.

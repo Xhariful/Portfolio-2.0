@@ -4,6 +4,7 @@ import { Star, MessageSquare, CheckCircle2, MapPin, Briefcase, Quote, ChevronDow
 import { usePortfolio } from '../context/PortfolioContext';
 import { TiltCard } from './animations/TiltCard';
 import { Magnetic } from './animations/Magnetic';
+import { Text3DFlip } from './ui/text-3d-flip';
 
 export const TestimonialsSection: React.FC = () => {
   const { data } = usePortfolio();
@@ -31,7 +32,15 @@ export const TestimonialsSection: React.FC = () => {
             <span>CLIENT REVIEWS & STORE ENDORSEMENTS</span>
           </div>
           <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
-            Client Reviews & <span className="gradient-text">Store Feedback</span>
+            <Text3DFlip
+              className="font-extrabold justify-center"
+              textClassName="text-slate-900 dark:text-white"
+              flipTextClassName="text-purple-600 dark:text-purple-400"
+              rotateDirection="top"
+              staggerDuration={0.025}
+            >
+              Client Reviews & <span className="gradient-text">Store Feedback</span>
+            </Text3DFlip>
           </h2>
           <p className="text-base text-slate-600 dark:text-zinc-400">
             Real feedback from international founders, e-commerce brand owners, and agency leaders who partnered with me.

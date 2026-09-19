@@ -139,5 +139,29 @@
   animation-play-state: paused;
 }
 
+/* Shimmer Button & Shimmer Card Perimeter Beam Animations */
+@keyframes spin-around {
+  0% {
+    transform: translateZ(0) rotate(0deg);
+  }
+  100% {
+    transform: translateZ(0) rotate(360deg);
+  }
+}
+
+@keyframes shimmer-slide {
+  to {
+    transform: translate(calc(100cqw - 100%), 0);
+  }
+}
+
+.animate-spin-around {
+  animation: spin-around var(--speed, 4s) linear infinite;
+}
+
+.animate-shimmer-slide {
+  animation: shimmer-slide var(--speed, 4s) ease-in-out infinite alternate;
+}
+
 
 

@@ -19,24 +19,47 @@ const splitIntoCharacters = (text: string): string[] => {
   return Array.from(text);
 };
 
-const extractTextFromChildren = (children: React.ReactNode): string => {
-  if (children == null) return '';
-  if (typeof children === 'string') return children;
-  if (typeof children === 'number') return String(children);
+export interface TextSegment {
+  text: string;
+  className?: string;
+  flipClassName?: string;
+}
 
-  if (Array.isArray(children)) {
-    return children.map(extractTextFromChildren).join('');
+const extractSegments = (
+  node: React.ReactNode,
+  parentClass?: string,
+  parentFlipClass?: string
+): TextSegment[] => {
+  if (node == null || node === false || node === true) return [];
+  if (typeof node === 'string' || typeof node === 'number') {
+    return [
+      {
+        text: String(node),
+        className: parentClass,
+        flipClassName: parentFlipClass,
+      },
+    ];
   }
-
-  if (React.isValidElement(children)) {
-    const props = children.props as Record<string, unknown>;
-    const childText = props.children as React.ReactNode;
-    if (childText != null) {
-      return extractTextFromChildren(childText);
-    }
+  if (Array.isArray(node)) {
+    return node.flatMap((child) =>
+      extractSegments(child, parentClass, parentFlipClass)
+    );
   }
-
-  return '';
+  if (React.isValidElement(node)) {
+    const props = node.props as {
+      className?: string;
+      flipClassName?: string;
+      children?: React.ReactNode;
+    };
+    const nodeClass = props.className
+      ? parentClass
+        ? `${parentClass} ${props.className}`
+        : props.className
+      : parentClass;
+    const nodeFlipClass = props.flipClassName || parentFlipClass;
+    return extractSegments(props.children, nodeClass, nodeFlipClass);
+  }
+  return [];
 };
 
 const ROTATION_MAP = {
@@ -64,13 +87,25 @@ export interface Text3DFlipProps extends React.HTMLAttributes<HTMLElement> {
   rotateDirection?: 'top' | 'right' | 'bottom' | 'left';
 }
 
+interface CharInfo {
+  char: string;
+  className?: string;
+  flipClassName?: string;
+  style?: React.CSSProperties;
+}
+
+interface WordInfo {
+  characters: CharInfo[];
+  needsSpace: boolean;
+}
+
 export const Text3DFlip = ({
   children,
   as: ElementTag = 'span',
   className,
   textClassName,
   flipTextClassName,
-  staggerDuration = 0.03,
+  staggerDuration = 0.025,
   staggerFrom = 'first',
   transition = DEFAULT_TRANSITION,
   rotateDirection = 'top',
@@ -91,29 +126,74 @@ export const Text3DFlip = ({
     };
   }, []);
 
-  const text = useMemo(() => {
-    try {
-      return extractTextFromChildren(children);
-    } catch {
-      return '';
-    }
+  // Parse segments preserving any <span className="..."> or child structures
+  const segments = useMemo(() => {
+    return extractSegments(children);
   }, [children]);
 
-  const characters = useMemo(() => {
-    const words = text.split(' ');
-    return words.map((word, i) => ({
-      characters: splitIntoCharacters(word),
-      needsSpace: i !== words.length - 1,
-    }));
-  }, [text]);
+  // Build words and characters with respective classes and continuous gradients
+  const words = useMemo(() => {
+    const result: WordInfo[] = [];
+    let currentWordChars: CharInfo[] = [];
+
+    for (let sIdx = 0; sIdx < segments.length; sIdx++) {
+      const seg = segments[sIdx];
+      const isGradient = seg.className?.includes('gradient-text');
+      const segText = seg.text;
+      const segChars = splitIntoCharacters(segText);
+      const totalSegChars = segChars.length;
+
+      for (let cIdx = 0; cIdx < totalSegChars; cIdx++) {
+        const char = segChars[cIdx];
+        if (char === ' ') {
+          if (currentWordChars.length > 0) {
+            result.push({ characters: currentWordChars, needsSpace: true });
+            currentWordChars = [];
+          } else if (result.length > 0) {
+            result[result.length - 1].needsSpace = true;
+          }
+        } else {
+          let charStyle: React.CSSProperties | undefined = undefined;
+          if (isGradient) {
+            // Optical continuous gradient across all characters in the segment
+            charStyle = {
+              backgroundSize: `${Math.max(1, totalSegChars) * 100}% 100%`,
+              backgroundPosition: `${(cIdx / Math.max(1, totalSegChars - 1)) * 100}% 0%`,
+            };
+          }
+
+          currentWordChars.push({
+            char,
+            className: seg.className || textClassName,
+            flipClassName:
+              seg.flipClassName ||
+              (isGradient
+                ? `${seg.className} brightness-125 saturate-125`
+                : flipTextClassName),
+            style: charStyle,
+          });
+        }
+      }
+    }
+
+    if (currentWordChars.length > 0) {
+      result.push({ characters: currentWordChars, needsSpace: false });
+    }
+
+    return result;
+  }, [segments, textClassName, flipTextClassName]);
+
+  const rawText = useMemo(() => {
+    return segments.map((s) => s.text).join('');
+  }, [segments]);
 
   const charOffsets = useMemo(() => {
     const offsets = [0];
-    for (const word of characters) {
+    for (const word of words) {
       offsets.push((offsets.at(-1) ?? 0) + word.characters.length);
     }
     return offsets;
-  }, [characters]);
+  }, [words]);
 
   const getStaggerDelay = useCallback(
     (index: number, totalChars: number) => {
@@ -128,7 +208,7 @@ export const Text3DFlip = ({
         const randomIndex = Math.floor(Math.random() * totalChars);
         return Math.abs(randomIndex - index) * staggerDuration;
       }
-      return Math.abs(staggerFrom - index) * staggerDuration;
+      return Math.abs((typeof staggerFrom === 'number' ? staggerFrom : 0) - index) * staggerDuration;
     },
     [staggerFrom, staggerDuration]
   );
@@ -138,7 +218,7 @@ export const Text3DFlip = ({
     isAnimatingRef.current = true;
 
     try {
-      const totalChars = characters.reduce(
+      const totalChars = words.reduce(
         (sum, word) => sum + word.characters.length,
         0
       );
@@ -147,6 +227,7 @@ export const Text3DFlip = ({
         getStaggerDelay(i, totalChars)
       );
 
+      // Rotate to show flip face
       await animate(
         '.text-3d-flip-char',
         { transform: rotationTransform },
@@ -158,31 +239,25 @@ export const Text3DFlip = ({
 
       if (!isMountedRef.current) return;
 
-      if (textClassName && flipTextClassName && textClassName !== flipTextClassName) {
-        await new Promise((resolve) => setTimeout(resolve, 500));
-        if (!isMountedRef.current) return;
+      // Hold flip face momentarily
+      await new Promise((resolve) => setTimeout(resolve, 550));
+      if (!isMountedRef.current) return;
 
-        await animate(
-          '.text-3d-flip-char',
-          { transform: 'rotateX(0deg) rotateY(0deg)' },
-          {
-            ...transition,
-            delay: (i: number) => delays[i],
-          }
-        );
-      } else {
-        await animate(
-          '.text-3d-flip-char',
-          { transform: 'rotateX(0deg) rotateY(0deg)' },
-          { duration: 0 }
-        );
-      }
+      // Smoothly return back to the static front face
+      await animate(
+        '.text-3d-flip-char',
+        { transform: 'rotateX(0deg) rotateY(0deg)' },
+        {
+          ...transition,
+          delay: (i: number) => delays[i],
+        }
+      );
     } finally {
       if (isMountedRef.current) {
         isAnimatingRef.current = false;
       }
     }
-  }, [characters, transition, getStaggerDelay, rotationTransform, animate, scope, textClassName, flipTextClassName]);
+  }, [words, transition, getStaggerDelay, rotationTransform, animate, scope]);
 
   return (
     <ElementTag
@@ -195,16 +270,17 @@ export const Text3DFlip = ({
       ref={scope}
       {...props}
     >
-      <span className="sr-only">{text}</span>
+      <span className="sr-only">{rawText}</span>
 
-      {characters.map((wordObj, wordIndex) => (
-        <span key={wordIndex} className="inline-flex items-baseline">
-          {wordObj.characters.map((char, charIndex) => (
+      {words.map((wordObj, wordIndex) => (
+        <span key={wordIndex} className="inline-flex items-baseline whitespace-nowrap">
+          {wordObj.characters.map((charObj, charIndex) => (
             <CharBox
               key={charOffsets[wordIndex] + charIndex}
-              char={char}
-              textClassName={textClassName}
-              flipTextClassName={flipTextClassName}
+              char={charObj.char}
+              textClassName={charObj.className}
+              flipTextClassName={charObj.flipClassName}
+              style={charObj.style}
               rotateDirection={rotateDirection}
             />
           ))}
@@ -219,6 +295,7 @@ interface CharBoxProps {
   char: string;
   textClassName?: string;
   flipTextClassName?: string;
+  style?: React.CSSProperties;
   rotateDirection: 'top' | 'right' | 'bottom' | 'left';
 }
 
@@ -249,6 +326,7 @@ const CharBox = memo(
     char,
     textClassName,
     flipTextClassName,
+    style,
     rotateDirection,
   }: CharBoxProps) => (
     <span
@@ -256,17 +334,17 @@ const CharBox = memo(
       style={{ transform: CONTAINER_TRANSFORMS[rotateDirection] }}
     >
       <span
-        className={cn('relative inline-block h-[1.15em] backface-hidden', textClassName)}
-        style={{ transform: FRONT_FACE_TRANSFORMS[rotateDirection] }}
+        className={cn('relative inline-block h-[1.2em] leading-normal backface-hidden', textClassName)}
+        style={{ ...style, transform: FRONT_FACE_TRANSFORMS[rotateDirection] }}
       >
         {char}
       </span>
       <span
         className={cn(
-          'absolute top-0 left-0 inline-block h-[1.15em] backface-hidden',
+          'absolute top-0 left-0 inline-block h-[1.2em] leading-normal backface-hidden',
           flipTextClassName
         )}
-        style={{ transform: SECOND_FACE_TRANSFORMS[rotateDirection] }}
+        style={{ ...style, transform: SECOND_FACE_TRANSFORMS[rotateDirection] }}
       >
         {char}
       </span>

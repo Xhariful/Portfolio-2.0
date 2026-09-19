@@ -14,6 +14,8 @@ import {
   SeoConfig,
   WelcomePopupConfig,
   BackgroundEffectsConfig,
+  AnimatedBeamConfig,
+  BeamNodeItem,
   SecurityConfig,
   AuthenticatedUser,
 } from '../types';
@@ -89,6 +91,7 @@ interface PortfolioContextType {
   updateSeo: (seo: Partial<SeoConfig>) => void;
   updateWelcomePopup: (config: Partial<WelcomePopupConfig>) => void;
   updateBackgroundEffects: (config: Partial<BackgroundEffectsConfig>) => void;
+  updateAnimatedBeam: (config: Partial<AnimatedBeamConfig>) => void;
   
   // Education Helpers
   addEducation: (item: EducationItem) => void;
@@ -146,6 +149,7 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           seo: { ...initialPortfolioData.seo, ...(parsed.seo || {}) },
           welcomePopup: { ...initialPortfolioData.welcomePopup, ...(parsed.welcomePopup || {}) },
           backgroundEffects: { ...initialPortfolioData.backgroundEffects, ...(parsed.backgroundEffects || {}) },
+          animatedBeam: { ...initialPortfolioData.animatedBeam, ...(parsed.animatedBeam || {}) },
           education: parsed.education && parsed.education.length > 0 ? parsed.education : initialPortfolioData.education,
         };
       }
@@ -257,6 +261,7 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
             seo: { ...prev.seo, ...(cloudData.seo || {}) },
             welcomePopup: { ...prev.welcomePopup, ...(cloudData.welcomePopup || {}) },
             backgroundEffects: { ...initialPortfolioData.backgroundEffects, ...prev.backgroundEffects, ...(cloudData.backgroundEffects || {}) },
+            animatedBeam: { ...initialPortfolioData.animatedBeam, ...prev.animatedBeam, ...(cloudData.animatedBeam || {}) },
           }));
           setLastCloudSyncTime(new Date().toLocaleTimeString());
         } else {
@@ -305,6 +310,7 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
               seo: { ...prev.seo, ...(remoteData.seo || {}) },
               welcomePopup: { ...prev.welcomePopup, ...(remoteData.welcomePopup || {}) },
               backgroundEffects: { ...initialPortfolioData.backgroundEffects, ...prev.backgroundEffects, ...(remoteData.backgroundEffects || {}) },
+              animatedBeam: { ...initialPortfolioData.animatedBeam, ...prev.animatedBeam, ...(remoteData.animatedBeam || {}) },
             }));
             setLastCloudSyncTime(new Date().toLocaleTimeString());
           }
@@ -763,6 +769,22 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     showToast('Background 3D Particles settings updated & synced to Cloud!');
   };
 
+  const updateAnimatedBeam = (configUpdate: Partial<AnimatedBeamConfig>) => {
+    setData((prev) => {
+      const currentConfig = prev.animatedBeam || initialPortfolioData.animatedBeam || {
+        enabled: true,
+        nodes: [],
+      };
+      const updated = {
+        ...prev,
+        animatedBeam: { ...currentConfig, ...configUpdate },
+      };
+      persistToCloud(updated);
+      return updated;
+    });
+    showToast('Integration Architecture & Beams updated & synced to Cloud!');
+  };
+
   // Sync SEO metadata, title, and favicon dynamically with document head
   useEffect(() => {
     if (typeof document === 'undefined') return;
@@ -1084,6 +1106,7 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         updateSeo,
         updateWelcomePopup,
         updateBackgroundEffects,
+        updateAnimatedBeam,
         addEducation,
         editEducation,
         deleteEducation,

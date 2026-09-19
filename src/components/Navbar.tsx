@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { usePortfolio } from '../context/PortfolioContext';
 import { Magnetic } from './animations/Magnetic';
+import { ShimmerButton } from './ui/shimmer-button';
 
 // Helper to render dynamic logo icon
 const renderLogoIcon = (iconName?: string) => {
@@ -169,15 +170,19 @@ export const Navbar: React.FC<NavbarProps> = ({
               </button>
             </Magnetic>
 
-            {/* Quick Contact CTA */}
+            {/* Quick Contact CTA with Shimmer Beam */}
             <Magnetic strength={0.25}>
-              <button
+              <ShimmerButton
                 onClick={() => handleNav('contact')}
-                className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-semibold text-xs tracking-wide shadow-xs hover:shadow-sm transition-all cursor-pointer"
+                shimmerColor="#ffffff"
+                shimmerDuration="3.5s"
+                background="linear-gradient(135deg, #9333ea 0%, #7e22ce 100%)"
+                borderRadius="0.75rem"
+                className="hidden sm:inline-flex px-3.5 py-1.5 text-xs"
               >
                 <span>Contact</span>
                 <ArrowUpRight className="w-3.5 h-3.5" />
-              </button>
+              </ShimmerButton>
             </Magnetic>
 
             {/* Mobile Hamburger Button */}

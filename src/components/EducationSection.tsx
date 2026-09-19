@@ -15,6 +15,7 @@ import {
 import { usePortfolio } from '../context/PortfolioContext';
 import { TiltCard } from './animations/TiltCard';
 import { Magnetic } from './animations/Magnetic';
+import { Text3DFlip } from './ui/text-3d-flip';
 
 export const EducationSection: React.FC = () => {
   const { data } = usePortfolio();
@@ -51,7 +52,15 @@ export const EducationSection: React.FC = () => {
             <span>ACADEMIC BACKGROUND & CONTINUING COURSES</span>
           </div>
           <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
-            Education & <span className="gradient-text">Courses</span>
+            <Text3DFlip
+              className="font-extrabold justify-center"
+              textClassName="text-slate-900 dark:text-white"
+              flipTextClassName="text-purple-600 dark:text-purple-400"
+              rotateDirection="top"
+              staggerDuration={0.025}
+            >
+              Education & <span className="gradient-text">Courses</span>
+            </Text3DFlip>
           </h2>
           <p className="text-base text-slate-600 dark:text-zinc-400">
             Educational foundation, engineering degrees, and professional software engineering courses shaping my technical expertise.

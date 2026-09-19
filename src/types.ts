@@ -184,6 +184,31 @@ export interface InquiryItem {
   createdAt: string;
 }
 
+export interface BeamNodeItem {
+  id: string; // e.g. 'node-1' to 'node-9'
+  title: string; // If empty string or whitespace, this element is NOT shown and its beam is not drawn!
+  subtitle?: string; // Optional badge or descriptive subtext
+  icon: string; // Preset icon key or Lucide icon name
+  iconUrl?: string; // Optional custom uploaded icon image URL
+  position: 'left' | 'center' | 'right'; // Left column, Center core hub, Right column
+  connectedTo?: string; // id of target node to connect to (e.g. 'node-center')
+  color?: string; // Accent color hex
+  curvature?: number; // Curve angle
+  reverse?: boolean; // Reverse flow animation direction
+}
+
+export interface AnimatedBeamConfig {
+  enabled: boolean;
+  sectionBadge?: string;
+  sectionTitle?: string;
+  sectionSubtitle?: string;
+  beamDuration?: number;
+  beamPathColor?: string;
+  gradientStartColor?: string;
+  gradientStopColor?: string;
+  nodes: BeamNodeItem[]; // Maximum 9 items!
+}
+
 export interface PortfolioData {
   profile: ProfileData;
   stats: StatItem[];
@@ -198,6 +223,7 @@ export interface PortfolioData {
   seo?: SeoConfig;
   welcomePopup?: WelcomePopupConfig;
   backgroundEffects?: BackgroundEffectsConfig;
+  animatedBeam?: AnimatedBeamConfig;
 }
 
 export interface SecurityCredentials {

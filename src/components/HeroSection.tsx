@@ -20,6 +20,7 @@ import { usePortfolio } from '../context/PortfolioContext';
 import { Magnetic } from './animations/Magnetic';
 import { TiltCard } from './animations/TiltCard';
 import { AnimatedCounter } from './animations/AnimatedCounter';
+import { ShimmerButton } from './ui/shimmer-button';
 import Text3DFlip from '@/registry/magicui/text-3d-flip';
 import sharifulImg from '../assets/onlyshariful1.webp';
 import portraitBackup from '../assets/Shariful.jpg';
@@ -171,11 +172,11 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onContactClick, onProj
                   textClassName="text-slate-900 dark:text-white"
                   flipTextClassName="text-purple-600 dark:text-purple-400"
                   rotateDirection="top"
-                  staggerDuration={0.03}
+                  staggerDuration={0.025}
                   staggerFrom="first"
                   transition={{ type: "spring", damping: 25, stiffness: 160 }}
                 >
-                  {`Hi, I'm ${profile.name || 'Shariful Islam'}`}
+                  Hi, I'm <span className="gradient-text">{profile.name || 'Shariful Islam'}</span>
                 </Text3DFlip>
               </h1>
 
@@ -206,13 +207,16 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onContactClick, onProj
               className="flex flex-wrap items-center gap-3.5 pt-2"
             >
               <Magnetic strength={0.25}>
-                <button
+                <ShimmerButton
                   onClick={onContactClick}
-                  className="px-7 py-3.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-semibold text-sm shadow-md hover:shadow-purple-500/25 transition-all flex items-center gap-2 cursor-pointer hover:scale-[1.02]"
+                  shimmerColor="#ffffff"
+                  shimmerDuration="3.2s"
+                  background="linear-gradient(135deg, #9333ea 0%, #7e22ce 100%)"
+                  className="px-7 py-3.5"
                 >
                   <span>Hire Me / Start Project</span>
                   <ArrowUpRight className="w-4 h-4" />
-                </button>
+                </ShimmerButton>
               </Magnetic>
 
               <Magnetic strength={0.25}>

@@ -19,6 +19,7 @@ import { usePortfolio } from '../context/PortfolioContext';
 import { CertificationItem } from '../types';
 import { TiltCard } from './animations/TiltCard';
 import { Magnetic } from './animations/Magnetic';
+import { Text3DFlip } from './ui/text-3d-flip';
 
 export const CertificatesSection: React.FC = () => {
   const { data, showToast } = usePortfolio();
@@ -107,7 +108,15 @@ export const CertificatesSection: React.FC = () => {
             <span>VERIFIED CREDENTIALS & ACHIEVEMENTS</span>
           </div>
           <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
-            Professional <span className="gradient-text">Certificates</span>
+            <Text3DFlip
+              className="font-extrabold justify-center"
+              textClassName="text-slate-900 dark:text-white"
+              flipTextClassName="text-purple-600 dark:text-purple-400"
+              rotateDirection="top"
+              staggerDuration={0.025}
+            >
+              Professional <span className="gradient-text">Certificates</span>
+            </Text3DFlip>
           </h2>
           <p className="text-base text-slate-600 dark:text-zinc-400">
             Official certifications, industry qualifications, and technical accreditations earned throughout my software engineering career.
