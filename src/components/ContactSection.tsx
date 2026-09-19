@@ -81,11 +81,15 @@ export const ContactSection: React.FC = () => {
           createdAt: newInquiry.createdAt,
         });
         if (docRef?.id) {
+          const tempId = newInquiry.id;
           newInquiry.id = docRef.id;
           // Update cached item with real Firestore doc ID
           try {
             const existing = JSON.parse(localStorage.getItem('shariful_portfolio_inquiries_v1') || '[]');
-            const updated = [newInquiry, ...existing.filter((i: any) => i.id !== newInquiry.id && i.createdAt !== newInquiry.createdAt)];
+            const updated = [
+              newInquiry,
+              ...existing.filter((i: any) => i.id !== tempId && i.id !== newInquiry.id && i.createdAt !== newInquiry.createdAt)
+            ];
             localStorage.setItem('shariful_portfolio_inquiries_v1', JSON.stringify(updated));
           } catch (_) {}
         }

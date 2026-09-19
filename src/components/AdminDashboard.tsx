@@ -53,7 +53,7 @@ import {
   ListOrdered,
   Workflow
 } from 'lucide-react';
-import { collection, onSnapshot, query, orderBy, deleteDoc, doc, updateDoc, addDoc } from 'firebase/firestore';
+import { collection, onSnapshot, query, orderBy, deleteDoc, doc, updateDoc, addDoc, getDocs } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { usePortfolio } from '../context/PortfolioContext';
 import { compressImageFile } from '../lib/imageCompressor';
@@ -407,16 +407,32 @@ export const AdminDashboard: React.FC = () => {
   const [isSendingTestInquiry, setIsSendingTestInquiry] = useState(false);
 
   // Subscribe to real-time client inquiries when dashboard is open
+  // Subscribe to real-time client inquiries when dashboard is open
   React.useEffect(() => {
     if (!isDashboardOpen) return;
 
+    // Helper to get list of deleted items (tombstones)
+    const getDeletedKeys = (): string[] => {
+      try {
+        return JSON.parse(localStorage.getItem('shariful_portfolio_deleted_inquiries_v1') || '[]');
+      } catch {
+        return [];
+      }
+    };
+
     // 1. Initial read from local cache
     try {
+      const deletedKeys = getDeletedKeys();
       const cached = localStorage.getItem('shariful_portfolio_inquiries_v1');
       if (cached) {
         const parsed = JSON.parse(cached);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          setInquiries(parsed);
+          const filtered = parsed.filter((item: InquiryItem) => {
+            const key1 = item.id;
+            const key2 = `${item.email || ''}_${item.createdAt || ''}`;
+            return !deletedKeys.includes(key1) && !deletedKeys.includes(key2);
+          });
+          setInquiries(filtered);
         }
       }
     } catch (_) {}
@@ -428,23 +444,17 @@ export const AdminDashboard: React.FC = () => {
       unsubscribe = onSnapshot(
         q,
         (snapshot) => {
+          const deletedKeys = getDeletedKeys();
           const list: InquiryItem[] = [];
           snapshot.forEach((docSnap) => {
-            list.push({ id: docSnap.id, ...docSnap.data() } as InquiryItem);
-          });
-
-          // Merge with any local cache items to prevent losing offline submissions
-          try {
-            const cachedRaw = localStorage.getItem('shariful_portfolio_inquiries_v1');
-            if (cachedRaw) {
-              const cachedList: InquiryItem[] = JSON.parse(cachedRaw);
-              cachedList.forEach((cachedItem) => {
-                if (!list.some((item) => item.id === cachedItem.id || (item.email === cachedItem.email && item.createdAt === cachedItem.createdAt))) {
-                  list.push(cachedItem);
-                }
-              });
+            const docData = docSnap.data() as InquiryItem;
+            const item: InquiryItem = { id: docSnap.id, ...docData };
+            const key1 = item.id;
+            const key2 = `${item.email || ''}_${item.createdAt || ''}`;
+            if (!deletedKeys.includes(key1) && !deletedKeys.includes(key2)) {
+              list.push(item);
             }
-          } catch (_) {}
+          });
 
           // Sort safely in JS by createdAt desc
           list.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
@@ -463,12 +473,24 @@ export const AdminDashboard: React.FC = () => {
 
     // 3. Custom event listener from form submissions in the same browser window
     const handleLocalInquiryAdded = (event: any) => {
+      const deletedKeys = getDeletedKeys();
       try {
         const cached = localStorage.getItem('shariful_portfolio_inquiries_v1');
         if (cached) {
-          setInquiries(JSON.parse(cached));
+          const parsed: InquiryItem[] = JSON.parse(cached);
+          const filtered = parsed.filter((item) => {
+            const key1 = item.id;
+            const key2 = `${item.email || ''}_${item.createdAt || ''}`;
+            return !deletedKeys.includes(key1) && !deletedKeys.includes(key2);
+          });
+          setInquiries(filtered);
         } else if (event?.detail) {
-          setInquiries((prev) => [event.detail, ...prev]);
+          const item = event.detail;
+          const key1 = item.id;
+          const key2 = `${item.email || ''}_${item.createdAt || ''}`;
+          if (!deletedKeys.includes(key1) && !deletedKeys.includes(key2)) {
+            setInquiries((prev) => [item, ...prev.filter((p) => p.id !== item.id)]);
+          }
         }
       } catch (_) {}
     };
@@ -541,19 +563,85 @@ export const AdminDashboard: React.FC = () => {
   // Handle Delete Client Inquiry
   const handleDeleteInquiry = async (id?: string) => {
     if (!id) return;
+    const targetItem = inquiries.find((item) => item.id === id);
+
+    // 1. Store in deleted keys to prevent any snapshot/cache race condition resurrecting it
     try {
-      await deleteDoc(doc(db, 'inquiries', id));
-    } catch (err) {
-      console.warn('[Admin] Delete Firestore inquiry note:', err);
-    }
+      const deletedKeys: string[] = JSON.parse(localStorage.getItem('shariful_portfolio_deleted_inquiries_v1') || '[]');
+      if (id && !deletedKeys.includes(id)) deletedKeys.push(id);
+      if (targetItem?.email && targetItem?.createdAt) {
+        const signature = `${targetItem.email}_${targetItem.createdAt}`;
+        if (!deletedKeys.includes(signature)) deletedKeys.push(signature);
+      }
+      localStorage.setItem('shariful_portfolio_deleted_inquiries_v1', JSON.stringify(deletedKeys));
+    } catch (_) {}
+
+    // 2. Remove immediately from state and localStorage cache
     setInquiries((prev) => {
-      const updated = prev.filter((item) => item.id !== id);
+      const updated = prev.filter((item) => {
+        if (item.id === id) return false;
+        if (targetItem && item.email === targetItem.email && item.createdAt === targetItem.createdAt) return false;
+        return true;
+      });
       try {
         localStorage.setItem('shariful_portfolio_inquiries_v1', JSON.stringify(updated));
       } catch (_) {}
       return updated;
     });
-    showToast('Inquiry removed from inbox.');
+
+    // 3. Delete from Firestore permanently
+    try {
+      await deleteDoc(doc(db, 'inquiries', id));
+    } catch (err) {
+      console.warn('[Admin] Direct delete note:', err);
+    }
+
+    // If id was a temporary client ID or if doc has different Firestore ID, scan and delete in Firestore
+    try {
+      const snap = await getDocs(collection(db, 'inquiries'));
+      snap.forEach(async (docSnap) => {
+        const d = docSnap.data();
+        if (docSnap.id === id || (targetItem && d.email === targetItem.email && d.createdAt === targetItem.createdAt)) {
+          try {
+            await deleteDoc(docSnap.ref);
+          } catch (_) {}
+        }
+      });
+    } catch (_) {}
+
+    showToast('Inquiry permanently removed.');
+  };
+
+  // Handle Clear All Inquiries
+  const handleClearAllInquiries = async () => {
+    if (inquiries.length === 0) return;
+    const confirmed = window.confirm('Are you sure you want to permanently clear all inquiries from your inbox?');
+    if (!confirmed) return;
+
+    try {
+      const deletedKeys: string[] = JSON.parse(localStorage.getItem('shariful_portfolio_deleted_inquiries_v1') || '[]');
+      inquiries.forEach((item) => {
+        if (item.id && !deletedKeys.includes(item.id)) deletedKeys.push(item.id);
+        if (item.email && item.createdAt) {
+          const sig = `${item.email}_${item.createdAt}`;
+          if (!deletedKeys.includes(sig)) deletedKeys.push(sig);
+        }
+      });
+      localStorage.setItem('shariful_portfolio_deleted_inquiries_v1', JSON.stringify(deletedKeys));
+      localStorage.removeItem('shariful_portfolio_inquiries_v1');
+    } catch (_) {}
+
+    setInquiries([]);
+
+    try {
+      const snap = await getDocs(collection(db, 'inquiries'));
+      const batchDeletes = snap.docs.map((docSnap) => deleteDoc(docSnap.ref));
+      await Promise.all(batchDeletes);
+    } catch (e) {
+      console.warn('[Admin] Error clearing inquiries in Firestore:', e);
+    }
+
+    showToast('All inquiries cleared permanently.');
   };
 
   // Handle Toggle Status
@@ -5390,6 +5478,17 @@ export const AdminDashboard: React.FC = () => {
                       <Sparkles className="w-3.5 h-3.5" />
                       <span>Send 1-Click Test Inquiry</span>
                     </button>
+                    {inquiries.length > 0 && (
+                      <button
+                        type="button"
+                        onClick={handleClearAllInquiries}
+                        className="px-3 py-1.5 rounded-lg border border-rose-200 dark:border-rose-900/50 bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-950/60 text-xs font-medium inline-flex items-center gap-1.5 transition-colors cursor-pointer"
+                        title="Permanently remove all inquiries"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                        <span>Clear All ({inquiries.length})</span>
+                      </button>
+                    )}
                   </div>
                 </div>
 

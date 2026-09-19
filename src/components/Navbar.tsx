@@ -133,20 +133,20 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <button
                   key={item.id}
                   onClick={() => handleNav(item.id)}
-                  className={`relative px-3 py-1.5 rounded-lg text-xs font-semibold tracking-wide transition-all duration-200 cursor-pointer ${
+                  className={`relative px-3.5 py-1.5 rounded-lg text-xs tracking-wide transition-all duration-200 cursor-pointer ${
                     isActive
-                      ? 'text-white'
-                      : 'text-slate-700 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-100 hover:bg-white/80 dark:hover:bg-zinc-800/50'
+                      ? 'text-white font-bold'
+                      : 'text-slate-600 dark:text-zinc-400 font-medium hover:text-slate-900 dark:hover:text-zinc-100 hover:bg-white/80 dark:hover:bg-zinc-800/50'
                   }`}
                 >
                   {isActive && (
                     <motion.div
                       layoutId="activeNavIndicator"
-                      className="absolute inset-0 bg-purple-600 rounded-lg -z-10 shadow-xs"
+                      className="absolute inset-0 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-lg shadow-md shadow-purple-600/30"
                       transition={{ type: 'spring', stiffness: 380, damping: 30 }}
                     />
                   )}
-                  <span>{item.label}</span>
+                  <span className="relative z-10">{item.label}</span>
                 </button>
               );
             })}
@@ -216,7 +216,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                       onClick={() => handleNav(item.id)}
                       className={`p-3 rounded-xl text-xs font-semibold transition-all cursor-pointer text-center ${
                         isActive
-                          ? 'bg-purple-600 text-white shadow-sm'
+                          ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold shadow-md shadow-purple-600/25'
                           : 'bg-slate-100 dark:bg-zinc-800 text-slate-800 dark:text-zinc-200 hover:bg-slate-200 dark:hover:bg-zinc-700'
                       }`}
                     >
