@@ -146,7 +146,7 @@ export const ContactSection: React.FC = () => {
   };
 
   return (
-    <section id="contact" className="py-24 px-4 sm:px-6 lg:px-8 relative border-t border-slate-200/80 dark:border-zinc-800/80 bg-slate-50/60 dark:bg-zinc-950/60 scroll-mt-24 overflow-hidden">
+    <section id="contact" className="py-24 px-4 sm:px-6 lg:px-8 relative border-t border-slate-200/80 dark:border-zinc-800/80 bg-slate-50/20 dark:bg-zinc-950/20 scroll-mt-24 overflow-hidden">
       {/* Subtle Background Grid & Ambient Glow matching Hero & Other Sections */}
       <div className="absolute inset-0 bg-grid-clean opacity-60 pointer-events-none" />
       <div className="absolute top-12 left-1/4 w-80 h-80 bg-purple-500/10 dark:bg-purple-600/10 rounded-full blur-3xl pointer-events-none" />
@@ -156,7 +156,7 @@ export const ContactSection: React.FC = () => {
         
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto space-y-3">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-emerald-500/20 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 text-xs font-mono">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-emerald-500/20 bg-emerald-500/10 backdrop-blur-xs text-emerald-700 dark:text-emerald-300 text-xs font-mono">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
               <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
@@ -191,7 +191,7 @@ export const ContactSection: React.FC = () => {
               duration="4.5s"
               className="shadow-sm dark:shadow-none"
             >
-              <div className="p-7 bg-white dark:bg-zinc-900/80 space-y-5 backdrop-blur-xs">
+              <div className="p-7 bg-transparent space-y-5">
                 <h3 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
                   Direct Contact Channels
                 </h3>
@@ -202,7 +202,7 @@ export const ContactSection: React.FC = () => {
                 <div className="space-y-3">
                   
                   {/* Email Item */}
-                  <div className="p-4 rounded-2xl bg-slate-50/80 dark:bg-zinc-950/70 border border-slate-200/90 dark:border-zinc-800/80 hover:border-purple-400/60 dark:hover:border-purple-500/50 hover:bg-white dark:hover:bg-zinc-900/90 transition-all duration-300 shadow-xs dark:shadow-none flex items-center justify-between group">
+                  <div className="p-4 rounded-2xl bg-slate-50/70 dark:bg-zinc-950/60 border border-slate-200/80 dark:border-zinc-800/80 hover:border-purple-400/60 dark:hover:border-purple-500/50 hover:bg-white/90 dark:hover:bg-zinc-900/90 transition-all duration-300 shadow-xs dark:shadow-none flex items-center justify-between group backdrop-blur-xs">
                     <div className="flex items-center gap-3.5">
                       <div className="w-10 h-10 rounded-xl bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 border border-purple-200 dark:border-purple-800/60 flex items-center justify-center transition-colors group-hover:bg-purple-100 dark:group-hover:bg-purple-900/60 flex-shrink-0">
                         <Mail className="w-4 h-4" />
@@ -216,7 +216,7 @@ export const ContactSection: React.FC = () => {
                     </div>
                     <button
                       onClick={copyEmail}
-                      className="p-2.5 rounded-xl bg-white dark:bg-zinc-800/80 border border-slate-200 dark:border-zinc-700/80 text-slate-700 dark:text-zinc-300 hover:text-purple-600 dark:hover:text-purple-300 hover:border-purple-300 dark:hover:border-purple-600 text-xs transition-all cursor-pointer shadow-xs"
+                      className="p-2.5 rounded-xl bg-white/90 dark:bg-zinc-800/80 border border-slate-200 dark:border-zinc-700/80 text-slate-700 dark:text-zinc-300 hover:text-purple-600 dark:hover:text-purple-300 hover:border-purple-300 dark:hover:border-purple-600 text-xs transition-all cursor-pointer shadow-xs"
                       title="Copy Email"
                     >
                       {copiedEmail ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
@@ -225,7 +225,7 @@ export const ContactSection: React.FC = () => {
 
                   {/* WhatsApp Quick Chat Item */}
                   {profile.socials?.whatsapp && (
-                    <div className="p-4 rounded-2xl bg-slate-50/80 dark:bg-zinc-950/70 border border-emerald-500/30 hover:border-emerald-500/60 hover:bg-white dark:hover:bg-zinc-900/90 transition-all duration-300 shadow-xs dark:shadow-none flex items-center justify-between group">
+                    <div className="p-4 rounded-2xl bg-slate-50/70 dark:bg-zinc-950/60 border border-emerald-500/30 hover:border-emerald-500/60 hover:bg-white/90 dark:hover:bg-zinc-900/90 transition-all duration-300 shadow-xs dark:shadow-none flex items-center justify-between group backdrop-blur-xs">
                       <div className="flex items-center gap-3.5">
                         <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 flex items-center justify-center transition-colors group-hover:bg-emerald-100 dark:group-hover:bg-emerald-900/60 flex-shrink-0">
                           <MessageCircle className="w-4 h-4" />
@@ -255,7 +255,7 @@ export const ContactSection: React.FC = () => {
                   )}
 
                   {/* Location & Timezone */}
-                  <div className="p-4 rounded-2xl bg-slate-50/80 dark:bg-zinc-950/70 border border-slate-200/90 dark:border-zinc-800/80 hover:border-sky-400/50 dark:hover:border-sky-500/40 hover:bg-white dark:hover:bg-zinc-900/90 transition-all duration-300 shadow-xs dark:shadow-none flex items-center gap-3.5 group">
+                  <div className="p-4 rounded-2xl bg-slate-50/70 dark:bg-zinc-950/60 border border-slate-200/80 dark:border-zinc-800/80 hover:border-sky-400/50 dark:hover:border-sky-500/40 hover:bg-white/90 dark:hover:bg-zinc-900/90 transition-all duration-300 shadow-xs dark:shadow-none flex items-center gap-3.5 group backdrop-blur-xs">
                     <div className="w-10 h-10 rounded-xl bg-sky-50 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400 border border-sky-200 dark:border-sky-800/60 flex items-center justify-center flex-shrink-0">
                       <MapPin className="w-4 h-4" />
                     </div>
@@ -271,7 +271,7 @@ export const ContactSection: React.FC = () => {
             </ShimmerCard>
 
             {/* Commitments Box */}
-            <div className="p-6 rounded-3xl bg-purple-50/70 dark:bg-zinc-900/80 border border-purple-200/80 dark:border-zinc-800/80 hover:border-purple-300 dark:hover:border-purple-800/60 transition-all duration-300 space-y-3 shadow-xs dark:shadow-none">
+            <div className="p-6 rounded-3xl bg-purple-50/70 dark:bg-zinc-900/60 backdrop-blur-md border border-purple-200/80 dark:border-zinc-800/80 hover:border-purple-300 dark:hover:border-purple-800/60 transition-all duration-300 space-y-3 shadow-xs dark:shadow-none">
               <h4 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
                 <Clock className="w-4 h-4 text-purple-600 dark:text-purple-400" />
                 <span>Client Commitments:</span>
@@ -296,7 +296,7 @@ export const ContactSection: React.FC = () => {
 
           {/* Right Column: Project Inquiry Form (7 Cols) */}
           <div className="lg:col-span-7">
-            <div className="p-7 sm:p-9 rounded-3xl bg-white dark:bg-zinc-900/80 border border-slate-200/90 dark:border-zinc-800/90 shadow-sm dark:shadow-none hover:border-slate-300 dark:hover:border-zinc-700/80 transition-all duration-300 backdrop-blur-xs space-y-6">
+            <div className="p-7 sm:p-9 rounded-3xl bg-white/75 dark:bg-zinc-900/60 border border-slate-200/80 dark:border-zinc-800/80 shadow-xs hover:border-slate-300 dark:hover:border-zinc-700/80 transition-all duration-300 backdrop-blur-md space-y-6">
               <div className="space-y-1">
                 <h3 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
                   Send a Message or Project Brief

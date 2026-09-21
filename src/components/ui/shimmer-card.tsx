@@ -64,7 +64,7 @@ export const ShimmerCard: React.FC<ShimmerCardProps> = ({
 
       {/* 3. INNER CONTAINER (Masks out the center so light only travels the perimeter border) */}
       <div
-        className={`relative z-10 h-full w-full [border-radius:calc(var(--shimmer-card-radius)-var(--shimmer-card-cut))] bg-white dark:bg-zinc-900 overflow-hidden transition-colors duration-200 ${innerClassName}`}
+        className={`relative z-10 h-full w-full [border-radius:calc(var(--shimmer-card-radius)-var(--shimmer-card-cut))] bg-white/75 dark:bg-zinc-900/65 backdrop-blur-md overflow-hidden transition-colors duration-200 ${innerClassName}`}
       >
         {children}
       </div>

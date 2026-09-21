@@ -79,7 +79,7 @@ export const Footer: React.FC<{ onNavigate: (sectionId: string) => void }> = ({ 
   const isImageOnly = profile.logoType === 'image' && hasCustomLogoImg;
 
   return (
-    <footer className="relative border-t border-slate-200/80 dark:border-zinc-800/80 bg-white dark:bg-zinc-950 pt-16 pb-12 px-4 sm:px-6 lg:px-8 overflow-hidden text-slate-600 dark:text-zinc-400">
+    <footer className="relative border-t border-slate-200/80 dark:border-zinc-800/80 bg-slate-50/20 dark:bg-zinc-950/20 pt-16 pb-12 px-4 sm:px-6 lg:px-8 overflow-hidden text-slate-600 dark:text-zinc-400">
       {/* Ambient background glow */}
       <div className="absolute top-0 left-1/3 w-96 h-96 bg-purple-500/5 dark:bg-purple-600/10 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-0 right-1/4 w-80 h-80 bg-sky-500/5 dark:bg-sky-600/5 rounded-full blur-3xl pointer-events-none" />
@@ -87,7 +87,7 @@ export const Footer: React.FC<{ onNavigate: (sectionId: string) => void }> = ({ 
       <div className="max-w-7xl mx-auto space-y-12 relative z-10">
         
         {/* Bento Top Banner: Fast Action & Project Collaboration */}
-        <div className="rounded-3xl p-6 sm:p-8 bg-slate-50 dark:bg-zinc-900/90 border border-slate-200/90 dark:border-zinc-800 shadow-xs dark:shadow-none">
+        <div className="rounded-3xl p-6 sm:p-8 bg-white/75 dark:bg-zinc-900/60 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800/80 shadow-xs">
           <div className="grid lg:grid-cols-12 gap-8 items-center">
             <div className="lg:col-span-7 space-y-3">
               <div className="flex flex-wrap items-center gap-2.5">

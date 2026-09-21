@@ -57,12 +57,12 @@ export const ServicesSection: React.FC<{ onContactClick: () => void }> = ({ onCo
   };
 
   return (
-    <section id="services" className="py-24 px-4 sm:px-6 lg:px-8 relative border-t border-slate-200/60 dark:border-zinc-800/60 scroll-mt-24">
+    <section id="services" className="py-24 px-4 sm:px-6 lg:px-8 relative border-t border-slate-200/60 dark:border-zinc-800/60 bg-slate-50/20 dark:bg-zinc-950/20 scroll-mt-24">
       <div className="max-w-7xl mx-auto space-y-12">
         
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto space-y-3">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-purple-500/20 bg-purple-500/10 text-purple-700 dark:text-purple-300 text-xs font-mono">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-purple-500/20 bg-purple-500/10 backdrop-blur-xs text-purple-700 dark:text-purple-300 text-xs font-mono">
             <Zap className="w-3.5 h-3.5" />
             <span>SOLUTIONS & EXPERTISE</span>
           </div>
@@ -101,7 +101,7 @@ export const ServicesSection: React.FC<{ onContactClick: () => void }> = ({ onCo
                   featured={idx === 0}
                   className="h-full shadow-sm dark:shadow-none"
                 >
-                  <div className="p-7 h-full bg-white dark:bg-zinc-900 space-y-5 flex flex-col justify-between">
+                  <div className="p-7 h-full bg-transparent space-y-5 flex flex-col justify-between">
                     <div className="space-y-4">
                       <div className="flex items-center justify-between">
                         <div className="w-11 h-11 rounded-xl bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 border border-purple-200 dark:border-purple-800/60 flex items-center justify-center">
@@ -130,7 +130,7 @@ export const ServicesSection: React.FC<{ onContactClick: () => void }> = ({ onCo
                         {service.tags.map((tag, tIdx) => (
                           <span
                             key={tIdx}
-                            className="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-zinc-950 text-slate-700 dark:text-zinc-400 border border-slate-200 dark:border-zinc-800 text-xs font-mono"
+                            className="px-2.5 py-1 rounded-lg bg-slate-100/70 dark:bg-zinc-950/60 backdrop-blur-xs text-slate-700 dark:text-zinc-400 border border-slate-200/80 dark:border-zinc-800/80 text-xs font-mono"
                           >
                             {tag}
                           </span>
@@ -158,7 +158,7 @@ export const ServicesSection: React.FC<{ onContactClick: () => void }> = ({ onCo
 
         {/* Load More / Show Less Controls & Counter */}
         {services.length > INITIAL_COUNT && (
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-sm">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-5 rounded-2xl bg-white/75 dark:bg-zinc-900/60 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800/80 shadow-xs">
             {/* Counter */}
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-xl bg-purple-50 dark:bg-purple-950/60 border border-purple-200 dark:border-purple-800/60 text-purple-600 dark:text-purple-400 flex items-center justify-center flex-shrink-0">
@@ -218,7 +218,7 @@ export const ServicesSection: React.FC<{ onContactClick: () => void }> = ({ onCo
         )}
 
         {/* Clean Consultation Banner */}
-        <div className="rounded-3xl bg-purple-50/70 dark:bg-zinc-900/80 border border-purple-200/80 dark:border-zinc-800/80 p-8 sm:p-10 flex flex-col md:flex-row items-center justify-between gap-6 shadow-sm dark:shadow-none hover:border-purple-300/70 dark:hover:border-purple-800/60 transition-all duration-300">
+        <div className="rounded-3xl bg-purple-50/70 dark:bg-zinc-900/60 backdrop-blur-md border border-purple-200/80 dark:border-zinc-800/80 p-8 sm:p-10 flex flex-col md:flex-row items-center justify-between gap-6 shadow-xs hover:border-purple-300/70 dark:hover:border-purple-800/60 transition-all duration-300">
           <div className="space-y-1.5 text-center md:text-left">
             <h3 className="text-2xl font-bold text-slate-900 dark:text-white">Have a unique technical challenge?</h3>
             <p className="text-sm text-slate-600 dark:text-zinc-300 max-w-xl leading-relaxed">

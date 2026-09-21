@@ -42,12 +42,12 @@ export const EducationSection: React.FC = () => {
   };
 
   return (
-    <section id="education" className="py-24 px-4 sm:px-6 lg:px-8 relative border-t border-slate-200/80 dark:border-zinc-800/80 bg-slate-50/70 dark:bg-zinc-950/60 scroll-mt-24">
+    <section id="education" className="py-24 px-4 sm:px-6 lg:px-8 relative border-t border-slate-200/80 dark:border-zinc-800/80 bg-slate-50/20 dark:bg-zinc-950/20 scroll-mt-24">
       <div className="max-w-7xl mx-auto space-y-12">
         
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto space-y-3">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-purple-200 dark:border-purple-800/60 bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 text-xs font-mono">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-purple-200 dark:border-purple-800/60 bg-purple-50/80 dark:bg-purple-950/60 backdrop-blur-xs text-purple-700 dark:text-purple-300 text-xs font-mono">
             <GraduationCap className="w-3.5 h-3.5" />
             <span>ACADEMIC BACKGROUND & CONTINUING COURSES</span>
           </div>
@@ -80,17 +80,17 @@ export const EducationSection: React.FC = () => {
                 className="h-full"
               >
                 <TiltCard maxTilt={5} scale={1.015} glare={true} className="h-full rounded-2xl">
-                  <div className="p-7 h-full rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/90 dark:border-zinc-800 hover:border-purple-300 dark:hover:border-purple-600 transition-all flex flex-col justify-between shadow-xs dark:shadow-none space-y-5">
+                  <div className="p-7 h-full rounded-2xl bg-white/75 dark:bg-zinc-900/60 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800/80 hover:border-purple-300 dark:hover:border-purple-500/50 transition-all flex flex-col justify-between shadow-xs space-y-5">
                 <div className="space-y-4">
                   {/* Top Metadata Badge */}
                   <div className="flex items-center justify-between gap-2">
-                    <span className="px-3 py-1 rounded-lg bg-purple-50 dark:bg-purple-950/60 border border-purple-200 dark:border-purple-800/50 text-purple-700 dark:text-purple-300 font-mono text-xs font-semibold flex items-center gap-1.5">
+                    <span className="px-3 py-1 rounded-lg bg-purple-50/80 dark:bg-purple-950/60 border border-purple-200 dark:border-purple-800/50 text-purple-700 dark:text-purple-300 font-mono text-xs font-semibold flex items-center gap-1.5">
                       <Calendar className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
                       <span>{edu.period}</span>
                     </span>
 
                     {edu.grade && (
-                      <span className="px-2.5 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800/50 text-emerald-700 dark:text-emerald-300 font-mono text-xs font-semibold">
+                      <span className="px-2.5 py-1 rounded-lg bg-emerald-50/80 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800/50 text-emerald-700 dark:text-emerald-300 font-mono text-xs font-semibold">
                         {edu.grade}
                       </span>
                     )}
@@ -115,7 +115,7 @@ export const EducationSection: React.FC = () => {
 
                   {/* Field of study */}
                   {edu.fieldOfStudy && (
-                    <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800/80">
+                    <div className="p-2.5 rounded-xl bg-slate-50/70 dark:bg-zinc-950/60 backdrop-blur-xs border border-slate-200/80 dark:border-zinc-800/80">
                       <span className="text-[11px] font-mono text-slate-500 dark:text-zinc-400 uppercase tracking-wider block">
                         Specialization:
                       </span>
@@ -161,7 +161,7 @@ export const EducationSection: React.FC = () => {
 
           {/* Load More / Show Less Controls & Counter */}
           {education.length > INITIAL_COUNT && (
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/90 dark:border-zinc-800 shadow-xs">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-5 rounded-2xl bg-white/75 dark:bg-zinc-900/60 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800/80 shadow-xs">
               {/* Counter */}
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-xl bg-purple-50 dark:bg-purple-950/60 border border-purple-200 dark:border-purple-800/60 text-purple-600 dark:text-purple-400 flex items-center justify-center flex-shrink-0">
