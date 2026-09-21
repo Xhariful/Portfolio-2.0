@@ -15,7 +15,6 @@ import {
 import { usePortfolio } from '../context/PortfolioContext';
 import { Magnetic } from './animations/Magnetic';
 import { ShimmerButton } from './ui/shimmer-button';
-import { ShimmerCard } from './ui/shimmer-card';
 import { Text3DFlip } from './ui/text-3d-flip';
 import { collection, addDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
@@ -146,7 +145,7 @@ export const ContactSection: React.FC = () => {
   };
 
   return (
-    <section id="contact" className="py-24 px-4 sm:px-6 lg:px-8 relative border-t border-slate-200/80 dark:border-zinc-800/80 bg-slate-50/20 dark:bg-zinc-950/20 scroll-mt-24 overflow-hidden">
+    <section id="contact" className="py-24 px-4 sm:px-6 lg:px-8 relative border-t border-slate-200/80 dark:border-zinc-800/80 bg-transparent scroll-mt-24 overflow-hidden">
       {/* Subtle Background Grid & Ambient Glow matching Hero & Other Sections */}
       <div className="absolute inset-0 bg-grid-clean opacity-60 pointer-events-none" />
       <div className="absolute top-12 left-1/4 w-80 h-80 bg-purple-500/10 dark:bg-purple-600/10 rounded-full blur-3xl pointer-events-none" />
@@ -185,21 +184,15 @@ export const ContactSection: React.FC = () => {
           {/* Left Column: Direct Contact Info (5 Cols) */}
           <div className="lg:col-span-5 space-y-6">
             
-            <ShimmerCard
-              borderRadius="1.5rem"
-              shimmerColor="#a855f7"
-              duration="4.5s"
-              className="shadow-sm dark:shadow-none"
-            >
-              <div className="p-7 bg-transparent space-y-5">
-                <h3 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
-                  Direct Contact Channels
-                </h3>
-                <p className="text-sm text-slate-600 dark:text-zinc-400 leading-relaxed">
-                  I typically respond within <strong className="text-purple-600 dark:text-purple-400 font-semibold">{profile.responseTime || '1 hour'}</strong> during business hours. Choose the communication method that fits your team.
-                </p>
+            <div className="p-7 rounded-3xl bg-white/35 dark:bg-zinc-900/35 backdrop-blur-md border border-slate-200/70 dark:border-zinc-800/70 space-y-5 shadow-xs">
+              <h3 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
+                Direct Contact Channels
+              </h3>
+              <p className="text-sm text-slate-600 dark:text-zinc-400 leading-relaxed">
+                I typically respond within <strong className="text-purple-600 dark:text-purple-400 font-semibold">{profile.responseTime || '1 hour'}</strong> during business hours. Choose the communication method that fits your team.
+              </p>
 
-                <div className="space-y-3">
+              <div className="space-y-3">
                   
                   {/* Email Item */}
                   <div className="p-4 rounded-2xl bg-slate-50/70 dark:bg-zinc-950/60 border border-slate-200/80 dark:border-zinc-800/80 hover:border-purple-400/60 dark:hover:border-purple-500/50 hover:bg-white/90 dark:hover:bg-zinc-900/90 transition-all duration-300 shadow-xs dark:shadow-none flex items-center justify-between group backdrop-blur-xs">
@@ -268,10 +261,9 @@ export const ContactSection: React.FC = () => {
 
                 </div>
               </div>
-            </ShimmerCard>
 
             {/* Commitments Box */}
-            <div className="p-6 rounded-3xl bg-purple-50/70 dark:bg-zinc-900/60 backdrop-blur-md border border-purple-200/80 dark:border-zinc-800/80 hover:border-purple-300 dark:hover:border-purple-800/60 transition-all duration-300 space-y-3 shadow-xs dark:shadow-none">
+            <div className="p-6 rounded-3xl bg-purple-50/35 dark:bg-zinc-900/35 backdrop-blur-md border border-purple-200/60 dark:border-zinc-800/70 hover:border-purple-300 dark:hover:border-purple-800/60 transition-all duration-300 space-y-3 shadow-xs dark:shadow-none">
               <h4 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
                 <Clock className="w-4 h-4 text-purple-600 dark:text-purple-400" />
                 <span>Client Commitments:</span>
@@ -296,7 +288,7 @@ export const ContactSection: React.FC = () => {
 
           {/* Right Column: Project Inquiry Form (7 Cols) */}
           <div className="lg:col-span-7">
-            <div className="p-7 sm:p-9 rounded-3xl bg-white/75 dark:bg-zinc-900/60 border border-slate-200/80 dark:border-zinc-800/80 shadow-xs hover:border-slate-300 dark:hover:border-zinc-700/80 transition-all duration-300 backdrop-blur-md space-y-6">
+            <div className="p-7 sm:p-9 rounded-3xl bg-white/35 dark:bg-zinc-900/35 border border-slate-200/70 dark:border-zinc-800/70 shadow-xs hover:border-slate-300 dark:hover:border-zinc-700/80 transition-all duration-300 backdrop-blur-md space-y-6">
               <div className="space-y-1">
                 <h3 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
                   Send a Message or Project Brief

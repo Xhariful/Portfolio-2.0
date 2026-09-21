@@ -42,7 +42,7 @@ export const EducationSection: React.FC = () => {
   };
 
   return (
-    <section id="education" className="py-24 px-4 sm:px-6 lg:px-8 relative border-t border-slate-200/80 dark:border-zinc-800/80 bg-slate-50/20 dark:bg-zinc-950/20 scroll-mt-24">
+    <section id="education" className="py-24 px-4 sm:px-6 lg:px-8 relative border-t border-slate-200/80 dark:border-zinc-800/80 bg-transparent scroll-mt-24">
       <div className="max-w-7xl mx-auto space-y-12">
         
         {/* Section Header */}
@@ -80,7 +80,7 @@ export const EducationSection: React.FC = () => {
                 className="h-full"
               >
                 <TiltCard maxTilt={5} scale={1.015} glare={true} className="h-full rounded-2xl">
-                  <div className="p-7 h-full rounded-2xl bg-white/75 dark:bg-zinc-900/60 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800/80 hover:border-purple-300 dark:hover:border-purple-500/50 transition-all flex flex-col justify-between shadow-xs space-y-5">
+                  <div className="p-7 h-full rounded-2xl bg-white/35 dark:bg-zinc-900/35 backdrop-blur-md border border-slate-200/70 dark:border-zinc-800/70 hover:border-purple-300 dark:hover:border-purple-500/50 transition-all flex flex-col justify-between shadow-xs space-y-5">
                 <div className="space-y-4">
                   {/* Top Metadata Badge */}
                   <div className="flex items-center justify-between gap-2">
@@ -161,7 +161,7 @@ export const EducationSection: React.FC = () => {
 
           {/* Load More / Show Less Controls & Counter */}
           {education.length > INITIAL_COUNT && (
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-5 rounded-2xl bg-white/75 dark:bg-zinc-900/60 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800/80 shadow-xs">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-5 rounded-2xl bg-white/35 dark:bg-zinc-900/35 backdrop-blur-md border border-slate-200/70 dark:border-zinc-800/70 shadow-xs">
               {/* Counter */}
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-xl bg-purple-50 dark:bg-purple-950/60 border border-purple-200 dark:border-purple-800/60 text-purple-600 dark:text-purple-400 flex items-center justify-center flex-shrink-0">

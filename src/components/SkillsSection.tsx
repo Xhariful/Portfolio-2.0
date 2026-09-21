@@ -44,7 +44,7 @@ export const SkillsSection: React.FC = () => {
   };
 
   return (
-    <section id="skills" className="py-24 px-4 sm:px-6 lg:px-8 relative border-t border-slate-200/60 dark:border-zinc-800/60 bg-slate-50/20 dark:bg-zinc-950/20 scroll-mt-24">
+    <section id="skills" className="py-24 px-4 sm:px-6 lg:px-8 relative border-t border-slate-200/60 dark:border-zinc-800/60 bg-transparent scroll-mt-24">
       <div className="max-w-7xl mx-auto space-y-12">
         
         {/* Section Header */}
@@ -82,7 +82,7 @@ export const SkillsSection: React.FC = () => {
             className={`px-4 py-2 rounded-xl text-xs font-semibold tracking-wide transition-all cursor-pointer ${
               activeCategory === 'all'
                 ? 'bg-purple-600 text-white shadow-sm'
-                : 'bg-white/70 dark:bg-zinc-900/60 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800/80 text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-100'
+                : 'bg-white/35 dark:bg-zinc-900/35 backdrop-blur-md border border-slate-200/70 dark:border-zinc-800/70 text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-100'
             }`}
           >
             All Disciplines
@@ -94,7 +94,7 @@ export const SkillsSection: React.FC = () => {
               className={`px-4 py-2 rounded-xl text-xs font-semibold tracking-wide transition-all cursor-pointer ${
                 activeCategory === cat.id
                   ? 'bg-purple-600 text-white shadow-sm'
-                  : 'bg-white/70 dark:bg-zinc-900/60 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800/80 text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-100'
+                  : 'bg-white/35 dark:bg-zinc-900/35 backdrop-blur-md border border-slate-200/70 dark:border-zinc-800/70 text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-100'
               }`}
             >
               {cat.title}
@@ -114,7 +114,7 @@ export const SkillsSection: React.FC = () => {
               className="h-full"
             >
               <TiltCard maxTilt={5} scale={1.015} glare={true} className="h-full rounded-2xl">
-                <div className="p-6 sm:p-7 h-full rounded-2xl bg-white/75 dark:bg-zinc-900/60 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800/80 shadow-xs space-y-6">
+                <div className="p-6 sm:p-7 h-full rounded-2xl bg-white/35 dark:bg-zinc-900/35 backdrop-blur-md border border-slate-200/70 dark:border-zinc-800/70 shadow-xs space-y-6">
                   <div className="flex items-center justify-between border-b border-slate-100 dark:border-zinc-800/80 pb-4">
                     <div className="space-y-0.5">
                       <span className="text-[11px] font-mono text-purple-600 dark:text-purple-400 uppercase tracking-wider font-semibold">
@@ -162,7 +162,7 @@ export const SkillsSection: React.FC = () => {
 
         {/* Load More / Show Less Controls & Counter */}
         {filteredCategories.length > INITIAL_COUNT && (
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-5 rounded-2xl bg-white/75 dark:bg-zinc-900/60 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800/80 shadow-xs">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-5 rounded-2xl bg-white/35 dark:bg-zinc-900/35 backdrop-blur-md border border-slate-200/70 dark:border-zinc-800/70 shadow-xs">
             {/* Counter */}
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-xl bg-purple-50 dark:bg-purple-950/60 border border-purple-200 dark:border-purple-800/60 text-purple-600 dark:text-purple-400 flex items-center justify-center flex-shrink-0">

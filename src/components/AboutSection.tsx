@@ -21,7 +21,7 @@ export const AboutSection: React.FC<{ onContactClick: () => void }> = ({ onConta
   const { profile, workTimeline, achievements } = data;
 
   return (
-    <section id="about" className="py-24 px-4 sm:px-6 lg:px-8 relative border-t border-slate-200/80 dark:border-zinc-800/80 bg-slate-50/20 dark:bg-zinc-950/20 scroll-mt-24">
+    <section id="about" className="py-24 px-4 sm:px-6 lg:px-8 relative border-t border-slate-200/80 dark:border-zinc-800/80 bg-transparent scroll-mt-24">
       <div className="max-w-7xl mx-auto space-y-16">
         
         {/* Section Header */}
@@ -52,7 +52,7 @@ export const AboutSection: React.FC<{ onContactClick: () => void }> = ({ onConta
           {/* Left Column: Portrait & Stats (5 Cols) */}
           <div className="lg:col-span-5 space-y-4">
             <TiltCard maxTilt={6} scale={1.02} glare={true} className="rounded-3xl">
-              <div className="rounded-3xl overflow-hidden border border-slate-200/80 dark:border-zinc-800/80 bg-white/75 dark:bg-zinc-900/60 backdrop-blur-md p-2.5 shadow-md shadow-slate-900/5 dark:shadow-2xl">
+              <div className="rounded-3xl overflow-hidden border border-slate-200/70 dark:border-zinc-800/70 bg-white/35 dark:bg-zinc-900/35 backdrop-blur-md p-2.5 shadow-md shadow-slate-900/5 dark:shadow-2xl">
                 <div className="aspect-[4/5] rounded-2xl overflow-hidden bg-slate-100 dark:bg-zinc-950 relative border border-slate-200/80 dark:border-zinc-800">
                   <img
                     src={profile.aboutImage && profile.aboutImage.trim().length > 0 ? profile.aboutImage : (sharifulFull || sharifulAlt)}
@@ -79,13 +79,13 @@ export const AboutSection: React.FC<{ onContactClick: () => void }> = ({ onConta
 
             {/* Quick Stat Blocks with AnimatedCounter */}
             <div className="grid grid-cols-2 gap-3">
-              <div className="p-4 rounded-2xl bg-white/70 dark:bg-zinc-900/60 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800/80 shadow-xs text-center hover:border-purple-300 dark:hover:border-purple-600 transition-all">
+              <div className="p-4 rounded-2xl bg-white/35 dark:bg-zinc-900/35 backdrop-blur-md border border-slate-200/70 dark:border-zinc-800/70 shadow-xs text-center hover:border-purple-300 dark:hover:border-purple-600 transition-all">
                 <p className="text-2xl font-extrabold text-slate-900 dark:text-white flex items-center justify-center">
                   <AnimatedCounter value="150" suffix="+" />
                 </p>
                 <p className="text-xs text-slate-500 dark:text-zinc-400 font-mono mt-0.5">Projects Delivered</p>
               </div>
-              <div className="p-4 rounded-2xl bg-white/70 dark:bg-zinc-900/60 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800/80 shadow-xs text-center hover:border-emerald-300 dark:hover:border-emerald-600 transition-all">
+              <div className="p-4 rounded-2xl bg-white/35 dark:bg-zinc-900/35 backdrop-blur-md border border-slate-200/70 dark:border-zinc-800/70 shadow-xs text-center hover:border-emerald-300 dark:hover:border-emerald-600 transition-all">
                 <p className="text-2xl font-extrabold text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
                   <AnimatedCounter value="99" suffix="%" />
                 </p>
@@ -110,7 +110,7 @@ export const AboutSection: React.FC<{ onContactClick: () => void }> = ({ onConta
 
             {/* Value Pillars */}
             <div className="grid sm:grid-cols-2 gap-4 pt-1">
-              <div className="p-5 rounded-2xl bg-white/70 dark:bg-zinc-900/60 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800/80 space-y-2 shadow-xs hover:border-purple-300 dark:hover:border-purple-500/50 transition-all">
+              <div className="p-5 rounded-2xl bg-white/35 dark:bg-zinc-900/35 backdrop-blur-md border border-slate-200/70 dark:border-zinc-800/70 space-y-2 shadow-xs hover:border-purple-300 dark:hover:border-purple-500/50 transition-all">
                 <div className="p-2 rounded-xl bg-purple-50/80 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 border border-purple-200 dark:border-purple-800/60 w-fit">
                   <Zap className="w-4 h-4" />
                 </div>
@@ -120,7 +120,7 @@ export const AboutSection: React.FC<{ onContactClick: () => void }> = ({ onConta
                 </p>
               </div>
 
-              <div className="p-5 rounded-2xl bg-white/70 dark:bg-zinc-900/60 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800/80 space-y-2 shadow-xs hover:border-sky-300 dark:hover:border-sky-500/50 transition-all">
+              <div className="p-5 rounded-2xl bg-white/35 dark:bg-zinc-900/35 backdrop-blur-md border border-slate-200/70 dark:border-zinc-800/70 space-y-2 shadow-xs hover:border-sky-300 dark:hover:border-sky-500/50 transition-all">
                 <div className="p-2 rounded-xl bg-sky-50/80 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400 border border-sky-200 dark:border-sky-800/60 w-fit">
                   <Globe className="w-4 h-4" />
                 </div>
@@ -162,7 +162,7 @@ export const AboutSection: React.FC<{ onContactClick: () => void }> = ({ onConta
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.4, delay: idx * 0.1 }}
-                className="p-6 rounded-2xl bg-white/75 dark:bg-zinc-900/60 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800/80 space-y-3 shadow-xs hover:border-purple-300 dark:hover:border-purple-500/50 hover:-translate-y-1 transition-all duration-300"
+                className="p-6 rounded-2xl bg-white/35 dark:bg-zinc-900/35 backdrop-blur-md border border-slate-200/70 dark:border-zinc-800/70 space-y-3 shadow-xs hover:border-purple-300 dark:hover:border-purple-500/50 hover:-translate-y-1 transition-all duration-300"
               >
                 <div className="flex items-center justify-between">
                   <span className="px-2.5 py-1 rounded-lg bg-purple-50/80 dark:bg-purple-950/60 border border-purple-200 dark:border-purple-800/50 text-purple-700 dark:text-purple-300 font-mono text-xs font-semibold">
@@ -184,7 +184,7 @@ export const AboutSection: React.FC<{ onContactClick: () => void }> = ({ onConta
                   {item.skills.map((s, sIdx) => (
                     <span
                       key={sIdx}
-                      className="px-2 py-0.5 rounded-md bg-white/80 dark:bg-zinc-950/70 text-slate-700 dark:text-zinc-400 border border-slate-200/80 dark:border-zinc-800 text-[10px] font-mono"
+                      className="px-2 py-0.5 rounded-md bg-white/50 dark:bg-zinc-950/60 text-slate-700 dark:text-zinc-400 border border-slate-200/70 dark:border-zinc-800 text-[10px] font-mono"
                     >
                       {s}
                     </span>
@@ -196,7 +196,7 @@ export const AboutSection: React.FC<{ onContactClick: () => void }> = ({ onConta
         </div>
 
         {/* Recognitions & Key Accomplishments */}
-        <div className="p-6 sm:p-8 rounded-3xl bg-white/75 dark:bg-zinc-900/60 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800/80 space-y-5 shadow-xs">
+        <div className="p-6 sm:p-8 rounded-3xl bg-white/35 dark:bg-zinc-900/35 backdrop-blur-md border border-slate-200/70 dark:border-zinc-800/70 space-y-5 shadow-xs">
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-xl bg-purple-50/80 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 border border-purple-200 dark:border-purple-800/60">
               <Award className="w-5 h-5" />
@@ -211,7 +211,7 @@ export const AboutSection: React.FC<{ onContactClick: () => void }> = ({ onConta
             {achievements.map((ach, idx) => (
               <div
                 key={idx}
-                className="p-4 rounded-xl bg-slate-50/70 dark:bg-zinc-950/60 backdrop-blur-xs border border-slate-200/80 dark:border-zinc-800/80 space-y-1.5 shadow-xs hover:border-purple-400/80 dark:hover:border-purple-500/50 hover:-translate-y-1 hover:shadow-md transition-all duration-300 group"
+                className="p-4 rounded-xl bg-white/30 dark:bg-zinc-950/40 backdrop-blur-xs border border-slate-200/70 dark:border-zinc-800/70 space-y-1.5 shadow-xs hover:border-purple-400/80 dark:hover:border-purple-500/50 hover:-translate-y-1 hover:shadow-md transition-all duration-300 group"
               >
                 <span className="text-[10px] font-mono uppercase text-purple-600 dark:text-purple-400 font-semibold tracking-wider group-hover:text-purple-500 dark:group-hover:text-purple-300 transition-colors">
                   {ach.category}

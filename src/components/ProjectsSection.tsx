@@ -15,7 +15,6 @@ import { usePortfolio } from '../context/PortfolioContext';
 import { ProjectItem } from '../types';
 import { TiltCard } from './animations/TiltCard';
 import { Magnetic } from './animations/Magnetic';
-import { ShimmerCard } from './ui/shimmer-card';
 import { Text3DFlip } from './ui/text-3d-flip';
 
 export const ProjectsSection: React.FC = () => {
@@ -65,7 +64,7 @@ export const ProjectsSection: React.FC = () => {
   };
 
   return (
-    <section id="projects" className="py-24 px-4 sm:px-6 lg:px-8 relative border-t border-slate-200/60 dark:border-zinc-800/60 bg-slate-50/20 dark:bg-zinc-950/20 scroll-mt-24">
+    <section id="projects" className="py-24 px-4 sm:px-6 lg:px-8 relative border-t border-slate-200/60 dark:border-zinc-800/60 bg-transparent scroll-mt-24">
       <div className="max-w-7xl mx-auto space-y-12">
         
         {/* Section Header */}
@@ -99,7 +98,7 @@ export const ProjectsSection: React.FC = () => {
               className={`px-4 py-2 rounded-xl text-xs font-semibold tracking-wide transition-all cursor-pointer ${
                 activeCategory === cat
                   ? 'bg-purple-600 text-white shadow-sm'
-                  : 'bg-white/70 dark:bg-zinc-900/60 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800/80 text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-100'
+                  : 'bg-white/35 dark:bg-zinc-900/35 backdrop-blur-md border border-slate-200/70 dark:border-zinc-800/70 text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-100'
               }`}
             >
               {cat}
@@ -119,17 +118,11 @@ export const ProjectsSection: React.FC = () => {
               className="h-full"
             >
               <TiltCard maxTilt={5} scale={1.015} glare={false} className="h-full rounded-2xl">
-                <ShimmerCard
-                  borderRadius="1rem"
-                  shimmerColor="#a855f7"
-                  duration="4s"
-                  featured={idx === 0}
-                  className="h-full shadow-sm dark:shadow-none"
-                >
-                  <div className="group h-full bg-transparent overflow-hidden flex flex-col justify-between">
+                <div className="group h-full rounded-2xl bg-white/35 dark:bg-zinc-900/35 backdrop-blur-md border border-slate-200/70 dark:border-zinc-800/70 hover:border-purple-300 dark:hover:border-purple-500/50 overflow-hidden flex flex-col justify-between shadow-xs transition-colors">
+                  <div className="flex flex-col h-full justify-between">
                     {/* Project Image Preview */}
                     <div
-                      className="relative aspect-[16/10] overflow-hidden bg-slate-100 dark:bg-zinc-950 cursor-pointer"
+                      className="relative aspect-[16/10] overflow-hidden bg-slate-100/60 dark:bg-zinc-950/60 cursor-pointer"
                       onClick={() => setSelectedProject(project)}
                       data-cursor="View"
                     >
@@ -236,7 +229,7 @@ export const ProjectsSection: React.FC = () => {
                       </div>
                     </div>
                   </div>
-                </ShimmerCard>
+                </div>
               </TiltCard>
             </motion.div>
           ))}
@@ -244,7 +237,7 @@ export const ProjectsSection: React.FC = () => {
 
         {/* Load More / Show Less Controls & Counter */}
         {filteredProjects.length > INITIAL_COUNT && (
-          <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 p-5 rounded-2xl bg-white/75 dark:bg-zinc-900/60 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800/80 shadow-xs">
+          <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 p-5 rounded-2xl bg-white/35 dark:bg-zinc-900/35 backdrop-blur-md border border-slate-200/70 dark:border-zinc-800/70 shadow-xs">
             {/* Progress / Counter Indicator */}
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-xl bg-purple-50 dark:bg-purple-950/60 border border-purple-200 dark:border-purple-800/60 text-purple-600 dark:text-purple-400 flex items-center justify-center flex-shrink-0">

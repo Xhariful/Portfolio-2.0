@@ -148,12 +148,12 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onContactClick, onProj
                 <span>{profile.badge || "AVAILABLE FOR FREELANCE & CONTRACTS"}</span>
               </div>
 
-              <div className="inline-flex items-center gap-1.5 text-xs text-slate-600 dark:text-zinc-400 px-3 py-1 rounded-full border border-slate-200/90 dark:border-zinc-800 bg-white dark:bg-zinc-900/60 shadow-xs">
+              <div className="inline-flex items-center gap-1.5 text-xs text-slate-600 dark:text-zinc-400 px-3 py-1 rounded-full border border-slate-200/90 dark:border-zinc-800 bg-white/50 dark:bg-zinc-900/40 backdrop-blur-xs shadow-xs">
                 <Clock className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
                 <span>{profile.responseTime ? `Fast ${profile.responseTime} Response` : 'Fast Response'}</span>
               </div>
 
-              <div className="hidden sm:inline-flex items-center gap-1.5 text-xs text-slate-600 dark:text-zinc-400 px-3 py-1 rounded-full border border-slate-200/90 dark:border-zinc-800 bg-white dark:bg-zinc-900/60 shadow-xs">
+              <div className="hidden sm:inline-flex items-center gap-1.5 text-xs text-slate-600 dark:text-zinc-400 px-3 py-1 rounded-full border border-slate-200/90 dark:border-zinc-800 bg-white/50 dark:bg-zinc-900/40 backdrop-blur-xs shadow-xs">
                 <MapPin className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
                 <span>{profile.timezone || 'Dhaka (UTC+6)'}</span>
               </div>
@@ -291,7 +291,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onContactClick, onProj
               className="w-full max-w-sm"
             >
               <TiltCard maxTilt={7} scale={1.02} glare={true} className="rounded-3xl">
-                <div className="rounded-3xl p-3 bg-white/75 dark:bg-zinc-900/60 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800/80 shadow-xl shadow-slate-900/5 dark:shadow-2xl space-y-4">
+                <div className="rounded-3xl p-3 bg-white/35 dark:bg-zinc-900/35 backdrop-blur-md border border-slate-200/70 dark:border-zinc-800/70 shadow-xl shadow-slate-900/5 dark:shadow-2xl space-y-4">
                   
                   {/* Clean Photo Container */}
                   <div className="aspect-[4/5] rounded-2xl overflow-hidden bg-slate-100 dark:bg-zinc-950 relative border border-slate-200/80 dark:border-zinc-800">
@@ -325,7 +325,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onContactClick, onProj
 
                   {/* Direct Capability Tags */}
                   <div className="grid grid-cols-2 gap-2 pt-1">
-                    <div className="p-2.5 rounded-xl bg-slate-50/70 dark:bg-zinc-950/60 backdrop-blur-xs border border-slate-200/80 dark:border-zinc-800/80 text-center transition-colors hover:border-purple-300 dark:hover:border-purple-700">
+                    <div className="p-2.5 rounded-xl bg-white/30 dark:bg-zinc-950/40 backdrop-blur-xs border border-slate-200/70 dark:border-zinc-800/70 text-center transition-colors hover:border-purple-300 dark:hover:border-purple-700">
                       <p className="text-xs font-bold text-slate-800 dark:text-zinc-200 flex items-center justify-center gap-1.5">
                         <ShoppingBag className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
                         <span>Shopify 2.0</span>
@@ -333,7 +333,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onContactClick, onProj
                       <p className="text-[10px] text-slate-500 dark:text-zinc-400 font-mono mt-0.5">Liquid & Themes</p>
                     </div>
 
-                    <div className="p-2.5 rounded-xl bg-slate-50/70 dark:bg-zinc-950/60 backdrop-blur-xs border border-slate-200/80 dark:border-zinc-800/80 text-center transition-colors hover:border-sky-300 dark:hover:border-sky-700">
+                    <div className="p-2.5 rounded-xl bg-white/30 dark:bg-zinc-950/40 backdrop-blur-xs border border-slate-200/70 dark:border-zinc-800/70 text-center transition-colors hover:border-sky-300 dark:hover:border-sky-700">
                       <p className="text-xs font-bold text-slate-800 dark:text-zinc-200 flex items-center justify-center gap-1.5">
                         <Code2 className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
                         <span>Python/Django</span>
@@ -360,7 +360,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onContactClick, onProj
             {stats.map((item, idx) => (
               <div
                 key={idx}
-                className="p-5 rounded-2xl bg-white/75 dark:bg-zinc-900/60 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800/80 shadow-xs transition-all hover:border-purple-300 dark:hover:border-purple-500/50 hover:-translate-y-1 duration-300"
+                className="p-5 rounded-2xl bg-white/35 dark:bg-zinc-900/35 backdrop-blur-md border border-slate-200/70 dark:border-zinc-800/70 shadow-xs transition-all hover:border-purple-300 dark:hover:border-purple-500/50 hover:-translate-y-1 duration-300"
               >
                 <div className="flex items-baseline gap-0.5">
                   <AnimatedCounter
@@ -387,7 +387,7 @@ const CleanSocialLink = ({ href, icon, label }: { href: string; icon: React.Reac
     target="_blank"
     rel="noreferrer"
     aria-label={label}
-    className="p-2 rounded-xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-slate-600 dark:text-zinc-400 hover:text-purple-600 dark:hover:text-purple-300 hover:border-purple-400 dark:hover:border-purple-600 transition-all cursor-pointer shadow-sm block"
+    className="p-2 rounded-xl border border-slate-200/70 dark:border-zinc-800/70 bg-white/40 dark:bg-zinc-900/40 backdrop-blur-xs text-slate-600 dark:text-zinc-400 hover:text-purple-600 dark:hover:text-purple-300 hover:border-purple-400 dark:hover:border-purple-600 transition-all cursor-pointer shadow-xs block"
     title={label}
   >
     {icon}

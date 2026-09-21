@@ -231,7 +231,7 @@ export const TechBeamSection: React.FC = () => {
       {/* Main Diagram Area with Animated Beams */}
       <div
         ref={containerRef}
-        className="relative w-full rounded-2xl bg-white/70 dark:bg-zinc-900/70 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800/80 p-6 sm:p-10 shadow-sm overflow-hidden min-h-[380px] flex items-center justify-center"
+        className="relative w-full rounded-2xl bg-white/35 dark:bg-zinc-900/35 backdrop-blur-md border border-slate-200/70 dark:border-zinc-800/70 p-6 sm:p-10 shadow-sm overflow-hidden min-h-[380px] flex items-center justify-center"
       >
         {/* Subtle grid background */}
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none" />

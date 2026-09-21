@@ -15,7 +15,6 @@ import {
 import { usePortfolio } from '../context/PortfolioContext';
 import { TiltCard } from './animations/TiltCard';
 import { Magnetic } from './animations/Magnetic';
-import { ShimmerCard } from './ui/shimmer-card';
 import { Text3DFlip } from './ui/text-3d-flip';
 
 export const ServicesSection: React.FC<{ onContactClick: () => void }> = ({ onContactClick }) => {
@@ -57,7 +56,7 @@ export const ServicesSection: React.FC<{ onContactClick: () => void }> = ({ onCo
   };
 
   return (
-    <section id="services" className="py-24 px-4 sm:px-6 lg:px-8 relative border-t border-slate-200/60 dark:border-zinc-800/60 bg-slate-50/20 dark:bg-zinc-950/20 scroll-mt-24">
+    <section id="services" className="py-24 px-4 sm:px-6 lg:px-8 relative border-t border-slate-200/60 dark:border-zinc-800/60 bg-transparent scroll-mt-24">
       <div className="max-w-7xl mx-auto space-y-12">
         
         {/* Section Header */}
@@ -94,63 +93,55 @@ export const ServicesSection: React.FC<{ onContactClick: () => void }> = ({ onCo
               className="h-full"
             >
               <TiltCard maxTilt={5} scale={1.015} glare={false} className="h-full rounded-2xl">
-                <ShimmerCard
-                  borderRadius="1rem"
-                  shimmerColor="#a855f7"
-                  duration="4.2s"
-                  featured={idx === 0}
-                  className="h-full shadow-sm dark:shadow-none"
-                >
-                  <div className="p-7 h-full bg-transparent space-y-5 flex flex-col justify-between">
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <div className="w-11 h-11 rounded-xl bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 border border-purple-200 dark:border-purple-800/60 flex items-center justify-center">
-                          {getIcon(service.icon)}
-                        </div>
-                        <div className="flex items-center gap-2">
-                          {idx === 0 && (
-                            <span className="px-2 py-0.5 rounded-md bg-purple-500/10 border border-purple-500/20 text-purple-600 dark:text-purple-400 text-[10px] font-mono font-bold uppercase tracking-wider">
-                              Featured
-                            </span>
-                          )}
-                          <span className="text-xs font-mono text-slate-400 dark:text-zinc-500 font-semibold">0{idx + 1}</span>
-                        </div>
+                <div className="p-7 h-full rounded-2xl bg-white/35 dark:bg-zinc-900/35 backdrop-blur-md border border-slate-200/70 dark:border-zinc-800/70 hover:border-purple-300 dark:hover:border-purple-500/50 space-y-5 flex flex-col justify-between shadow-xs transition-colors">
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="w-11 h-11 rounded-xl bg-purple-50/80 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 border border-purple-200 dark:border-purple-800/60 flex items-center justify-center">
+                        {getIcon(service.icon)}
                       </div>
-
-                      <h3 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
-                        {service.title}
-                      </h3>
-
-                      <p className="text-sm text-slate-600 dark:text-zinc-300 leading-relaxed font-normal">
-                        {service.description}
-                      </p>
-
-                      {/* Feature Tags */}
-                      <div className="flex flex-wrap gap-1.5 pt-1">
-                        {service.tags.map((tag, tIdx) => (
-                          <span
-                            key={tIdx}
-                            className="px-2.5 py-1 rounded-lg bg-slate-100/70 dark:bg-zinc-950/60 backdrop-blur-xs text-slate-700 dark:text-zinc-400 border border-slate-200/80 dark:border-zinc-800/80 text-xs font-mono"
-                          >
-                            {tag}
+                      <div className="flex items-center gap-2">
+                        {idx === 0 && (
+                          <span className="px-2 py-0.5 rounded-md bg-purple-500/10 border border-purple-500/20 text-purple-600 dark:text-purple-400 text-[10px] font-mono font-bold uppercase tracking-wider">
+                            Featured
                           </span>
-                        ))}
+                        )}
+                        <span className="text-xs font-mono text-slate-400 dark:text-zinc-500 font-semibold">0{idx + 1}</span>
                       </div>
                     </div>
 
-                    <div className="pt-4 border-t border-slate-100 dark:border-zinc-800/80 flex items-center justify-between">
-                      <Magnetic strength={0.25}>
-                        <button
-                          onClick={onContactClick}
-                          className="inline-flex items-center gap-1.5 text-xs font-bold text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 tracking-wide uppercase transition-colors cursor-pointer"
+                    <h3 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
+                      {service.title}
+                    </h3>
+
+                    <p className="text-sm text-slate-600 dark:text-zinc-300 leading-relaxed font-normal">
+                      {service.description}
+                    </p>
+
+                    {/* Feature Tags */}
+                    <div className="flex flex-wrap gap-1.5 pt-1">
+                      {service.tags.map((tag, tIdx) => (
+                        <span
+                          key={tIdx}
+                          className="px-2.5 py-1 rounded-lg bg-slate-100/60 dark:bg-zinc-950/40 backdrop-blur-xs text-slate-700 dark:text-zinc-400 border border-slate-200/70 dark:border-zinc-800/70 text-xs font-mono"
                         >
-                          <span>Request Proposal</span>
-                          <ArrowUpRight className="w-3.5 h-3.5" />
-                        </button>
-                      </Magnetic>
+                          {tag}
+                        </span>
+                      ))}
                     </div>
                   </div>
-                </ShimmerCard>
+
+                  <div className="pt-4 border-t border-slate-100/70 dark:border-zinc-800/70 flex items-center justify-between">
+                    <Magnetic strength={0.25}>
+                      <button
+                        onClick={onContactClick}
+                        className="inline-flex items-center gap-1.5 text-xs font-bold text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 tracking-wide uppercase transition-colors cursor-pointer"
+                      >
+                        <span>Request Proposal</span>
+                        <ArrowUpRight className="w-3.5 h-3.5" />
+                      </button>
+                    </Magnetic>
+                  </div>
+                </div>
               </TiltCard>
             </motion.div>
           ))}
@@ -218,7 +209,7 @@ export const ServicesSection: React.FC<{ onContactClick: () => void }> = ({ onCo
         )}
 
         {/* Clean Consultation Banner */}
-        <div className="rounded-3xl bg-purple-50/70 dark:bg-zinc-900/60 backdrop-blur-md border border-purple-200/80 dark:border-zinc-800/80 p-8 sm:p-10 flex flex-col md:flex-row items-center justify-between gap-6 shadow-xs hover:border-purple-300/70 dark:hover:border-purple-800/60 transition-all duration-300">
+        <div className="rounded-3xl bg-purple-50/40 dark:bg-zinc-900/35 backdrop-blur-md border border-purple-200/60 dark:border-zinc-800/70 p-8 sm:p-10 flex flex-col md:flex-row items-center justify-between gap-6 shadow-xs hover:border-purple-300/70 dark:hover:border-purple-800/60 transition-all duration-300">
           <div className="space-y-1.5 text-center md:text-left">
             <h3 className="text-2xl font-bold text-slate-900 dark:text-white">Have a unique technical challenge?</h3>
             <p className="text-sm text-slate-600 dark:text-zinc-300 max-w-xl leading-relaxed">

@@ -94,7 +94,7 @@ export const CertificatesSection: React.FC = () => {
   return (
     <section
       id="certificates"
-      className="py-24 px-4 sm:px-6 lg:px-8 relative border-t border-slate-200/80 dark:border-zinc-800/80 bg-slate-50/20 dark:bg-zinc-950/20 scroll-mt-24"
+      className="py-24 px-4 sm:px-6 lg:px-8 relative border-t border-slate-200/80 dark:border-zinc-800/80 bg-transparent scroll-mt-24"
     >
       {/* Subtle background glow */}
       <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-purple-500/5 dark:bg-purple-600/10 rounded-full blur-3xl pointer-events-none" />
@@ -132,7 +132,7 @@ export const CertificatesSection: React.FC = () => {
               className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold tracking-wide transition-all cursor-pointer ${
                 activeCategory === 'all'
                   ? 'bg-purple-600 text-white shadow-sm'
-                  : 'bg-white/70 dark:bg-zinc-900/60 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800/80 text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-100'
+                  : 'bg-white/35 dark:bg-zinc-900/35 backdrop-blur-md border border-slate-200/70 dark:border-zinc-800/70 text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-100'
               }`}
             >
               All ({certifications.length})
@@ -144,7 +144,7 @@ export const CertificatesSection: React.FC = () => {
                 className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold tracking-wide transition-all cursor-pointer ${
                   activeCategory.toLowerCase() === cat.toLowerCase()
                     ? 'bg-purple-600 text-white shadow-sm'
-                    : 'bg-white/70 dark:bg-zinc-900/60 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800/80 text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-100'
+                    : 'bg-white/35 dark:bg-zinc-900/35 backdrop-blur-md border border-slate-200/70 dark:border-zinc-800/70 text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-100'
                 }`}
               >
                 {cat}
@@ -161,7 +161,7 @@ export const CertificatesSection: React.FC = () => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search certificates or skills..."
-                className="w-full pl-9 pr-3 py-2 rounded-xl bg-white/70 dark:bg-zinc-900/60 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800/80 text-xs text-slate-900 dark:text-zinc-100 placeholder:text-slate-400 dark:placeholder:text-zinc-500 focus:outline-none focus:border-purple-500 transition-colors"
+                className="w-full pl-9 pr-3 py-2 rounded-xl bg-white/35 dark:bg-zinc-900/35 backdrop-blur-md border border-slate-200/70 dark:border-zinc-800/70 text-xs text-slate-900 dark:text-zinc-100 placeholder:text-slate-400 dark:placeholder:text-zinc-500 focus:outline-none focus:border-purple-500 transition-colors"
               />
               {searchQuery && (
                 <button
@@ -177,7 +177,7 @@ export const CertificatesSection: React.FC = () => {
 
         {/* Empty State */}
         {filteredCerts.length === 0 && (
-          <div className="p-12 text-center rounded-2xl bg-white/75 dark:bg-zinc-900/60 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800/80 space-y-3">
+          <div className="p-12 text-center rounded-2xl bg-white/35 dark:bg-zinc-900/35 backdrop-blur-md border border-slate-200/70 dark:border-zinc-800/70 space-y-3">
             <Award className="w-10 h-10 mx-auto text-slate-300 dark:text-zinc-600" />
             <h4 className="text-base font-bold text-slate-800 dark:text-zinc-200">No certificates found</h4>
             <p className="text-xs text-slate-500 dark:text-zinc-400">Try adjusting your category filter or search query.</p>
@@ -196,7 +196,7 @@ export const CertificatesSection: React.FC = () => {
               className="h-full"
             >
               <TiltCard maxTilt={5} scale={1.015} glare={true} className="h-full rounded-2xl">
-                <div className="group h-full rounded-2xl bg-white/75 dark:bg-zinc-900/60 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800/80 hover:border-purple-300 dark:hover:border-purple-500/50 p-6 flex flex-col justify-between shadow-xs hover:shadow-md transition-all space-y-5 relative overflow-hidden">
+                <div className="group h-full rounded-2xl bg-white/35 dark:bg-zinc-900/35 backdrop-blur-md border border-slate-200/70 dark:border-zinc-800/70 hover:border-purple-300 dark:hover:border-purple-500/50 p-6 flex flex-col justify-between shadow-xs hover:shadow-md transition-all space-y-5 relative overflow-hidden">
                   {/* Subtle card top gradient accent */}
                   <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-500 via-indigo-500 to-sky-500 opacity-80 group-hover:opacity-100 transition-opacity" />
 

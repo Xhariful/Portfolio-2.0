@@ -16,7 +16,7 @@ export const TestimonialsSection: React.FC = () => {
   const hasMore = visibleCount < testimonials.length;
 
   return (
-    <section id="reviews" className="py-24 px-4 sm:px-6 lg:px-8 relative border-t border-slate-200/80 dark:border-zinc-800/80 bg-slate-50/20 dark:bg-zinc-950/20 scroll-mt-24">
+    <section id="reviews" className="py-24 px-4 sm:px-6 lg:px-8 relative border-t border-slate-200/80 dark:border-zinc-800/80 bg-transparent scroll-mt-24">
       {/* Fallback alias for any legacy links referencing #testimonials */}
       <div id="testimonials" className="absolute -top-24 pointer-events-none opacity-0" />
 
@@ -48,7 +48,7 @@ export const TestimonialsSection: React.FC = () => {
         </div>
 
         {/* Top summary stats without admin CTA button */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 rounded-2xl bg-white/75 dark:bg-zinc-900/60 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800/80 shadow-xs">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 rounded-2xl bg-white/35 dark:bg-zinc-900/35 backdrop-blur-md border border-slate-200/70 dark:border-zinc-800/70 shadow-xs">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-1 text-amber-500">
               {[...Array(5)].map((_, i) => (
@@ -78,7 +78,7 @@ export const TestimonialsSection: React.FC = () => {
               className="h-full"
             >
               <TiltCard maxTilt={5} scale={1.015} glare={true} className="h-full rounded-2xl">
-                <div className="group h-full p-6 sm:p-7 rounded-2xl bg-white/75 dark:bg-zinc-900/60 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800/80 hover:border-purple-300 dark:hover:border-purple-500/50 space-y-5 flex flex-col justify-between shadow-xs hover:shadow-md transition-all relative overflow-hidden">
+                <div className="group h-full p-6 sm:p-7 rounded-2xl bg-white/35 dark:bg-zinc-900/35 backdrop-blur-md border border-slate-200/70 dark:border-zinc-800/70 hover:border-purple-300 dark:hover:border-purple-500/50 space-y-5 flex flex-col justify-between shadow-xs hover:shadow-md transition-all relative overflow-hidden">
                   {/* Card top decorative accent */}
                   <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-400 via-purple-500 to-indigo-500 opacity-70 group-hover:opacity-100 transition-opacity" />
 
