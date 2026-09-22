@@ -31,10 +31,10 @@ export const ScrollProgress: React.FC = () => {
   }, []);
 
   return (
-    <div className="fixed top-0 left-0 right-0 h-[3px] z-[9999] pointer-events-none bg-transparent">
+    <div className="fixed top-0 left-0 right-0 h-[3.5px] z-[9999] pointer-events-none bg-slate-200/20 dark:bg-zinc-800/30">
       <div
         ref={barRef}
-        className="h-full w-full bg-gradient-to-r from-purple-600 via-indigo-500 to-sky-400 origin-left transform-gpu"
+        className="h-full w-full bg-gradient-to-r from-purple-600 via-fuchsia-500 to-sky-400 origin-left transform-gpu shadow-[0_0_12px_rgba(192,132,252,0.8)] dark:shadow-[0_0_14px_rgba(168,85,247,0.9)]"
         style={{ transform: 'scaleX(0)' }}
       />
     </div>

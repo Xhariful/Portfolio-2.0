@@ -87,7 +87,7 @@ export const Footer: React.FC<{ onNavigate: (sectionId: string) => void }> = ({ 
       <div className="max-w-7xl mx-auto space-y-12 relative z-10">
         
         {/* Bento Top Banner: Fast Action & Project Collaboration */}
-        <div className="rounded-3xl p-6 sm:p-8 bg-white/75 dark:bg-zinc-900/60 backdrop-blur-md border border-slate-200/80 dark:border-zinc-800/80 shadow-xs">
+        <div className="rounded-3xl p-6 sm:p-8 bg-white/35 dark:bg-zinc-900/35 backdrop-blur-md border border-slate-200/70 dark:border-zinc-800/70 shadow-xs">
           <div className="grid lg:grid-cols-12 gap-8 items-center">
             <div className="lg:col-span-7 space-y-3">
               <div className="flex flex-wrap items-center gap-2.5">

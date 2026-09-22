@@ -4,6 +4,7 @@ import { Star, MessageSquare, CheckCircle2, MapPin, Briefcase, Quote, ChevronDow
 import { usePortfolio } from '../context/PortfolioContext';
 import { TiltCard } from './animations/TiltCard';
 import { Magnetic } from './animations/Magnetic';
+import { AOS } from './animations/AOS';
 import { Text3DFlip } from './ui/text-3d-flip';
 
 export const TestimonialsSection: React.FC = () => {
@@ -69,12 +70,10 @@ export const TestimonialsSection: React.FC = () => {
         {/* Testimonials Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {displayedReviews.map((t, idx) => (
-            <motion.div
+            <AOS
               key={t.id || idx}
-              initial={{ opacity: 0, y: 15 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.35, delay: idx * 0.06 }}
+              animation="fade-up"
+              delay={idx * 80}
               className="h-full"
             >
               <TiltCard maxTilt={5} scale={1.015} glare={true} className="h-full rounded-2xl">
@@ -154,7 +153,7 @@ export const TestimonialsSection: React.FC = () => {
               </div>
             </div>
           </TiltCard>
-        </motion.div>
+        </AOS>
           ))}
         </div>
 

@@ -376,6 +376,32 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onContactClick, onProj
           </div>
         </motion.div>
 
+        {/* Animated Interactive Scroll Down Indicator */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.8 }}
+          className="flex flex-col items-center justify-center pt-2"
+        >
+          <button
+            onClick={() => {
+              const el = document.getElementById('about');
+              if (el) el.scrollIntoView({ behavior: 'smooth' });
+            }}
+            className="group flex flex-col items-center gap-2 text-xs font-mono tracking-widest uppercase text-slate-400 dark:text-zinc-500 hover:text-purple-600 dark:hover:text-purple-400 transition-colors cursor-pointer"
+            aria-label="Scroll to Next Section"
+          >
+            <span className="text-[11px] font-semibold">Scroll to explore</span>
+            <div className="w-5 h-8 rounded-full border-2 border-slate-300/80 dark:border-zinc-700/80 flex items-start justify-center p-1 group-hover:border-purple-500 transition-colors shadow-xs">
+              <motion.span
+                animate={{ y: [0, 10, 0], opacity: [1, 0.4, 1] }}
+                transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
+                className="w-1 h-2 rounded-full bg-purple-600 dark:bg-purple-400"
+              />
+            </div>
+          </button>
+        </motion.div>
+
       </div>
     </section>
   );

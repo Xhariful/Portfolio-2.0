@@ -330,11 +330,6 @@ export const TechBeamSection: React.FC = () => {
                     {primaryCenterNode.subtitle}
                   </p>
                 )}
-
-                <div className="mt-3 flex items-center gap-1.5 text-[11px] font-mono text-slate-500 dark:text-zinc-400">
-                  <Radio className="w-3 h-3 text-emerald-500 animate-pulse" />
-                  <span>{activeNodes.length} Active Nodes Connected</span>
-                </div>
               </motion.div>
             )}
           </div>

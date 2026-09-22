@@ -18,6 +18,7 @@ import { useLenisScroll, getLenis } from './hooks/useLenisScroll';
 import { ScrollProgress } from './components/animations/ScrollProgress';
 import { CustomCursor } from './components/animations/CustomCursor';
 import { MobileTouchEffect } from './components/animations/MobileTouchEffect';
+import { ScrollReveal } from './components/animations/ScrollReveal';
 import { Floating3DParticles } from './components/ui/floating-3d-particles';
 
 // Lazy-load non-critical modals and heavy admin portal to keep mobile bundle ultra-lightweight
@@ -195,32 +196,50 @@ function PortfolioApp() {
         />
 
         {/* About & Credentials */}
-        <AboutSection onContactClick={() => scrollToSection('contact')} />
+        <ScrollReveal direction="up" distance={36} duration={0.7} blur amount={0.06}>
+          <AboutSection onContactClick={() => scrollToSection('contact')} />
+        </ScrollReveal>
 
         {/* Education & Courses */}
-        <EducationSection />
+        <ScrollReveal direction="up" distance={36} duration={0.7} blur amount={0.06}>
+          <EducationSection />
+        </ScrollReveal>
 
         {/* Professional Certifications */}
-        <CertificatesSection />
+        <ScrollReveal direction="up" distance={36} duration={0.7} blur amount={0.06}>
+          <CertificatesSection />
+        </ScrollReveal>
 
         {/* Technical Skills Matrix with Core Technologies Ticker */}
-        <SkillsSection />
+        <ScrollReveal direction="up" distance={36} duration={0.7} blur amount={0.06}>
+          <SkillsSection />
+        </ScrollReveal>
 
         {/* Services & Offerings */}
-        <ServicesSection onContactClick={() => scrollToSection('contact')} />
+        <ScrollReveal direction="up" distance={36} duration={0.7} blur amount={0.06}>
+          <ServicesSection onContactClick={() => scrollToSection('contact')} />
+        </ScrollReveal>
 
         {/* Featured Projects & Case Studies */}
-        <ProjectsSection />
+        <ScrollReveal direction="up" distance={36} duration={0.7} blur amount={0.06}>
+          <ProjectsSection />
+        </ScrollReveal>
 
         {/* Client Endorsements & Store Reviews */}
-        <TestimonialsSection />
+        <ScrollReveal direction="up" distance={36} duration={0.7} blur amount={0.06}>
+          <TestimonialsSection />
+        </ScrollReveal>
 
         {/* Contact & Proposal Form */}
-        <ContactSection />
+        <ScrollReveal direction="up" distance={36} duration={0.7} blur amount={0.06}>
+          <ContactSection />
+        </ScrollReveal>
       </main>
 
       {/* Footer */}
-      <Footer onNavigate={scrollToSection} />
+      <ScrollReveal direction="up" distance={32} duration={0.7} blur amount={0.05}>
+        <Footer onNavigate={scrollToSection} />
+      </ScrollReveal>
 
       {/* Floating Back To Top Button (Shows on scroll at bottom right) */}
       <BackToTop />

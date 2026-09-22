@@ -15,6 +15,7 @@ import {
 import { usePortfolio } from '../context/PortfolioContext';
 import { TiltCard } from './animations/TiltCard';
 import { Magnetic } from './animations/Magnetic';
+import { AOS } from './animations/AOS';
 import { Text3DFlip } from './ui/text-3d-flip';
 
 export const EducationSection: React.FC = () => {
@@ -71,12 +72,10 @@ export const EducationSection: React.FC = () => {
         <div className="space-y-6">
           <div className="grid lg:grid-cols-3 gap-6">
             {displayedEducation.map((edu, idx) => (
-              <motion.div
+              <AOS
                 key={edu.id || idx}
-                initial={{ opacity: 0, y: 15 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: idx * 0.1 }}
+                animation="fade-up"
+                delay={idx * 120}
                 className="h-full"
               >
                 <TiltCard maxTilt={5} scale={1.015} glare={true} className="h-full rounded-2xl">
@@ -155,7 +154,7 @@ export const EducationSection: React.FC = () => {
                 </div>
                   </div>
                 </TiltCard>
-              </motion.div>
+              </AOS>
             ))}
           </div>
 

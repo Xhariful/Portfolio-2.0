@@ -19,6 +19,7 @@ import { usePortfolio } from '../context/PortfolioContext';
 import { CertificationItem } from '../types';
 import { TiltCard } from './animations/TiltCard';
 import { Magnetic } from './animations/Magnetic';
+import { AOS } from './animations/AOS';
 import { Text3DFlip } from './ui/text-3d-flip';
 
 export const CertificatesSection: React.FC = () => {
@@ -187,12 +188,10 @@ export const CertificatesSection: React.FC = () => {
         {/* Certificates Grid */}
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {displayedCerts.map((cert, idx) => (
-            <motion.div
+            <AOS
               key={cert.id || idx}
-              initial={{ opacity: 0, y: 15 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.35, delay: idx * 0.05 }}
+              animation="zoom-in-up"
+              delay={idx * 75}
               className="h-full"
             >
               <TiltCard maxTilt={5} scale={1.015} glare={true} className="h-full rounded-2xl">
@@ -294,7 +293,7 @@ export const CertificatesSection: React.FC = () => {
               </div>
             </div>
           </TiltCard>
-        </motion.div>
+        </AOS>
           ))}
         </div>
 

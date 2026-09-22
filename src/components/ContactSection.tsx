@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { usePortfolio } from '../context/PortfolioContext';
 import { Magnetic } from './animations/Magnetic';
+import { AOS } from './animations/AOS';
 import { ShimmerButton } from './ui/shimmer-button';
 import { Text3DFlip } from './ui/text-3d-flip';
 import { collection, addDoc } from 'firebase/firestore';
@@ -182,7 +183,7 @@ export const ContactSection: React.FC = () => {
         <div className="grid lg:grid-cols-12 gap-10">
           
           {/* Left Column: Direct Contact Info (5 Cols) */}
-          <div className="lg:col-span-5 space-y-6">
+          <AOS animation="fade-right" delay={100} className="lg:col-span-5 space-y-6">
             
             <div className="p-7 rounded-3xl bg-white/35 dark:bg-zinc-900/35 backdrop-blur-md border border-slate-200/70 dark:border-zinc-800/70 space-y-5 shadow-xs">
               <h3 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
@@ -284,10 +285,10 @@ export const ContactSection: React.FC = () => {
               </ul>
             </div>
 
-          </div>
+          </AOS>
 
           {/* Right Column: Project Inquiry Form (7 Cols) */}
-          <div className="lg:col-span-7">
+          <AOS animation="fade-left" delay={200} className="lg:col-span-7">
             <div className="p-7 sm:p-9 rounded-3xl bg-white/35 dark:bg-zinc-900/35 border border-slate-200/70 dark:border-zinc-800/70 shadow-xs hover:border-slate-300 dark:hover:border-zinc-700/80 transition-all duration-300 backdrop-blur-md space-y-6">
               <div className="space-y-1">
                 <h3 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
@@ -495,7 +496,7 @@ export const ContactSection: React.FC = () => {
                 </form>
               )}
             </div>
-          </div>
+          </AOS>
 
         </div>
 

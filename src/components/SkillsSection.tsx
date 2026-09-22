@@ -6,6 +6,7 @@ import { CoreSkillsTicker } from './CoreSkillsSection';
 import { TechBeamSection } from './TechBeamSection';
 import { TiltCard } from './animations/TiltCard';
 import { Magnetic } from './animations/Magnetic';
+import { AOS } from './animations/AOS';
 import { Text3DFlip } from './ui/text-3d-flip';
 
 export const SkillsSection: React.FC = () => {
@@ -104,13 +105,11 @@ export const SkillsSection: React.FC = () => {
 
         {/* Skills Grid */}
         <div className="grid md:grid-cols-2 gap-6">
-          {displayedCategories.map((category) => (
-            <motion.div
+          {displayedCategories.map((category, idx) => (
+            <AOS
               key={category.id}
-              initial={{ opacity: 0, y: 15 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4 }}
+              animation="fade-up"
+              delay={idx * 120}
               className="h-full"
             >
               <TiltCard maxTilt={5} scale={1.015} glare={true} className="h-full rounded-2xl">
@@ -156,7 +155,7 @@ export const SkillsSection: React.FC = () => {
                   </div>
                 </div>
               </TiltCard>
-            </motion.div>
+            </AOS>
           ))}
         </div>
 

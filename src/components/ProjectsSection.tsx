@@ -15,6 +15,7 @@ import { usePortfolio } from '../context/PortfolioContext';
 import { ProjectItem } from '../types';
 import { TiltCard } from './animations/TiltCard';
 import { Magnetic } from './animations/Magnetic';
+import { AOS } from './animations/AOS';
 import { Text3DFlip } from './ui/text-3d-flip';
 
 export const ProjectsSection: React.FC = () => {
@@ -90,7 +91,7 @@ export const ProjectsSection: React.FC = () => {
         </div>
 
         {/* Filter Categories */}
-        <div className="flex flex-wrap items-center justify-center gap-2">
+        <AOS animation="fade-down" delay={100} className="flex flex-wrap items-center justify-center gap-2">
           {categories.map((cat) => (
             <button
               key={cat}
@@ -104,17 +105,15 @@ export const ProjectsSection: React.FC = () => {
               {cat}
             </button>
           ))}
-        </div>
+        </AOS>
 
         {/* Projects Grid */}
         <div className="grid md:grid-cols-2 gap-6">
           {displayedProjects.map((project, idx) => (
-            <motion.div
+            <AOS
               key={project.slug || idx}
-              layout
-              initial={{ opacity: 0, scale: 0.98 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.3, delay: idx * 0.05 }}
+              animation="fade-up"
+              delay={idx * 100}
               className="h-full"
             >
               <TiltCard maxTilt={5} scale={1.015} glare={false} className="h-full rounded-2xl">
@@ -231,7 +230,7 @@ export const ProjectsSection: React.FC = () => {
                   </div>
                 </div>
               </TiltCard>
-            </motion.div>
+            </AOS>
           ))}
         </div>
 
