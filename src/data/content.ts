@@ -7,20 +7,21 @@ import { PortfolioData } from '../types';
 export const initialPortfolioData: PortfolioData = {
   profile: {
     name: "Shariful Islam",
-    role: "Senior Full-Stack Developer & Shopify Architect",
+    role: "Senior Shopify Liquid Developer & Full-Stack Developer",
     badge: "AVAILABLE FOR FREELANCE & CONTRACTS",
     experienceYears: "4+",
     headlines: [
       "I craft high-converting Shopify & E-commerce stores.",
-      "I engineer scalable Python & Django backend systems.",
+      "I engineer custom Shopify Liquid themes & extensions.",
       "I build ultra-responsive React & Next.js web applications.",
+      "I engineer scalable Python & Django backend systems.",
       "I translate complex Figma designs into pixel-perfect code.",
       "I optimize store performance & SEO for global brands."
     ],
     tagline:
-      "Senior Full-Stack Developer & Team Lead specializing in high-performance Python/Django backends, custom Shopify Liquid solutions, and modern interactive web experiences for international clients.",
+      "Senior Shopify Liquid Developer & Full-Stack Engineer specializing in custom Liquid storefronts, high-converting e-commerce experiences, Python/Django APIs, and modern React web applications.",
     bio:
-      "I am a passionate Senior Full-Stack Engineer and Shopify Specialist with over 4 years of experience delivering robust web applications, e-commerce storefronts, and automated backend architectures. I work closely with international founders and agencies to turn vision into high-converting, resilient digital products.",
+      "I am a passionate Senior Shopify Liquid Developer and Full-Stack Engineer with over 4 years of experience delivering robust e-commerce storefronts, custom Liquid themes, scalable web applications, and automated backend architectures. I work closely with international founders and agencies to turn vision into high-converting, resilient digital products.",
     location: "Dhaka, Bangladesh · Remote Worldwide",
     timezone: "UTC+6 (Dhaka)",
     responseTime: "< 1 Hour",
@@ -504,9 +505,9 @@ export const initialPortfolioData: PortfolioData = {
   ],
 
   seo: {
-    metaTitle: "Shariful Islam - Senior Full-Stack Developer & Shopify Architect",
-    metaDescription: "Senior Full-Stack Developer and Shopify Architect specializing in custom Liquid builds, Python/Django APIs, store speed optimization, and interactive web applications.",
-    keywords: "Shariful Islam, Senior Full-Stack Developer, Shopify Developer, Shopify Plus Expert, Liquid Theme Developer, React Developer, Django, Python Developer, Store Optimization",
+    metaTitle: "Shariful Islam - Senior Shopify Liquid Developer & Full-Stack Developer",
+    metaDescription: "Senior Shopify Liquid Developer and Full-Stack Engineer specializing in custom Liquid builds, Shopify theme architecture, Python/Django APIs, and modern React web applications.",
+    keywords: "Shariful Islam, Senior Shopify Liquid Developer, Shopify Developer, Shopify Plus Expert, Liquid Theme Developer, Full-Stack Developer, React Developer, Django, Python Developer, Store Optimization",
     author: "Shariful Islam",
     canonicalUrl: "https://sharif-ul-islam.vercel.app/",
     ogImage: "/myname.png",

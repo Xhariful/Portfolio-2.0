@@ -45,7 +45,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onContactClick, onProj
   // Safe fallback headlines
   const headlines = profile.headlines && profile.headlines.length > 0
     ? profile.headlines
-    : ["Senior Full-Stack & Shopify Specialist"];
+    : ["Senior Shopify Liquid & Full-Stack Developer"];
 
   // Mouse spotlight tracker
   useEffect(() => {
@@ -297,7 +297,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onContactClick, onProj
                   <div className="aspect-[4/5] rounded-2xl overflow-hidden bg-slate-100 dark:bg-zinc-950 relative border border-slate-200/80 dark:border-zinc-800">
                     <img
                       src={profile.heroImage && profile.heroImage.trim().length > 0 ? profile.heroImage : (sharifulImg || portraitBackup)}
-                      alt={`${profile.name} - Senior Full-Stack Developer & Shopify Specialist`}
+                      alt={`${profile.name} - Senior Shopify Liquid & Full-Stack Developer`}
                       width={400}
                       height={500}
                       loading="eager"

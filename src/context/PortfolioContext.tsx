@@ -142,10 +142,14 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
         const parsed = JSON.parse(saved);
+        const mergedProfile = { ...initialPortfolioData.profile, ...(parsed.profile || {}) };
+        if (mergedProfile.role && (mergedProfile.role.includes("Senior Full-Stack") || mergedProfile.role === "Senior Full-Stack Developer & Shopify Architect")) {
+          mergedProfile.role = "Senior Shopify Liquid Developer & Full-Stack Developer";
+        }
         return {
           ...initialPortfolioData,
           ...parsed,
-          profile: { ...initialPortfolioData.profile, ...(parsed.profile || {}) },
+          profile: mergedProfile,
           seo: { ...initialPortfolioData.seo, ...(parsed.seo || {}) },
           welcomePopup: { ...initialPortfolioData.welcomePopup, ...(parsed.welcomePopup || {}) },
           backgroundEffects: { ...initialPortfolioData.backgroundEffects, ...(parsed.backgroundEffects || {}) },
@@ -254,10 +258,15 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         if (portfolioSnap.exists()) {
           const cloudData = portfolioSnap.data() as Partial<PortfolioData>;
           console.log('[Cloud DB] Loaded remote portfolio data from Firestore');
+          const mergedProfile = { ...initialPortfolioData.profile, ...(cloudData.profile || {}) };
+          // If Firestore still contains the older title, update to Senior Shopify Liquid Developer
+          if (mergedProfile.role && (mergedProfile.role.includes("Senior Full-Stack") || mergedProfile.role === "Senior Full-Stack Developer & Shopify Architect")) {
+            mergedProfile.role = "Senior Shopify Liquid Developer & Full-Stack Developer";
+          }
           setData((prev) => ({
             ...prev,
             ...cloudData,
-            profile: { ...prev.profile, ...(cloudData.profile || {}) },
+            profile: mergedProfile,
             seo: { ...prev.seo, ...(cloudData.seo || {}) },
             welcomePopup: { ...prev.welcomePopup, ...(cloudData.welcomePopup || {}) },
             backgroundEffects: { ...initialPortfolioData.backgroundEffects, ...prev.backgroundEffects, ...(cloudData.backgroundEffects || {}) },
@@ -303,10 +312,14 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         unsubscribePortfolio = onSnapshot(portfolioDocRef, (snap) => {
           if (snap.exists()) {
             const remoteData = snap.data() as Partial<PortfolioData>;
+            const mergedProfile = { ...initialPortfolioData.profile, ...(remoteData.profile || {}) };
+            if (mergedProfile.role && (mergedProfile.role.includes("Senior Full-Stack") || mergedProfile.role === "Senior Full-Stack Developer & Shopify Architect")) {
+              mergedProfile.role = "Senior Shopify Liquid Developer & Full-Stack Developer";
+            }
             setData((prev) => ({
               ...prev,
               ...remoteData,
-              profile: { ...prev.profile, ...(remoteData.profile || {}) },
+              profile: mergedProfile,
               seo: { ...prev.seo, ...(remoteData.seo || {}) },
               welcomePopup: { ...prev.welcomePopup, ...(remoteData.welcomePopup || {}) },
               backgroundEffects: { ...initialPortfolioData.backgroundEffects, ...prev.backgroundEffects, ...(remoteData.backgroundEffects || {}) },

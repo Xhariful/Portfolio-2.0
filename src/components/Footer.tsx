@@ -181,7 +181,7 @@ export const Footer: React.FC<{ onNavigate: (sectionId: string) => void }> = ({ 
                       {profile.logoText || profile.name}
                     </span>
                     <span className="text-xs font-mono text-purple-600 dark:text-purple-400">
-                      {profile.role ? profile.role.split('&')[0] : 'Full-Stack Developer'}
+                      {profile.role || 'Senior Shopify Liquid & Full-Stack Developer'}
                     </span>
                   </div>
                 </>
@@ -342,12 +342,12 @@ export const Footer: React.FC<{ onNavigate: (sectionId: string) => void }> = ({ 
           <div className="flex items-center gap-2">
             <p>© {new Date().getFullYear()} {profile.name}. All rights reserved.</p>
             <span className="hidden sm:inline">•</span>
-            <span className="hidden sm:inline text-purple-600 dark:text-purple-400 font-mono">Senior Full-Stack & Shopify</span>
+            <span className="hidden sm:inline text-purple-600 dark:text-purple-400 font-mono">Senior Shopify Liquid & Full-Stack Developer</span>
           </div>
 
           <div className="flex items-center gap-2">
             <span className="text-slate-400 dark:text-zinc-500 text-[11px] font-mono">
-              Designed & Built with React & Tailwind
+              Developed by Shariful Islam
             </span>
           </div>
         </div>

@@ -320,9 +320,9 @@ export const AdminDashboard: React.FC = () => {
 
   // SEO & Favicon Form State
   const [seoForm, setSeoForm] = useState<SeoConfig>(data.seo || {
-    metaTitle: "Shariful Islam - Senior Full-Stack Developer & Shopify Architect",
-    metaDescription: "Senior Full-Stack Developer and Shopify Architect specializing in custom Liquid builds, Python/Django APIs, and interactive web applications.",
-    keywords: "Shariful Islam, Shopify Developer, React Developer, Full-Stack",
+    metaTitle: "Shariful Islam - Senior Shopify Liquid Developer & Full-Stack Developer",
+    metaDescription: "Senior Shopify Liquid Developer and Full-Stack Engineer specializing in custom Liquid builds, Python/Django APIs, and interactive web applications.",
+    keywords: "Shariful Islam, Senior Shopify Liquid Developer, React Developer, Full-Stack",
     author: "Shariful Islam",
     canonicalUrl: "https://sharif-ul-islam.vercel.app/",
     ogImage: "/myname.png",
@@ -4519,7 +4519,7 @@ export const AdminDashboard: React.FC = () => {
                       <span className="truncate max-w-xs">{seoForm.canonicalUrl || 'https://sharif-ul-islam.vercel.app/'}</span>
                     </div>
                     <h4 className="text-base font-medium text-blue-600 dark:text-blue-400 hover:underline cursor-pointer truncate">
-                      {seoForm.metaTitle || 'Shariful Islam - Senior Full-Stack Developer'}
+                      {seoForm.metaTitle || 'Shariful Islam - Senior Shopify Liquid Developer'}
                     </h4>
                     <p className="text-xs text-slate-600 dark:text-zinc-400 line-clamp-2 leading-relaxed">
                       {seoForm.metaDescription || 'Add a compelling meta description to rank higher on Google search results.'}
@@ -4643,7 +4643,7 @@ export const AdminDashboard: React.FC = () => {
                       required
                       value={seoForm.metaTitle}
                       onChange={(e) => setSeoForm((prev) => ({ ...prev, metaTitle: e.target.value }))}
-                      placeholder="e.g. Shariful Islam - Senior Full-Stack Developer & Shopify Architect"
+                      placeholder="e.g. Shariful Islam - Senior Shopify Liquid Developer & Full-Stack Developer"
                       className="input-field"
                     />
                   </FormField>

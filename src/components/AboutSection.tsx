@@ -57,7 +57,7 @@ export const AboutSection: React.FC<{ onContactClick: () => void }> = ({ onConta
                 <div className="aspect-[4/5] rounded-2xl overflow-hidden bg-slate-100 dark:bg-zinc-950 relative border border-slate-200/80 dark:border-zinc-800">
                   <img
                     src={profile.aboutImage && profile.aboutImage.trim().length > 0 ? profile.aboutImage : (sharifulFull || sharifulAlt)}
-                    alt={`${profile.name} - Senior Full-Stack Engineer and Shopify Expert`}
+                    alt={`${profile.name} - Senior Shopify Liquid & Full-Stack Developer`}
                     width={400}
                     height={500}
                     loading="lazy"
