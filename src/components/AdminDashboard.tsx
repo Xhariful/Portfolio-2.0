@@ -647,7 +647,7 @@ export const AdminDashboard: React.FC = () => {
   // Handle Toggle Status
   const handleToggleInquiryStatus = async (id?: string, currentStatus?: string) => {
     if (!id) return;
-    const nextStatus = currentStatus === 'replied' ? 'new' : 'replied';
+    const nextStatus: 'new' | 'replied' = currentStatus === 'replied' ? 'new' : 'replied';
     try {
       await updateDoc(doc(db, 'inquiries', id), { status: nextStatus });
     } catch (err) {
@@ -5700,7 +5700,7 @@ const TabButton: React.FC<{
   onClick: () => void;
   icon: React.ReactNode;
   label: string;
-  badge?: number;
+  badge?: number | string;
 }> = ({ active, onClick, icon, label, badge }) => (
   <button
     onClick={onClick}

@@ -247,14 +247,26 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
     async function initCloudSync() {
       try {
-        await testFirestoreConnection();
+        const isConnected = await testFirestoreConnection(2500);
+        if (!isConnected) {
+          console.log('[Cloud DB] Offline or slow connection detected. Seamlessly using local cached portfolio.');
+          return;
+        }
         setIsCloudConnected(true);
 
         const portfolioDocRef = doc(db, FIRESTORE_PORTFOLIO_COLLECTION, FIRESTORE_PORTFOLIO_DOC);
         const authDocRef = doc(db, FIRESTORE_AUTH_COLLECTION, FIRESTORE_AUTH_DOC);
 
+        // Helper timeout for mobile networks
+        const withTimeout = <T,>(promise: Promise<T>, ms = 3500): Promise<T> => {
+          return Promise.race([
+            promise,
+            new Promise<T>((_, reject) => setTimeout(() => reject(new Error('Firestore operation timeout')), ms))
+          ]);
+        };
+
         // 1. Fetch initial portfolio content from cloud
-        const portfolioSnap = await getDoc(portfolioDocRef);
+        const portfolioSnap = await withTimeout(getDoc(portfolioDocRef));
         if (portfolioSnap.exists()) {
           const cloudData = portfolioSnap.data() as Partial<PortfolioData>;
           console.log('[Cloud DB] Loaded remote portfolio data from Firestore');
@@ -284,7 +296,7 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         }
 
         // 2. Fetch remote master credentials & access keys from cloud
-        const authSnap = await getDoc(authDocRef);
+        const authSnap = await withTimeout(getDoc(authDocRef));
         if (authSnap.exists()) {
           const cloudAuth = authSnap.data() as Partial<SecurityConfig>;
           console.log('[Cloud DB] Loaded master credentials from Firestore');

@@ -17,17 +17,25 @@ export const db = firebaseConfig.firestoreDatabaseId && firebaseConfig.firestore
   ? getFirestore(app, firebaseConfig.firestoreDatabaseId)
   : getFirestore(app);
 
-// Connection test helper
-export async function testFirestoreConnection(): Promise<boolean> {
+// Connection test helper with strict timeout to prevent mobile page freezing
+export async function testFirestoreConnection(timeoutMs = 2500): Promise<boolean> {
   try {
-    await getDocFromServer(doc(db, 'test', 'connection'));
+    const timeoutPromise = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error('Firestore connection check timed out')), timeoutMs)
+    );
+    await Promise.race([
+      getDocFromServer(doc(db, 'test', 'connection')),
+      timeoutPromise,
+    ]);
     console.log('[Firestore] Successfully connected to Firebase cloud database.');
     return true;
   } catch (error) {
-    if (error instanceof Error && error.message.includes('the client is offline')) {
+    if (error instanceof Error && error.message.includes('timed out')) {
+      console.warn('[Firestore] Connection check timed out, proceeding with instant cached/local data.');
+    } else if (error instanceof Error && error.message.includes('the client is offline')) {
       console.warn('[Firestore] Client is offline or database initializing:', error.message);
     } else {
-      console.log('[Firestore] Initial connection check:', error);
+      console.log('[Firestore] Initial connection check fallback:', error);
     }
     return false;
   }

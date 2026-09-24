@@ -119,6 +119,7 @@ export interface TestimonialItem {
   name: string;
   role: string;
   company?: string;
+  country?: string;
   rating: number;
   avatarUrl?: string;
   project?: string;

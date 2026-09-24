@@ -98,13 +98,13 @@ export const Floating3DParticles: React.FC<Floating3DParticlesProps> = ({
       ctx.setTransform(1, 0, 0, 1, 0, 0); // Reset transform before scale
       ctx.scale(dpr, dpr);
 
-      // Re-init particles based on viewport: on mobile, use a crisp optimized set (50-70 particles)
+      // Re-init particles based on viewport: on mobile, use a lightweight, battery-saving set (25-35 particles)
       const isMobile = width < 768;
-      const count = isMobile ? Math.max(45, Math.floor(quantity * 0.35)) : quantity;
+      const count = isMobile ? Math.min(30, Math.max(18, Math.floor(quantity * 0.18))) : quantity;
 
       // On mobile, boost particle radius slightly so they are clearly visible on high-res AMOLED screens
-      const effectiveRadius = isMobile ? Math.max(1.8, radius * 1.2) : radius;
-      const effectiveOpacity = isMobile ? Math.max(0.5, opacity * 1.2) : opacity;
+      const effectiveRadius = isMobile ? Math.max(1.8, radius * 1.1) : radius;
+      const effectiveOpacity = isMobile ? Math.max(0.5, opacity * 1.1) : opacity;
 
       particles = [];
       for (let i = 0; i < count; i++) {
@@ -143,13 +143,20 @@ export const Floating3DParticles: React.FC<Floating3DParticlesProps> = ({
       mouse.targetY = (touch.clientY - halfH) * 0.04;
     };
 
-    // Device orientation gyroscope parallax tilt for smartphones
+    // Device orientation gyroscope parallax tilt for smartphones (strictly type/NaN checked)
     const handleOrientation = (e: DeviceOrientationEvent) => {
-      if (e.gamma !== null && e.beta !== null) {
+      if (
+        typeof e.gamma === 'number' &&
+        !isNaN(e.gamma) &&
+        typeof e.beta === 'number' &&
+        !isNaN(e.beta)
+      ) {
         // gamma: left-to-right tilt [-90, 90]
         // beta: front-to-back tilt [-180, 180]
-        mouse.targetX = Math.max(-25, Math.min(25, e.gamma)) * 0.8;
-        mouse.targetY = Math.max(-25, Math.min(25, (e.beta - 45))) * 0.8;
+        const gx = Math.max(-25, Math.min(25, e.gamma));
+        const gy = Math.max(-25, Math.min(25, e.beta - 45));
+        mouse.targetX = gx * 0.8;
+        mouse.targetY = gy * 0.8;
       }
     };
 
@@ -169,9 +176,13 @@ export const Floating3DParticles: React.FC<Floating3DParticlesProps> = ({
       // Clear Canvas
       ctx.clearRect(0, 0, width, height);
 
-      // Smooth mouse interpolation
-      mouse.x += (mouse.targetX - mouse.x) * 0.04;
-      mouse.y += (mouse.targetY - mouse.y) * 0.04;
+      // Safe mouse interpolation (never allow NaN)
+      if (!isNaN(mouse.targetX)) {
+        mouse.x += (mouse.targetX - mouse.x) * 0.04;
+      }
+      if (!isNaN(mouse.targetY)) {
+        mouse.y += (mouse.targetY - mouse.y) * 0.04;
+      }
 
       // Slow 3D continuous rotation drift
       rotationY += 0.0003;
@@ -184,6 +195,7 @@ export const Floating3DParticles: React.FC<Floating3DParticlesProps> = ({
 
       const halfW = width / 2;
       const halfH = height / 2;
+      const isMobileScreen = width < 768;
 
       // Projected points cache for connection lines
       interface ProjectedPoint {
@@ -222,8 +234,8 @@ export const Floating3DParticles: React.FC<Floating3DParticlesProps> = ({
         let rz2 = p.y * sinX + rz1 * cosX;
 
         // Apply mouse tilt offset
-        const finalX = rx1 + mouse.x;
-        const finalY = ry2 + mouse.y;
+        const finalX = rx1 + (isNaN(mouse.x) ? 0 : mouse.x);
+        const finalY = ry2 + (isNaN(mouse.y) ? 0 : mouse.y);
         const finalZ = rz2 + maxDepth * 0.5; // Offset so particles are in front of camera
 
         // Perspective Projection calculation
@@ -231,8 +243,15 @@ export const Floating3DParticles: React.FC<Floating3DParticlesProps> = ({
         const screenX = halfW + finalX * perspective;
         const screenY = halfH + finalY * perspective;
 
-        // Cull if outside visible canvas padding
-        if (screenX < -50 || screenX > width + 50 || screenY < -50 || screenY > height + 50) {
+        // Cull if outside visible canvas padding or non-finite
+        if (
+          !isFinite(screenX) ||
+          !isFinite(screenY) ||
+          screenX < -50 ||
+          screenX > width + 50 ||
+          screenY < -50 ||
+          screenY > height + 50
+        ) {
           continue;
         }
 
@@ -241,16 +260,13 @@ export const Floating3DParticles: React.FC<Floating3DParticlesProps> = ({
         const depthFactor = Math.max(0.12, Math.min(1, 1 - (finalZ / (maxDepth * 1.3))));
         const alpha = p.baseOpacity * depthFactor;
 
-        if (connectParticles && i % 2 === 0) {
+        // On mobile, skip the line connections to prevent GPU overhead
+        if (connectParticles && !isMobileScreen && i % 2 === 0) {
           projectedList.push({ x: screenX, y: screenY, z: finalZ, alpha });
         }
 
-        // Draw luminous particle
-        ctx.beginPath();
-        ctx.arc(screenX, screenY, screenRadius, 0, Math.PI * 2);
-
-        // Draw soft glow for prominent particles
-        if (screenRadius > 1.2 && depthFactor > 0.45) {
+        // Draw soft glow for prominent particles on desktop
+        if (!isMobileScreen && screenRadius > 1.2 && depthFactor > 0.45) {
           const glow = ctx.createRadialGradient(
             screenX,
             screenY,
@@ -274,11 +290,11 @@ export const Floating3DParticles: React.FC<Floating3DParticlesProps> = ({
         ctx.fill();
       }
 
-      // Draw faint constellation lines between neighboring particles
-      if (connectParticles && projectedList.length > 1) {
+      // Draw faint constellation lines between neighboring particles (desktop only for buttery 120fps)
+      if (connectParticles && !isMobileScreen && projectedList.length > 1) {
         const maxDist = 85;
         const maxDistSq = maxDist * maxDist;
-        const lineCountLimit = Math.min(projectedList.length, 75);
+        const lineCountLimit = Math.min(projectedList.length, 60);
 
         for (let i = 0; i < lineCountLimit; i++) {
           for (let j = i + 1; j < lineCountLimit; j++) {

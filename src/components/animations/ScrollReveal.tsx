@@ -28,12 +28,15 @@ export const ScrollReveal: React.FC<ScrollRevealProps> = ({
   amount = 0.15,
   scale = 1,
 }) => {
+  const isMobileScreen = typeof window !== 'undefined' && window.innerWidth < 768;
+  const shouldBlur = blur && !isMobileScreen;
+
   const getInitial = () => {
     const base: { opacity: number; filter?: string; x?: number; y?: number; scale?: number } = {
       opacity: 0,
     };
 
-    if (blur) {
+    if (shouldBlur) {
       base.filter = 'blur(6px)';
     }
 
@@ -69,7 +72,7 @@ export const ScrollReveal: React.FC<ScrollRevealProps> = ({
       scale: 1,
     };
 
-    if (blur) {
+    if (shouldBlur) {
       base.filter = 'blur(0px)';
     }
 

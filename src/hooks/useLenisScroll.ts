@@ -23,10 +23,14 @@ export const smoothScrollTo = (target: string | HTMLElement, offset: number = -9
 
 export const useLenisScroll = () => {
   useEffect(() => {
-    // Only skip on small screen mobile phones (<640px) if user prefers native touch
-    const isSmallPhone = typeof window !== 'undefined' && window.innerWidth < 640;
+    // Skip on touch screens and mobile/tablet devices (<1024px) to preserve native 120Hz momentum scrolling
+    const isMobileOrTouch =
+      typeof window !== 'undefined' &&
+      (window.innerWidth < 1024 ||
+        'ontouchstart' in window ||
+        navigator.maxTouchPoints > 0);
 
-    if (isSmallPhone) {
+    if (isMobileOrTouch) {
       return;
     }
 

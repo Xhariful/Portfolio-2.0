@@ -27,6 +27,23 @@ interface Ripple {
   isInteractive: boolean;
 }
 
+// Convert any hex or color string to valid rgba(...) CSS string safely
+const toRgba = (c: string, a: number): string => {
+  const safeAlpha = Math.max(0, Math.min(1, isNaN(a) ? 0 : a));
+  if (typeof c === 'string' && c.startsWith('#')) {
+    let clean = c.slice(1).trim();
+    if (clean.length === 3) clean = clean.split('').map((x) => x + x).join('');
+    const num = parseInt(clean, 16);
+    if (!isNaN(num) && clean.length === 6) {
+      const r = (num >> 16) & 255;
+      const g = (num >> 8) & 255;
+      const b = num & 255;
+      return `rgba(${r}, ${g}, ${b}, ${safeAlpha.toFixed(3)})`;
+    }
+  }
+  return `rgba(139, 92, 246, ${safeAlpha.toFixed(3)})`;
+};
+
 export const MobileTouchEffect: React.FC<MobileTouchEffectProps> = ({
   enabled = true,
   color = '#8B5CF6'
@@ -203,9 +220,9 @@ export const MobileTouchEffect: React.FC<MobileTouchEffectProps> = ({
           ts.y,
           ts.radius * 1.8
         );
-        gradient.addColorStop(0, `${color}40`);
-        gradient.addColorStop(0.5, `${color}18`);
-        gradient.addColorStop(1, `${color}00`);
+        gradient.addColorStop(0, toRgba(color, 0.25));
+        gradient.addColorStop(0.5, toRgba(color, 0.08));
+        gradient.addColorStop(1, toRgba(color, 0));
 
         ctx.fillStyle = gradient;
         ctx.beginPath();
@@ -213,7 +230,7 @@ export const MobileTouchEffect: React.FC<MobileTouchEffectProps> = ({
         ctx.fill();
 
         // Inner glowing ring
-        ctx.strokeStyle = `${color}${Math.round(ts.alpha * 255).toString(16).padStart(2, '0')}`;
+        ctx.strokeStyle = toRgba(color, ts.alpha);
         ctx.lineWidth = 1.8;
         ctx.beginPath();
         ctx.arc(ts.x, ts.y, ts.radius, 0, Math.PI * 2);
@@ -238,10 +255,7 @@ export const MobileTouchEffect: React.FC<MobileTouchEffectProps> = ({
         }
 
         // Ripple border
-        const alphaHex = Math.round(Math.max(0, ripple.alpha) * 255)
-          .toString(16)
-          .padStart(2, '0');
-        ctx.strokeStyle = `${ripple.color}${alphaHex}`;
+        ctx.strokeStyle = toRgba(ripple.color, ripple.alpha);
         ctx.lineWidth = ripple.isInteractive ? 2.2 : 1.4;
         ctx.beginPath();
         ctx.arc(ripple.x, ripple.y, ripple.radius, 0, Math.PI * 2);
@@ -256,8 +270,8 @@ export const MobileTouchEffect: React.FC<MobileTouchEffectProps> = ({
           ripple.y,
           ripple.radius
         );
-        fillGradient.addColorStop(0, `${ripple.color}${Math.round(ripple.alpha * 50).toString(16).padStart(2, '0')}`);
-        fillGradient.addColorStop(1, `${ripple.color}00`);
+        fillGradient.addColorStop(0, toRgba(ripple.color, ripple.alpha * 0.25));
+        fillGradient.addColorStop(1, toRgba(ripple.color, 0));
         ctx.fillStyle = fillGradient;
         ctx.beginPath();
         ctx.arc(ripple.x, ripple.y, ripple.radius, 0, Math.PI * 2);
@@ -276,10 +290,7 @@ export const MobileTouchEffect: React.FC<MobileTouchEffectProps> = ({
           continue;
         }
 
-        const alphaHex = Math.round(Math.max(0, p.alpha) * 255)
-          .toString(16)
-          .padStart(2, '0');
-        ctx.fillStyle = `${p.color}${alphaHex}`;
+        ctx.fillStyle = toRgba(p.color, p.alpha);
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
         ctx.fill();

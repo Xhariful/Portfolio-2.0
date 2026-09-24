@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { PortfolioProvider, usePortfolio } from './context/PortfolioContext';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { Navbar } from './components/Navbar';
 import { HeroSection } from './components/HeroSection';
 import { AboutSection } from './components/AboutSection';
@@ -276,8 +277,10 @@ function PortfolioApp() {
 
 export default function App() {
   return (
-    <PortfolioProvider>
-      <PortfolioApp />
-    </PortfolioProvider>
+    <ErrorBoundary>
+      <PortfolioProvider>
+        <PortfolioApp />
+      </PortfolioProvider>
+    </ErrorBoundary>
   );
 }
