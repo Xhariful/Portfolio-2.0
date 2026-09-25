@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120" fill="none">
+  <defs>
+    <linearGradient id="loaderGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#9333ea">
+        <animate attributeName="stop-color" values="#9333ea;#38bdf8;#a855f7;#9333ea" dur="4s" repeatCount="indefinite" />
+      </stop>
+      <stop offset="100%" stop-color="#3b82f6">
+        <animate attributeName="stop-color" values="#3b82f6;#ec4899;#6366f1;#3b82f6" dur="4s" repeatCount="indefinite" />
+      </stop>
+    </linearGradient>
+
+    <filter id="loaderGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="4" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Ambient background glow ring -->
+  <circle cx="60" cy="60" r="44" stroke="#7c3aed" stroke-opacity="0.15" stroke-width="4" />
+
+  <!-- Outer Animated Dashed Track -->
+  <circle 
+    cx="60" 
+    cy="60" 
+    r="44" 
+    stroke="url(#loaderGrad1)" 
+    stroke-width="3.5" 
+    stroke-linecap="round" 
+    stroke-dasharray="75 190"
+    filter="url(#loaderGlow)"
+  >
+    <animateTransform 
+      attributeName="transform" 
+      type="rotate" 
+      from="0 60 60" 
+      to="360 60 60" 
+      dur="1.8s" 
+      repeatCount="indefinite" 
+    />
+  </circle>
+
+  <!-- Counter-rotating Inner Arc -->
+  <circle 
+    cx="60" 
+    cy="60" 
+    r="32" 
+    stroke="#38bdf8" 
+    stroke-width="2.5" 
+    stroke-linecap="round" 
+    stroke-dasharray="45 150"
+    stroke-opacity="0.8"
+  >
+    <animateTransform 
+      attributeName="transform" 
+      type="rotate" 
+      from="360 60 60" 
+      to="0 60 60" 
+      dur="1.4s" 
+      repeatCount="indefinite" 
+    />
+  </circle>
+
+  <!-- Center Core Pulsing Hexagon/Monogram -->
+  <g transform="translate(60,60)">
+    <polygon points="0,-14 12,-7 12,7 0,14 -12,7 -12,-7" fill="#7c3aed" fill-opacity="0.2" stroke="#a855f7" stroke-width="1.5">
+      <animateTransform 
+        attributeName="transform" 
+        type="scale" 
+        values="0.9; 1.12; 0.9" 
+        dur="1.8s" 
+        repeatCount="indefinite" 
+      />
+    </polygon>
+    <!-- Code Accent Bracket Symbol in Center -->
+    <path d="M-4 -5 L-8 0 L-4 5 M4 -5 L8 0 L4 5" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <animate attributeName="opacity" values="0.7; 1; 0.7" dur="1.8s" repeatCount="indefinite" />
+    </path>
+  </g>
+</svg>

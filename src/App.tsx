@@ -21,6 +21,7 @@ import { CustomCursor } from './components/animations/CustomCursor';
 import { MobileTouchEffect } from './components/animations/MobileTouchEffect';
 import { ScrollReveal } from './components/animations/ScrollReveal';
 import { Floating3DParticles } from './components/ui/floating-3d-particles';
+import { InitialLoader } from './components/animations/InitialLoader';
 
 // Lazy-load non-critical modals and heavy admin portal to keep mobile bundle ultra-lightweight
 const WelcomeGreetingModal = React.lazy(() =>
@@ -154,6 +155,9 @@ function PortfolioApp() {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-zinc-950 text-slate-900 dark:text-zinc-100 selection:bg-purple-600 selection:text-white transition-colors duration-300 antialiased relative">
+      {/* 2-Second Initial Loading Screen with SVG Animation */}
+      <InitialLoader duration={2000} customSvgPath="/loading.svg" />
+
       {/* Magic UI Floating 3D Particles Background Effect */}
       {bgFx?.floatingParticles !== false && (
         <Floating3DParticles
