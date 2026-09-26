@@ -433,11 +433,11 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }
   }, [data, securityConfig, showToast]);
 
-  // Open Admin Entry point with clean /onlyadmin URL
+  // Open Admin Entry point with clean /admin URL
   const openAdminPortal = useCallback(() => {
     try {
-      if (typeof window !== 'undefined' && window.location.pathname !== '/onlyadmin') {
-        window.history.replaceState(null, '', '/onlyadmin');
+      if (typeof window !== 'undefined' && window.location.pathname !== '/admin') {
+        window.history.replaceState(null, '', '/admin');
       }
     } catch (_) {}
 
@@ -450,7 +450,7 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }
   }, [currentUser]);
 
-  // Global URL routing handler for /onlyadmin or #onlyadmin
+  // Global URL routing handler for /admin (automatically rewrites #admin to /admin)
   useEffect(() => {
     const checkAdminPath = () => {
       const path = window.location.pathname.toLowerCase();
@@ -458,16 +458,13 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       const search = window.location.search.toLowerCase();
 
       if (
-        path.includes('/onlyadmin') ||
-        hash === '#onlyadmin' ||
-        search.includes('onlyadmin=true') ||
         path.includes('/admin') ||
         hash === '#admin' ||
         search.includes('admin=true')
       ) {
-        if (hash === '#onlyadmin' || hash === '#admin') {
+        if (hash === '#admin' || window.location.pathname !== '/admin') {
           try {
-            window.history.replaceState(null, '', '/onlyadmin');
+            window.history.replaceState(null, '', '/admin');
           } catch (_) {}
         }
         openAdminPortal();
@@ -499,7 +496,7 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       try {
         const path = window.location.pathname.toLowerCase();
         const hash = window.location.hash.toLowerCase();
-        if (path === '/onlyadmin' || path === '/admin' || hash === '#onlyadmin' || hash === '#admin') {
+        if (path === '/admin' || hash === '#admin') {
           window.history.replaceState(null, '', '/');
         }
       } catch (_) {}

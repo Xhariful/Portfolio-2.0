@@ -267,7 +267,7 @@ function PortfolioApp() {
         {/* Dynamic Time-Based Greeting & Project Inquiry Popup */}
         <WelcomeGreetingModal onContactClick={() => scrollToSection('contact')} />
 
-        {/* Admin Login Popup (Triggered when accessing /onlyadmin, #onlyadmin, or shortcut Ctrl+Shift+A) */}
+        {/* Admin Login Popup (Triggered when accessing /admin or shortcut Ctrl+Shift+A) */}
         <AdminLoginModal />
 
         {/* Admin Content Management Dashboard Modal (Accessible only after successful authentication) */}
