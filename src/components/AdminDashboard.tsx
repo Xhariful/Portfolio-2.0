@@ -405,6 +405,9 @@ export const AdminDashboard: React.FC = () => {
     avatarUrl: '/myname.png',
     name: 'Shariful Islam',
     tagline: 'Senior Shopify & Full-Stack Developer',
+    initialStatusText: 'INITIALIZING CORE ARCHITECTURE...',
+    delayStatusText: 'ESTABLISHING SECURE REALTIME CONNECTION...',
+    completionStatusText: 'LAUNCH SUCCESSFUL • WELCOME!',
     durationSeconds: 3.5,
     ringColor: '#8b5cf6',
     enableRealisticDelay: true,
@@ -5440,6 +5443,7 @@ export const AdminDashboard: React.FC = () => {
                 setPreloaderForm={setPreloaderForm}
                 onSave={handleSavePreloader}
                 profileAvatar={data.profile.avatarUrl}
+                showToast={showToast}
               />
             )}
 

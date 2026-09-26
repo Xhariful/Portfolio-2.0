@@ -216,6 +216,9 @@ export interface InitialLoaderConfig {
   avatarUrl?: string; // photo or image url (defaults to profile avatar or /myname.png)
   name?: string; // default "Shariful Islam"
   tagline?: string; // default "Senior Shopify & Full-Stack Developer"
+  initialStatusText?: string; // default "INITIALIZING CORE ARCHITECTURE..."
+  delayStatusText?: string; // default "ESTABLISHING SECURE REALTIME CONNECTION..."
+  completionStatusText?: string; // default "LAUNCH SUCCESSFUL • WELCOME!"
   durationSeconds: number; // default 3.5 seconds
   ringColor?: string; // default '#8b5cf6'
   enableRealisticDelay?: boolean; // default true (the 90% pause)

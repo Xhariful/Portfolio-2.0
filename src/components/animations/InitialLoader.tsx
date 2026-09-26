@@ -24,9 +24,13 @@ export const InitialLoader: React.FC<InitialLoaderProps> = ({
   const enableRealisticDelay = config?.enableRealisticDelay ?? true;
   const showProgressBar = config?.showProgressBar ?? true;
 
+  const initialStatus = config?.initialStatusText || 'INITIALIZING CORE ARCHITECTURE...';
+  const delayStatus = config?.delayStatusText || 'ESTABLISHING SECURE REALTIME CONNECTION...';
+  const completionStatus = config?.completionStatusText || 'LAUNCH SUCCESSFUL • WELCOME!';
+
   const [isVisible, setIsVisible] = useState(enabled);
   const [progress, setProgress] = useState(0);
-  const [statusText, setStatusText] = useState('INITIALIZING CORE...');
+  const [statusText, setStatusText] = useState(initialStatus);
   const progressRef = useRef(0);
 
   useEffect(() => {
@@ -74,9 +78,9 @@ export const InitialLoader: React.FC<InitialLoaderProps> = ({
         const eased = 1 - Math.pow(1 - fraction, 1.5);
         currentPercent = Math.min(88, Math.round(eased * 88));
         
-        if (currentPercent < 30) {
-          setStatusText('INITIALIZING ARCHITECTURE...');
-        } else if (currentPercent < 60) {
+        if (currentPercent < 35) {
+          setStatusText(initialStatus);
+        } else if (currentPercent < 65) {
           setStatusText('LOADING LIQUID & REACT ENGINES...');
         } else {
           setStatusText('SYNCING ASSETS & REPOSITORIES...');
@@ -85,7 +89,7 @@ export const InitialLoader: React.FC<InitialLoaderProps> = ({
         // Deliberate realistic delay around 88% - 92%
         const delayFraction = (elapsed - FAST_DURATION) / (DELAY_END - FAST_DURATION);
         currentPercent = Math.round(88 + delayFraction * 4);
-        setStatusText('ESTABLISHING SECURE REALTIME CONNECTION...');
+        setStatusText(delayStatus);
       } else if (elapsed < COMPLETION_TIME) {
         // Final acceleration from 92% to 100%
         const finalFraction = (elapsed - (enableRealisticDelay ? DELAY_END : FAST_DURATION)) / (COMPLETION_TIME - (enableRealisticDelay ? DELAY_END : FAST_DURATION));
@@ -94,7 +98,7 @@ export const InitialLoader: React.FC<InitialLoaderProps> = ({
         setStatusText('FINALIZING STOREFRONT EXPERIENCE...');
       } else {
         currentPercent = 100;
-        setStatusText('LAUNCH SUCCESSFUL • WELCOME!');
+        setStatusText(completionStatus);
       }
 
       progressRef.current = currentPercent;
@@ -104,7 +108,7 @@ export const InitialLoader: React.FC<InitialLoaderProps> = ({
         animationFrameId = requestAnimationFrame(tick);
       } else {
         setProgress(100);
-        setStatusText('LAUNCH SUCCESSFUL • WELCOME!');
+        setStatusText(completionStatus);
 
         if (!isPreview) {
           const timer = setTimeout(() => {

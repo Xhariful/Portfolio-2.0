@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   RotateCcw,
   Save,
@@ -11,15 +11,23 @@ import {
   Palette,
   Sliders,
   Image as ImageIcon,
+  Upload,
+  Trash2,
+  RefreshCw,
+  FileText,
+  HelpCircle,
+  Layers,
 } from 'lucide-react';
 import { InitialLoaderConfig } from '../types';
 import { InitialLoader } from './animations/InitialLoader';
+import { compressImageFile } from '../lib/imageCompressor';
 
 interface AdminPreloaderTabProps {
   preloaderForm: InitialLoaderConfig;
   setPreloaderForm: React.Dispatch<React.SetStateAction<InitialLoaderConfig>>;
   onSave: (config: InitialLoaderConfig) => void;
   profileAvatar?: string;
+  showToast?: (message: string) => void;
 }
 
 const PRESET_COLORS = [
@@ -36,9 +44,13 @@ export const AdminPreloaderTab: React.FC<AdminPreloaderTabProps> = ({
   setPreloaderForm,
   onSave,
   profileAvatar,
+  showToast,
 }) => {
   const [previewKey, setPreviewKey] = useState(0);
   const [showFullscreenTest, setShowFullscreenTest] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [isDragOver, setIsDragOver] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const restartPreview = () => {
     setPreviewKey((prev) => prev + 1);
@@ -49,8 +61,76 @@ export const AdminPreloaderTab: React.FC<AdminPreloaderTabProps> = ({
     onSave(preloaderForm);
   };
 
+  const handleImageUpload = async (file: File | null) => {
+    if (!file) return;
+    if (!file.type.startsWith('image/') && !file.name.endsWith('.svg') && !file.name.endsWith('.ico')) {
+      showToast?.('Please choose an image file (.png, .jpg, .svg, .webp)');
+      return;
+    }
+
+    try {
+      setIsUploading(true);
+      showToast?.('Compressing and loading image...');
+      const optimizedUrl = await compressImageFile(file, {
+        maxWidth: 600,
+        maxHeight: 600,
+        quality: 0.85,
+        mimeType: 'image/webp',
+      });
+      setPreloaderForm((prev) => ({
+        ...prev,
+        avatarType: 'photo',
+        avatarUrl: optimizedUrl,
+      }));
+      restartPreview();
+      showToast?.('Preloader image uploaded! Click Save to sync to Cloud.');
+    } catch (err) {
+      console.error('Image upload failed:', err);
+      showToast?.('Could not process image.');
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      handleImageUpload(e.dataTransfer.files[0]);
+    }
+  };
+
+  const fillRecommendedPlaceholderContent = () => {
+    setPreloaderForm((prev) => ({
+      ...prev,
+      name: 'Shariful Islam',
+      tagline: 'Senior Shopify & Full-Stack Developer',
+      initialStatusText: 'INITIALIZING CORE ARCHITECTURE...',
+      delayStatusText: 'ESTABLISHING SECURE REALTIME CONNECTION...',
+      completionStatusText: 'LAUNCH SUCCESSFUL • WELCOME!',
+      durationSeconds: 3.5,
+      enableRealisticDelay: true,
+      showProgressBar: true,
+    }));
+    restartPreview();
+    showToast?.('Default placeholder content applied!');
+  };
+
   return (
     <div className="space-y-8 max-w-4xl">
+      {/* Hidden file input */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*,.svg"
+        className="hidden"
+        onChange={(e) => {
+          if (e.target.files && e.target.files[0]) {
+            handleImageUpload(e.target.files[0]);
+          }
+        }}
+      />
+
       {/* Fullscreen Interactive Test Modal */}
       {showFullscreenTest && (
         <div className="fixed inset-0 z-[100000]">
@@ -61,9 +141,9 @@ export const AdminPreloaderTab: React.FC<AdminPreloaderTabProps> = ({
           />
           <button
             onClick={() => setShowFullscreenTest(false)}
-            className="fixed top-6 right-6 z-[100001] px-4 py-2 rounded-xl bg-zinc-900/80 hover:bg-zinc-800 text-white text-xs font-semibold border border-zinc-700 shadow-xl cursor-pointer"
+            className="fixed top-6 right-6 z-[100001] px-4 py-2 rounded-xl bg-zinc-900/90 hover:bg-zinc-800 text-white text-xs font-semibold border border-zinc-700 shadow-2xl cursor-pointer flex items-center gap-2"
           >
-            Close Fullscreen Test (Esc)
+            <span>Close Fullscreen Test (Esc)</span>
           </button>
         </div>
       )}
@@ -73,10 +153,10 @@ export const AdminPreloaderTab: React.FC<AdminPreloaderTabProps> = ({
         <div>
           <h3 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
             <RotateCcw className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-            <span>Preloader &amp; Orbital Animation Settings</span>
+            <span>Preloader &amp; Loading Effect Settings</span>
           </h3>
           <p className="text-xs text-slate-500 dark:text-zinc-400 mt-1">
-            Customize the high-tech intro loading screen, photo avatar, display name, duration delay, and orbital rings.
+            Customize the animated intro screen, image placeholders, branding text, and realistic delay effect.
           </p>
         </div>
 
@@ -90,7 +170,7 @@ export const AdminPreloaderTab: React.FC<AdminPreloaderTabProps> = ({
             className="px-4 py-2.5 rounded-xl bg-slate-200 hover:bg-slate-300 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-800 dark:text-zinc-200 text-xs font-bold tracking-wide flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
           >
             <Play className="w-3.5 h-3.5 text-purple-500" />
-            <span>Test Run Fullscreen</span>
+            <span>Test Fullscreen</span>
           </button>
 
           <button
@@ -139,7 +219,7 @@ export const AdminPreloaderTab: React.FC<AdminPreloaderTabProps> = ({
           <div>
             <h4 className="text-sm font-bold text-slate-900 dark:text-white">Enable Preloader Screen</h4>
             <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">
-              When enabled, new visitors and reloads experience the animated orbital loader before entering the site.
+              When enabled, visitors see the animated loading effect and orbital rings before the website reveals.
             </p>
           </div>
           <label className="relative inline-flex items-center cursor-pointer">
@@ -153,20 +233,26 @@ export const AdminPreloaderTab: React.FC<AdminPreloaderTabProps> = ({
           </label>
         </div>
 
-        {/* Avatar Center Graphic Selector */}
-        <div className="p-6 rounded-2xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 space-y-4">
-          <div>
-            <h4 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
-              <Camera className="w-4 h-4 text-purple-500" />
-              <span>Center Graphic Display Mode</span>
-            </h4>
-            <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">
-              Select what appears inside the inner glowing circular core of the rotating rings.
-            </p>
+        {/* SECTION 1: CENTER GRAPHIC DISPLAY MODE & IMAGE PLACEHOLDER */}
+        <div className="p-6 rounded-2xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 space-y-5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div>
+              <h4 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                <Camera className="w-4 h-4 text-purple-500" />
+                <span>Center Avatar &amp; Image Placeholder</span>
+              </h4>
+              <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">
+                Choose the center graphic mode and customize or upload the avatar image.
+              </p>
+            </div>
+            <span className="text-[11px] font-mono px-2.5 py-1 rounded-md bg-purple-100 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 self-start sm:self-auto font-medium">
+              Mode: {preloaderForm.avatarType.toUpperCase()}
+            </span>
           </div>
 
+          {/* Mode Selector Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            {/* Option 1: Profile Photo */}
+            {/* Option 1: Profile Photo / Custom Image */}
             <button
               type="button"
               onClick={() => {
@@ -180,11 +266,14 @@ export const AdminPreloaderTab: React.FC<AdminPreloaderTabProps> = ({
               }`}
             >
               <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-bold uppercase tracking-wider">Profile Photo</span>
+                <span className="text-xs font-bold uppercase tracking-wider flex items-center gap-1.5">
+                  <ImageIcon className="w-3.5 h-3.5 text-purple-500" />
+                  Custom Photo / Image
+                </span>
                 {preloaderForm.avatarType === 'photo' && <CheckCircle2 className="w-4 h-4 text-purple-600 dark:text-purple-400" />}
               </div>
               <p className="text-[11px] opacity-80 leading-relaxed">
-                Your circular photo with neon halo and cybernetic radar scan line.
+                Circular photo with animated radar aura and neon cyber ring.
               </p>
             </button>
 
@@ -202,11 +291,14 @@ export const AdminPreloaderTab: React.FC<AdminPreloaderTabProps> = ({
               }`}
             >
               <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-bold uppercase tracking-wider">Brand Monogram</span>
+                <span className="text-xs font-bold uppercase tracking-wider flex items-center gap-1.5">
+                  <FileText className="w-3.5 h-3.5 text-purple-500" />
+                  Brand Monogram
+                </span>
                 {preloaderForm.avatarType === 'monogram' && <CheckCircle2 className="w-4 h-4 text-purple-600 dark:text-purple-400" />}
               </div>
               <p className="text-[11px] opacity-80 leading-relaxed">
-                Stylized monogram logo mark &quot;S&quot; inside the core.
+                Stylized monogram logo letter &quot;S&quot; with metallic gradient.
               </p>
             </button>
 
@@ -224,113 +316,331 @@ export const AdminPreloaderTab: React.FC<AdminPreloaderTabProps> = ({
               }`}
             >
               <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-bold uppercase tracking-wider">Cyber Tech Core</span>
+                <span className="text-xs font-bold uppercase tracking-wider flex items-center gap-1.5">
+                  <Layers className="w-3.5 h-3.5 text-purple-500" />
+                  Cyber Tech Core
+                </span>
                 {preloaderForm.avatarType === 'tech_core' && <CheckCircle2 className="w-4 h-4 text-purple-600 dark:text-purple-400" />}
               </div>
               <p className="text-[11px] opacity-80 leading-relaxed">
-                Spinning code bracket &amp; geometric tech hexagon.
+                Spinning code bracket &amp; hexagonal quantum chip core.
               </p>
             </button>
           </div>
 
-          {/* Photo URL Input when avatarType === 'photo' */}
-          {preloaderForm.avatarType === 'photo' && (
-            <div className="pt-3 border-t border-slate-200 dark:border-zinc-800 space-y-3">
-              <label className="text-xs font-semibold text-slate-700 dark:text-zinc-300 block">
-                Avatar Photo URL or Path:
+          {/* DEDICATED IMAGE PLACEHOLDER & UPLOAD BOX (Always visible for easy management) */}
+          <div className="pt-4 border-t border-slate-200 dark:border-zinc-800 space-y-4">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-bold text-slate-800 dark:text-zinc-200 flex items-center gap-1.5">
+                <ImageIcon className="w-4 h-4 text-purple-500" />
+                <span>Preloader Avatar Image &amp; Placeholder:</span>
               </label>
-              <div className="flex flex-col sm:flex-row gap-2">
-                <input
-                  type="text"
-                  value={preloaderForm.avatarUrl || '/myname.png'}
-                  onChange={(e) => {
-                    setPreloaderForm((prev) => ({ ...prev, avatarUrl: e.target.value }));
-                    restartPreview();
+              <span className="text-[11px] text-slate-400 dark:text-zinc-500">
+                Recommended: Square 1:1 image, PNG or WebP
+              </span>
+            </div>
+
+            {/* Interactive Image Placeholder Frame & Dropzone */}
+            <div
+              onDragOver={(e) => {
+                e.preventDefault();
+                setIsDragOver(true);
+              }}
+              onDragLeave={() => setIsDragOver(false)}
+              onDrop={handleDrop}
+              onClick={() => fileInputRef.current?.click()}
+              className={`p-4 sm:p-5 rounded-2xl border-2 border-dashed transition-all cursor-pointer flex flex-col sm:flex-row items-center gap-5 ${
+                isDragOver
+                  ? 'border-purple-500 bg-purple-500/10'
+                  : 'border-slate-300 dark:border-zinc-700 hover:border-purple-400 dark:hover:border-purple-500 bg-white dark:bg-zinc-900/70'
+              }`}
+            >
+              {/* Circular Avatar Placeholder Thumbnail */}
+              <div className="relative group w-20 h-20 rounded-full overflow-hidden border-2 border-purple-500/50 shadow-lg flex-shrink-0 bg-zinc-900 flex items-center justify-center">
+                {preloaderForm.avatarUrl ? (
+                  <img
+                    src={preloaderForm.avatarUrl}
+                    alt="Preloader placeholder preview"
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = '/myname.png';
+                    }}
+                  />
+                ) : (
+                  <div className="flex flex-col items-center justify-center text-zinc-400">
+                    <Camera className="w-6 h-6" />
+                    <span className="text-[9px] font-mono mt-0.5">Placeholder</span>
+                  </div>
+                )}
+                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
+                  <Upload className="w-5 h-5" />
+                </div>
+              </div>
+
+              {/* Upload instructions */}
+              <div className="flex-1 text-center sm:text-left">
+                <div className="flex items-center justify-center sm:justify-start gap-2 mb-1">
+                  <span className="text-xs font-bold text-slate-800 dark:text-zinc-100">
+                    {isUploading ? 'Compressing and uploading image...' : 'Click to Upload or Drag & Drop Image Here'}
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-500 dark:text-zinc-400">
+                  Select your own portrait photo, brand logo, or avatar to display inside the revolving orbital rings.
+                </p>
+                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mt-2">
+                  <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300">
+                    Current: {preloaderForm.avatarUrl ? (preloaderForm.avatarUrl.startsWith('data:') ? 'Custom Upload (WebP)' : preloaderForm.avatarUrl) : 'None'}
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex-shrink-0">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    fileInputRef.current?.click();
                   }}
-                  placeholder="/myname.png or https://..."
-                  className="flex-1 px-3.5 py-2.5 rounded-xl bg-white dark:bg-zinc-900 border border-slate-300 dark:border-zinc-800 text-xs text-slate-900 dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-purple-500"
-                />
-                <div className="flex gap-2">
+                  className="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold shadow-md transition-all flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Upload className="w-3.5 h-3.5" />
+                  <span>Choose Image File</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Quick Placeholder Preset Buttons */}
+            <div className="space-y-2">
+              <label className="text-[11px] font-semibold text-slate-600 dark:text-zinc-400 block">
+                Quick Placeholder Images &amp; Presets:
+              </label>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPreloaderForm((prev) => ({ ...prev, avatarType: 'photo', avatarUrl: '/myname.png' }));
+                    restartPreview();
+                    showToast?.('Default portrait placeholder loaded (/myname.png)');
+                  }}
+                  className="p-2 rounded-xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 hover:border-purple-400 text-slate-800 dark:text-zinc-200 text-xs font-medium text-left flex items-center gap-2 transition-all cursor-pointer"
+                >
+                  <img src="/myname.png" alt="Shariful" className="w-6 h-6 rounded-full object-cover border border-purple-500/40" />
+                  <span className="truncate">Shariful Photo</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPreloaderForm((prev) => ({ ...prev, avatarType: 'photo', avatarUrl: '/preloader-placeholder.jpg' }));
+                    restartPreview();
+                    showToast?.('Futuristic Hologram Placeholder loaded (/preloader-placeholder.jpg)');
+                  }}
+                  className="p-2 rounded-xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 hover:border-purple-400 text-slate-800 dark:text-zinc-200 text-xs font-medium text-left flex items-center gap-2 transition-all cursor-pointer"
+                >
+                  <img src="/preloader-placeholder.jpg" alt="Futuristic Tech" className="w-6 h-6 rounded-full object-cover border border-cyan-500/40" />
+                  <span className="truncate">Tech Hologram</span>
+                </button>
+
+                {profileAvatar && (
                   <button
                     type="button"
                     onClick={() => {
-                      setPreloaderForm((prev) => ({ ...prev, avatarUrl: '/myname.png' }));
+                      setPreloaderForm((prev) => ({ ...prev, avatarType: 'photo', avatarUrl: profileAvatar }));
                       restartPreview();
+                      showToast?.('Main Profile avatar synced to preloader!');
                     }}
-                    className="px-3 py-2 rounded-xl bg-slate-200 hover:bg-slate-300 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-800 dark:text-zinc-200 text-xs font-semibold transition-all cursor-pointer whitespace-nowrap"
+                    className="p-2 rounded-xl bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-900/60 hover:border-purple-400 text-purple-900 dark:text-purple-200 text-xs font-medium text-left flex items-center gap-2 transition-all cursor-pointer"
                   >
-                    Default Photo (/myname.png)
+                    <img src={profileAvatar} alt="Profile" className="w-6 h-6 rounded-full object-cover border border-purple-500" />
+                    <span className="truncate">Main Profile Avatar</span>
                   </button>
-                  {profileAvatar && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setPreloaderForm((prev) => ({ ...prev, avatarUrl: profileAvatar }));
-                        restartPreview();
-                      }}
-                      className="px-3 py-2 rounded-xl bg-purple-100 hover:bg-purple-200 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 text-xs font-semibold transition-all cursor-pointer whitespace-nowrap"
-                    >
-                      Use Profile Avatar
-                    </button>
-                  )}
-                </div>
+                )}
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPreloaderForm((prev) => ({ ...prev, avatarType: 'photo', avatarUrl: '/loading.svg' }));
+                    restartPreview();
+                    showToast?.('Cyber SVG animation loaded (/loading.svg)');
+                  }}
+                  className="p-2 rounded-xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 hover:border-purple-400 text-slate-800 dark:text-zinc-200 text-xs font-medium text-left flex items-center gap-2 transition-all cursor-pointer"
+                >
+                  <img src="/loading.svg" alt="SVG" className="w-6 h-6 rounded-full object-cover bg-zinc-950 border border-purple-500/40 p-0.5" />
+                  <span className="truncate">Cyber SVG Icon</span>
+                </button>
               </div>
             </div>
-          )}
-        </div>
 
-        {/* Branding Typography & Text */}
-        <div className="p-6 rounded-2xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 space-y-4">
-          <h4 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <Sliders className="w-4 h-4 text-purple-500" />
-            <span>Branding Titles &amp; Copy</span>
-          </h4>
-
-          <div className="grid sm:grid-cols-2 gap-4">
+            {/* Direct Image URL / Path Input with Placeholder */}
             <div>
-              <label className="text-xs font-semibold text-slate-700 dark:text-zinc-300 block mb-1.5">
-                Display Name:
+              <label className="text-[11px] font-semibold text-slate-600 dark:text-zinc-400 block mb-1">
+                Or Direct Image URL / File Path:
               </label>
-              <input
-                type="text"
-                value={preloaderForm.name || 'Shariful Islam'}
-                onChange={(e) => {
-                  setPreloaderForm((prev) => ({ ...prev, name: e.target.value }));
-                  restartPreview();
-                }}
-                placeholder="Shariful Islam"
-                className="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-zinc-900 border border-slate-300 dark:border-zinc-800 text-xs text-slate-900 dark:text-white font-medium focus:outline-none focus:ring-2 focus:ring-purple-500"
-              />
-            </div>
-
-            <div>
-              <label className="text-xs font-semibold text-slate-700 dark:text-zinc-300 block mb-1.5">
-                Tagline / Subtitle:
-              </label>
-              <input
-                type="text"
-                value={preloaderForm.tagline || 'Senior Shopify & Full-Stack Developer'}
-                onChange={(e) => {
-                  setPreloaderForm((prev) => ({ ...prev, tagline: e.target.value }));
-                  restartPreview();
-                }}
-                placeholder="Senior Shopify & Full-Stack Developer"
-                className="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-zinc-900 border border-slate-300 dark:border-zinc-800 text-xs text-slate-900 dark:text-white font-medium focus:outline-none focus:ring-2 focus:ring-purple-500"
-              />
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={preloaderForm.avatarUrl || ''}
+                  onChange={(e) => {
+                    setPreloaderForm((prev) => ({
+                      ...prev,
+                      avatarType: 'photo',
+                      avatarUrl: e.target.value,
+                    }));
+                    restartPreview();
+                  }}
+                  placeholder="e.g. /myname.png, /preloader-placeholder.jpg, or https://example.com/avatar.jpg"
+                  className="flex-1 px-3.5 py-2.5 rounded-xl bg-white dark:bg-zinc-900 border border-slate-300 dark:border-zinc-800 text-xs text-slate-900 dark:text-white font-mono placeholder:text-slate-400 dark:placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                />
+                {preloaderForm.avatarUrl && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setPreloaderForm((prev) => ({ ...prev, avatarUrl: '' }));
+                      restartPreview();
+                    }}
+                    className="px-3 py-2 rounded-xl bg-red-100 hover:bg-red-200 dark:bg-red-950/40 text-red-600 dark:text-red-400 text-xs font-semibold transition-all cursor-pointer"
+                    title="Clear image"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Duration and Realistic Delay */}
+        {/* SECTION 2: BRANDING & CONTENT PLACEHOLDERS */}
+        <div className="p-6 rounded-2xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 space-y-5">
+          <div className="flex items-center justify-between">
+            <div>
+              <h4 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                <Sliders className="w-4 h-4 text-purple-500" />
+                <span>Branding Text &amp; Content Placeholders</span>
+              </h4>
+              <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">
+                Configure the title, professional tagline, and loading progress messages.
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={fillRecommendedPlaceholderContent}
+              className="px-3 py-1.5 rounded-lg bg-purple-100 hover:bg-purple-200 dark:bg-purple-950/50 text-purple-700 dark:text-purple-300 text-[11px] font-semibold flex items-center gap-1.5 transition-all cursor-pointer"
+            >
+              <RefreshCw className="w-3 h-3" />
+              <span>Fill Default Content</span>
+            </button>
+          </div>
+
+          <div className="grid sm:grid-cols-2 gap-4">
+            <div>
+              <label className="text-xs font-semibold text-slate-700 dark:text-zinc-300 block mb-1.5">
+                Display Name / Title:
+              </label>
+              <input
+                type="text"
+                value={preloaderForm.name ?? ''}
+                onChange={(e) => {
+                  setPreloaderForm((prev) => ({ ...prev, name: e.target.value }));
+                  restartPreview();
+                }}
+                placeholder="e.g. Shariful Islam"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-zinc-900 border border-slate-300 dark:border-zinc-800 text-xs text-slate-900 dark:text-white font-medium placeholder:text-slate-400 dark:placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-purple-500"
+              />
+              <span className="text-[10px] text-slate-400 dark:text-zinc-500 mt-1 block">
+                Headline above the progress bar during the loading animation.
+              </span>
+            </div>
+
+            <div>
+              <label className="text-xs font-semibold text-slate-700 dark:text-zinc-300 block mb-1.5">
+                Subtitle / Professional Role:
+              </label>
+              <input
+                type="text"
+                value={preloaderForm.tagline ?? ''}
+                onChange={(e) => {
+                  setPreloaderForm((prev) => ({ ...prev, tagline: e.target.value }));
+                  restartPreview();
+                }}
+                placeholder="e.g. Senior Shopify & Full-Stack Developer"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-zinc-900 border border-slate-300 dark:border-zinc-800 text-xs text-slate-900 dark:text-white font-medium placeholder:text-slate-400 dark:placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-purple-500"
+              />
+              <span className="text-[10px] text-slate-400 dark:text-zinc-500 mt-1 block">
+                Subtitle showing your title or specialty.
+              </span>
+            </div>
+          </div>
+
+          {/* Dynamic Loading Step Text Placeholders */}
+          <div className="pt-4 border-t border-slate-200 dark:border-zinc-800 space-y-3">
+            <h5 className="text-xs font-bold text-slate-800 dark:text-zinc-200 flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-purple-500" />
+              <span>Progress Status Messages (Timeline Content):</span>
+            </h5>
+
+            <div className="space-y-3">
+              <div>
+                <label className="text-[11px] font-semibold text-slate-600 dark:text-zinc-400 block mb-1">
+                  1. Initial Status Message (0% - 35%):
+                </label>
+                <input
+                  type="text"
+                  value={preloaderForm.initialStatusText ?? ''}
+                  onChange={(e) => {
+                    setPreloaderForm((prev) => ({ ...prev, initialStatusText: e.target.value }));
+                    restartPreview();
+                  }}
+                  placeholder="e.g. INITIALIZING CORE ARCHITECTURE..."
+                  className="w-full px-3.5 py-2 rounded-xl bg-white dark:bg-zinc-900 border border-slate-300 dark:border-zinc-800 text-xs text-slate-900 dark:text-white font-mono placeholder:text-slate-400 dark:placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                />
+              </div>
+
+              <div>
+                <label className="text-[11px] font-semibold text-slate-600 dark:text-zinc-400 block mb-1">
+                  2. Realistic Pause Message (~90% delay phase):
+                </label>
+                <input
+                  type="text"
+                  value={preloaderForm.delayStatusText ?? ''}
+                  onChange={(e) => {
+                    setPreloaderForm((prev) => ({ ...prev, delayStatusText: e.target.value }));
+                    restartPreview();
+                  }}
+                  placeholder="e.g. ESTABLISHING SECURE REALTIME CONNECTION..."
+                  className="w-full px-3.5 py-2 rounded-xl bg-white dark:bg-zinc-900 border border-slate-300 dark:border-zinc-800 text-xs text-slate-900 dark:text-white font-mono placeholder:text-slate-400 dark:placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                />
+              </div>
+
+              <div>
+                <label className="text-[11px] font-semibold text-slate-600 dark:text-zinc-400 block mb-1">
+                  3. Completion Message (100% Launch):
+                </label>
+                <input
+                  type="text"
+                  value={preloaderForm.completionStatusText ?? ''}
+                  onChange={(e) => {
+                    setPreloaderForm((prev) => ({ ...prev, completionStatusText: e.target.value }));
+                    restartPreview();
+                  }}
+                  placeholder="e.g. LAUNCH SUCCESSFUL • WELCOME!"
+                  className="w-full px-3.5 py-2 rounded-xl bg-white dark:bg-zinc-900 border border-slate-300 dark:border-zinc-800 text-xs text-slate-900 dark:text-white font-mono placeholder:text-slate-400 dark:placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* SECTION 3: DURATION & TIMING */}
         <div className="p-6 rounded-2xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 space-y-5">
           <div className="flex items-center justify-between">
             <div>
               <h4 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
                 <Clock className="w-4 h-4 text-purple-500" />
-                <span>Loading Duration &amp; Timing</span>
+                <span>Loading Duration &amp; 90% Delay Animation</span>
               </h4>
               <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">
-                Controls how long the intro animation is displayed before revealing the portfolio.
+                Controls the total display time and pacing of the preloader effect.
               </p>
             </div>
             <span className="px-3 py-1 rounded-full bg-purple-100 dark:bg-purple-950 text-purple-700 dark:text-purple-300 font-mono text-xs font-bold">
@@ -342,7 +652,7 @@ export const AdminPreloaderTab: React.FC<AdminPreloaderTabProps> = ({
             <div className="flex justify-between text-xs text-slate-500 dark:text-zinc-400 font-mono">
               <span>Fast (2.0s)</span>
               <span>Balanced (3.5s)</span>
-              <span>Showcase (6.0s)</span>
+              <span>Cinematic (6.0s)</span>
             </div>
             <input
               type="range"
@@ -365,7 +675,7 @@ export const AdminPreloaderTab: React.FC<AdminPreloaderTabProps> = ({
                 Simulate Realistic 90% Delay Pause
               </h5>
               <p className="text-[11px] text-slate-500 dark:text-zinc-400 mt-0.5">
-                Quickly loads to ~88%, pauses momentarily to let visitors admire the animations, then accelerates smoothly to 100%.
+                Quickly loads to ~88%, holds momentarily so users see the tech animation, then shoots to 100%.
               </p>
             </div>
             <label className="relative inline-flex items-center cursor-pointer">
@@ -386,10 +696,10 @@ export const AdminPreloaderTab: React.FC<AdminPreloaderTabProps> = ({
           <div className="pt-3 border-t border-slate-200 dark:border-zinc-800 flex items-center justify-between">
             <div>
               <h5 className="text-xs font-bold text-slate-800 dark:text-zinc-200">
-                Show Glowing Progress Bar &amp; Status
+                Show Glowing Progress Bar &amp; Percentage
               </h5>
               <p className="text-[11px] text-slate-500 dark:text-zinc-400 mt-0.5">
-                Displays the horizontal luminous progress bar and technical status telemetry.
+                Displays the luminous neon progress bar and exact numerical percentage.
               </p>
             </div>
             <label className="relative inline-flex items-center cursor-pointer">
@@ -407,7 +717,7 @@ export const AdminPreloaderTab: React.FC<AdminPreloaderTabProps> = ({
           </div>
         </div>
 
-        {/* Neon Ring Accent Color */}
+        {/* SECTION 4: NEON RING ACCENT COLOR */}
         <div className="p-6 rounded-2xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 space-y-4">
           <div className="flex items-center justify-between">
             <div>
@@ -416,7 +726,7 @@ export const AdminPreloaderTab: React.FC<AdminPreloaderTabProps> = ({
                 <span>Orbital Ring &amp; Glow Accent Color</span>
               </h4>
               <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">
-                Choose the futuristic neon color for the animated orbits and background radiant aura.
+                Futuristic glowing accent color for rotating orbital rings and radar beacon.
               </p>
             </div>
             <div className="flex items-center gap-2">
@@ -477,16 +787,26 @@ export const AdminPreloaderTab: React.FC<AdminPreloaderTabProps> = ({
                 setPreloaderForm((prev) => ({ ...prev, ringColor: e.target.value }));
                 restartPreview();
               }}
+              placeholder="#8b5cf6"
               className="w-28 px-3 py-1.5 rounded-lg bg-white dark:bg-zinc-900 border border-slate-300 dark:border-zinc-800 font-mono text-xs text-slate-900 dark:text-white"
             />
           </div>
         </div>
 
         {/* Final Save Button */}
-        <div className="flex justify-end pt-4">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-slate-200 dark:border-zinc-800">
+          <button
+            type="button"
+            onClick={fillRecommendedPlaceholderContent}
+            className="text-xs text-slate-500 dark:text-zinc-400 hover:text-purple-600 dark:hover:text-purple-400 flex items-center gap-1.5 cursor-pointer"
+          >
+            <RotateCcw className="w-3.5 h-3.5" />
+            <span>Reset to Recommended Placeholders</span>
+          </button>
+
           <button
             type="submit"
-            className="px-6 py-3 rounded-2xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold tracking-wider uppercase flex items-center gap-2 shadow-lg shadow-purple-600/25 transition-all cursor-pointer"
+            className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold tracking-wider uppercase flex items-center justify-center gap-2 shadow-lg shadow-purple-600/25 transition-all cursor-pointer"
           >
             <Save className="w-4 h-4" />
             <span>Save Preloader Settings &amp; Sync to Cloud</span>

@@ -285,6 +285,7 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
             welcomePopup: { ...prev.welcomePopup, ...(cloudData.welcomePopup || {}) },
             backgroundEffects: { ...initialPortfolioData.backgroundEffects, ...prev.backgroundEffects, ...(cloudData.backgroundEffects || {}) },
             animatedBeam: { ...initialPortfolioData.animatedBeam, ...prev.animatedBeam, ...(cloudData.animatedBeam || {}) },
+            initialLoader: { ...initialPortfolioData.initialLoader, ...prev.initialLoader, ...(cloudData.initialLoader || {}) },
           }));
           setLastCloudSyncTime(new Date().toLocaleTimeString());
         } else {
@@ -338,6 +339,7 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
               welcomePopup: { ...prev.welcomePopup, ...(remoteData.welcomePopup || {}) },
               backgroundEffects: { ...initialPortfolioData.backgroundEffects, ...prev.backgroundEffects, ...(remoteData.backgroundEffects || {}) },
               animatedBeam: { ...initialPortfolioData.animatedBeam, ...prev.animatedBeam, ...(remoteData.animatedBeam || {}) },
+              initialLoader: { ...initialPortfolioData.initialLoader, ...prev.initialLoader, ...(remoteData.initialLoader || {}) },
             }));
             setLastCloudSyncTime(new Date().toLocaleTimeString());
           }
@@ -820,6 +822,9 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         avatarUrl: '/myname.png',
         name: 'Shariful Islam',
         tagline: 'Senior Shopify & Full-Stack Developer',
+        initialStatusText: 'INITIALIZING CORE ARCHITECTURE...',
+        delayStatusText: 'ESTABLISHING SECURE REALTIME CONNECTION...',
+        completionStatusText: 'LAUNCH SUCCESSFUL • WELCOME!',
         durationSeconds: 3.5,
         ringColor: '#8b5cf6',
         enableRealisticDelay: true,
