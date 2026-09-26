@@ -211,6 +211,16 @@ export const AdminDashboard: React.FC = () => {
   const isSeoDirty = useRef(false);
   const isPopupDirty = useRef(false);
   const isEffectsDirty = useRef(false);
+  const contentPanelRef = useRef<HTMLDivElement | null>(null);
+
+  // Auto-focus scrollable panel on open or tab change so mousewheel scrolls dashboard immediately
+  useEffect(() => {
+    if (isDashboardOpen && contentPanelRef.current) {
+      contentPanelRef.current.scrollTop = 0;
+      contentPanelRef.current.focus({ preventScroll: true });
+    }
+  }, [isDashboardOpen, activeTab]);
+
   const [editingEduId, setEditingEduId] = useState<string | null>(null);
   const [eduForm, setEduForm] = useState<EducationItem>({
     id: '',
@@ -1091,18 +1101,6 @@ export const AdminDashboard: React.FC = () => {
     updateSkillCategories(nextCategories);
     showToast(`Skill moved ${direction === 'up' ? 'up' : 'down'}!`);
   };
-
-  const contentPanelRef = useRef<HTMLDivElement | null>(null);
-
-  // Auto-focus scrollable panel on open or tab change so mousewheel scrolls dashboard immediately
-  useEffect(() => {
-    if (isDashboardOpen && contentPanelRef.current) {
-      contentPanelRef.current.scrollTop = 0;
-      contentPanelRef.current.focus({ preventScroll: true });
-    }
-  }, [isDashboardOpen, activeTab]);
-
-  if (!isDashboardOpen) return null;
 
   return (
     <div

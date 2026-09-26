@@ -490,9 +490,13 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     };
   }, [openAdminPortal]);
 
+  const hasEverOpenedAdmin = useRef(false);
+
   // Restore clean URL when admin dashboard and login modal are closed
   useEffect(() => {
-    if (!isDashboardOpen && !isLoginModalOpen) {
+    if (isDashboardOpen || isLoginModalOpen) {
+      hasEverOpenedAdmin.current = true;
+    } else if (hasEverOpenedAdmin.current) {
       try {
         const path = window.location.pathname.toLowerCase();
         const hash = window.location.hash.toLowerCase();
