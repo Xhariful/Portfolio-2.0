@@ -49,33 +49,46 @@ function PortfolioApp() {
   const { data, toastMessage } = usePortfolio();
   const bgFx = data.backgroundEffects;
 
-  // Toggle Theme Class on HTML root
-  const toggleTheme = () => {
-    setIsDark((prev) => {
-      const nextState = !prev;
-      if (nextState) {
-        document.documentElement.classList.remove('light');
-        document.documentElement.classList.add('dark');
-        localStorage.setItem('portfolio_theme', 'dark');
-      } else {
-        document.documentElement.classList.remove('dark');
-        document.documentElement.classList.add('light');
-        localStorage.setItem('portfolio_theme', 'light');
+  // Synchronize and apply theme across documentElement and body
+  const applyTheme = (dark: boolean) => {
+    setIsDark(dark);
+    const root = document.documentElement;
+    const body = document.body;
+
+    if (dark) {
+      root.classList.add('dark');
+      root.classList.remove('light');
+      if (body) {
+        body.classList.add('dark');
+        body.classList.remove('light');
       }
-      return nextState;
-    });
+      try {
+        localStorage.setItem('portfolio_theme', 'dark');
+      } catch (e) {}
+    } else {
+      root.classList.remove('dark');
+      root.classList.add('light');
+      if (body) {
+        body.classList.remove('dark');
+        body.classList.add('light');
+      }
+      try {
+        localStorage.setItem('portfolio_theme', 'light');
+      } catch (e) {}
+    }
+  };
+
+  const toggleTheme = () => {
+    applyTheme(!isDark);
   };
 
   useEffect(() => {
-    const saved = localStorage.getItem('portfolio_theme');
-    const prefersDark = saved ? saved === 'dark' : true;
-    setIsDark(prefersDark);
-    if (prefersDark) {
-      document.documentElement.classList.add('dark');
-      document.documentElement.classList.remove('light');
-    } else {
-      document.documentElement.classList.remove('dark');
-      document.documentElement.classList.add('light');
+    try {
+      const saved = localStorage.getItem('portfolio_theme');
+      const prefersDark = saved !== null ? saved === 'dark' : true;
+      applyTheme(prefersDark);
+    } catch (e) {
+      applyTheme(true);
     }
   }, []);
 
@@ -254,7 +267,7 @@ function PortfolioApp() {
         {/* Dynamic Time-Based Greeting & Project Inquiry Popup */}
         <WelcomeGreetingModal onContactClick={() => scrollToSection('contact')} />
 
-        {/* Admin Login Popup (Triggered when accessing /admin, #admin, or ?admin=true) */}
+        {/* Admin Login Popup (Triggered when accessing /onlyadmin, #onlyadmin, or shortcut Ctrl+Shift+A) */}
         <AdminLoginModal />
 
         {/* Admin Content Management Dashboard Modal (Accessible only after successful authentication) */}

@@ -93,7 +93,11 @@ export const AdminLoginModal: React.FC = () => {
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+      <div
+        data-lenis-prevent
+        className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+        onWheel={(e) => e.stopPropagation()}
+      >
         {/* Backdrop */}
         <motion.div
           initial={{ opacity: 0 }}
@@ -105,11 +109,13 @@ export const AdminLoginModal: React.FC = () => {
 
         {/* Modal Window */}
         <motion.div
+          data-lenis-prevent
           initial={{ opacity: 0, scale: 0.94, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.94, y: 20 }}
           transition={{ type: 'spring', damping: 25, stiffness: 300 }}
           className="relative w-full max-w-md bg-white dark:bg-zinc-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-zinc-800 overflow-hidden z-10"
+          onWheel={(e) => e.stopPropagation()}
         >
           {/* Header Banner */}
           <div className="relative p-6 sm:p-7 bg-gradient-to-br from-purple-900 via-indigo-950 to-zinc-950 text-white overflow-hidden">

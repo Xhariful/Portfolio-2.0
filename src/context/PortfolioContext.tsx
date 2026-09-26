@@ -23,6 +23,7 @@ import {
 import { initialPortfolioData } from '../data/content';
 import { db, testFirestoreConnection } from '../lib/firebase';
 import { doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore';
+import { pauseLenis, resumeLenis } from '../hooks/useLenisScroll';
 
 const STORAGE_KEY = 'shariful_portfolio_dynamic_data_v3';
 const SECURITY_STORAGE_KEY = 'shariful_portfolio_security_auth_v3';
@@ -432,8 +433,14 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }
   }, [data, securityConfig, showToast]);
 
-  // Open Admin Entry point
+  // Open Admin Entry point with clean /onlyadmin URL
   const openAdminPortal = useCallback(() => {
+    try {
+      if (typeof window !== 'undefined' && window.location.pathname !== '/onlyadmin') {
+        window.history.replaceState(null, '', '/onlyadmin');
+      }
+    } catch (_) {}
+
     if (currentUser) {
       setIsDashboardOpen(true);
       setIsLoginModalOpen(false);
@@ -443,16 +450,25 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }
   }, [currentUser]);
 
-  // Global URL routing handler for /admin or #admin
+  // Global URL routing handler for /onlyadmin or #onlyadmin
   useEffect(() => {
     const checkAdminPath = () => {
       const path = window.location.pathname.toLowerCase();
       const hash = window.location.hash.toLowerCase();
       const search = window.location.search.toLowerCase();
 
-      if (path.includes('/admin') || hash === '#admin' || search.includes('admin=true')) {
-        if (hash === '#admin') {
-          window.history.replaceState(null, '', window.location.pathname + window.location.search);
+      if (
+        path.includes('/onlyadmin') ||
+        hash === '#onlyadmin' ||
+        search.includes('onlyadmin=true') ||
+        path.includes('/admin') ||
+        hash === '#admin' ||
+        search.includes('admin=true')
+      ) {
+        if (hash === '#onlyadmin' || hash === '#admin') {
+          try {
+            window.history.replaceState(null, '', '/onlyadmin');
+          } catch (_) {}
         }
         openAdminPortal();
       }
@@ -476,6 +492,44 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       window.removeEventListener('keydown', handleKeyDown);
     };
   }, [openAdminPortal]);
+
+  // Restore clean URL when admin dashboard and login modal are closed
+  useEffect(() => {
+    if (!isDashboardOpen && !isLoginModalOpen) {
+      try {
+        const path = window.location.pathname.toLowerCase();
+        const hash = window.location.hash.toLowerCase();
+        if (path === '/onlyadmin' || path === '/admin' || hash === '#onlyadmin' || hash === '#admin') {
+          window.history.replaceState(null, '', '/');
+        }
+      } catch (_) {}
+    }
+  }, [isDashboardOpen, isLoginModalOpen]);
+
+  // Lock full background website scroll and pause smooth-scroll engine when dashboard or login modal is open
+  useEffect(() => {
+    const isModalOpen = isDashboardOpen || isLoginModalOpen;
+    const root = document.documentElement;
+    const body = document.body;
+
+    if (isModalOpen) {
+      pauseLenis();
+      const prevBodyOverflow = body.style.overflow;
+      const prevRootOverflow = root.style.overflow;
+      body.style.overflow = 'hidden';
+      root.style.overflow = 'hidden';
+
+      return () => {
+        body.style.overflow = prevBodyOverflow;
+        root.style.overflow = prevRootOverflow;
+        resumeLenis();
+      };
+    } else {
+      body.style.overflow = '';
+      root.style.overflow = '';
+      resumeLenis();
+    }
+  }, [isDashboardOpen, isLoginModalOpen]);
 
   // Cross-PC Real-Time Login Handler
   const login = useCallback(

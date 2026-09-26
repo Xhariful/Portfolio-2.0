@@ -1092,15 +1092,31 @@ export const AdminDashboard: React.FC = () => {
     showToast(`Skill moved ${direction === 'up' ? 'up' : 'down'}!`);
   };
 
+  const contentPanelRef = useRef<HTMLDivElement | null>(null);
+
+  // Auto-focus scrollable panel on open or tab change so mousewheel scrolls dashboard immediately
+  useEffect(() => {
+    if (isDashboardOpen && contentPanelRef.current) {
+      contentPanelRef.current.scrollTop = 0;
+      contentPanelRef.current.focus({ preventScroll: true });
+    }
+  }, [isDashboardOpen, activeTab]);
+
   if (!isDashboardOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-950/80 backdrop-blur-md overflow-hidden">
+    <div
+      data-lenis-prevent
+      className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-950/80 backdrop-blur-md overflow-hidden"
+      onWheel={(e) => e.stopPropagation()}
+    >
       <motion.div
+        data-lenis-prevent
         initial={{ opacity: 0, scale: 0.96 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.96 }}
         className="w-full max-w-6xl h-[94vh] max-h-[94vh] bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-3xl shadow-2xl flex flex-col overflow-hidden min-h-0 text-slate-900 dark:text-zinc-100"
+        onWheel={(e) => e.stopPropagation()}
       >
         {/* Top Header Bar */}
         <div className="px-6 py-4 border-b border-slate-200 dark:border-zinc-800 flex items-center justify-between bg-slate-50 dark:bg-zinc-950/50 shrink-0">
@@ -1198,7 +1214,11 @@ export const AdminDashboard: React.FC = () => {
         <div className="flex-1 flex overflow-hidden min-h-0 min-w-0">
           
           {/* Sidebar Navigation */}
-          <div className="hidden md:block w-56 lg:w-64 border-r border-slate-200 dark:border-zinc-800 bg-slate-50/70 dark:bg-zinc-950/40 p-3 space-y-1 overflow-y-auto shrink-0 min-h-0">
+          <div
+            data-lenis-prevent
+            className="hidden md:block w-56 lg:w-64 border-r border-slate-200 dark:border-zinc-800 bg-slate-50/70 dark:bg-zinc-950/40 p-3 space-y-1 overflow-y-auto shrink-0 min-h-0 overscroll-contain"
+            onWheel={(e) => e.stopPropagation()}
+          >
             <TabButton
               active={activeTab === 'profile'}
               onClick={() => setActiveTab('profile')}
@@ -1321,7 +1341,13 @@ export const AdminDashboard: React.FC = () => {
           </div>
 
           {/* Tab Content Panel */}
-          <div className="flex-1 p-4 sm:p-6 md:p-8 overflow-y-auto min-h-0 min-w-0 bg-white dark:bg-zinc-900 overscroll-contain">
+          <div
+            ref={contentPanelRef}
+            data-lenis-prevent
+            tabIndex={0}
+            className="flex-1 p-4 sm:p-6 md:p-8 overflow-y-auto min-h-0 min-w-0 bg-white dark:bg-zinc-900 overscroll-contain focus:outline-none"
+            onWheel={(e) => e.stopPropagation()}
+          >
             
             {/* Mobile Tab Selector (shown only on small screens < md) */}
             <div className="md:hidden pb-4 mb-4 border-b border-slate-200 dark:border-zinc-800">

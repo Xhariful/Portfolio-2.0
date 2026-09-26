@@ -9,6 +9,18 @@ let globalLenis: Lenis | null = null;
 
 export const getLenis = () => globalLenis;
 
+export const pauseLenis = () => {
+  if (globalLenis) {
+    globalLenis.stop();
+  }
+};
+
+export const resumeLenis = () => {
+  if (globalLenis) {
+    globalLenis.start();
+  }
+};
+
 export const smoothScrollTo = (target: string | HTMLElement, offset: number = -90, duration: number = 1.2) => {
   if (globalLenis) {
     globalLenis.scrollTo(target, { offset, duration });
