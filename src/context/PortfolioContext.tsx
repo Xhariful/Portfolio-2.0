@@ -16,6 +16,7 @@ import {
   BackgroundEffectsConfig,
   AnimatedBeamConfig,
   BeamNodeItem,
+  InitialLoaderConfig,
   SecurityConfig,
   AuthenticatedUser,
 } from '../types';
@@ -92,6 +93,7 @@ interface PortfolioContextType {
   updateWelcomePopup: (config: Partial<WelcomePopupConfig>) => void;
   updateBackgroundEffects: (config: Partial<BackgroundEffectsConfig>) => void;
   updateAnimatedBeam: (config: Partial<AnimatedBeamConfig>) => void;
+  updateInitialLoader: (config: Partial<InitialLoaderConfig>) => void;
   
   // Education Helpers
   addEducation: (item: EducationItem) => void;
@@ -810,6 +812,29 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     showToast('Integration Architecture & Beams updated & synced to Cloud!');
   };
 
+  const updateInitialLoader = (configUpdate: Partial<InitialLoaderConfig>) => {
+    setData((prev) => {
+      const currentConfig = prev.initialLoader || initialPortfolioData.initialLoader || {
+        enabled: true,
+        avatarType: 'photo',
+        avatarUrl: '/myname.png',
+        name: 'Shariful Islam',
+        tagline: 'Senior Shopify & Full-Stack Developer',
+        durationSeconds: 3.5,
+        ringColor: '#8b5cf6',
+        enableRealisticDelay: true,
+        showProgressBar: true,
+      };
+      const updated = {
+        ...prev,
+        initialLoader: { ...currentConfig, ...configUpdate },
+      };
+      persistToCloud(updated);
+      return updated;
+    });
+    showToast('Loading Screen & Animation settings updated & synced to Cloud!');
+  };
+
   // Sync SEO metadata, title, and favicon dynamically with document head
   useEffect(() => {
     if (typeof document === 'undefined') return;
@@ -1132,6 +1157,7 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         updateWelcomePopup,
         updateBackgroundEffects,
         updateAnimatedBeam,
+        updateInitialLoader,
         addEducation,
         editEducation,
         deleteEducation,

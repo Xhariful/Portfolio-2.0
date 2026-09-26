@@ -155,8 +155,8 @@ function PortfolioApp() {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-zinc-950 text-slate-900 dark:text-zinc-100 selection:bg-purple-600 selection:text-white transition-colors duration-300 antialiased relative">
-      {/* 2-Second Initial Loading Screen with SVG Animation */}
-      <InitialLoader duration={2000} customSvgPath="/loading.svg" />
+      {/* Dynamic Initial Loading Screen with Photo/Avatar & Orbital High-Tech Animation */}
+      <InitialLoader config={data.initialLoader} />
 
       {/* Magic UI Floating 3D Particles Background Effect */}
       {bgFx?.floatingParticles !== false && (

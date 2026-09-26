@@ -72,10 +72,12 @@ import {
   WelcomePopupConfig,
   BackgroundEffectsConfig,
   AnimatedBeamConfig,
+  InitialLoaderConfig,
   InquiryItem
 } from '../types';
 import { Floating3DParticles } from './ui/floating-3d-particles';
 import { AdminAnimatedBeamTab } from './AdminAnimatedBeamTab';
+import { AdminPreloaderTab } from './AdminPreloaderTab';
 
 export const AdminDashboard: React.FC = () => {
   const {
@@ -96,6 +98,7 @@ export const AdminDashboard: React.FC = () => {
     updateWelcomePopup,
     updateBackgroundEffects,
     updateAnimatedBeam,
+    updateInitialLoader,
     addEducation,
     editEducation,
     deleteEducation,
@@ -139,6 +142,7 @@ export const AdminDashboard: React.FC = () => {
     | 'popup'
     | 'effects'
     | 'animatedBeam'
+    | 'preloader'
     | 'inquiries'
     | 'education'
     | 'certificates'
@@ -393,6 +397,33 @@ export const AdminDashboard: React.FC = () => {
       setBeamForm(data.animatedBeam);
     }
   }, [data.animatedBeam]);
+
+  // Preloader & Orbital Animation State
+  const defaultPreloaderState: InitialLoaderConfig = {
+    enabled: true,
+    avatarType: 'photo',
+    avatarUrl: '/myname.png',
+    name: 'Shariful Islam',
+    tagline: 'Senior Shopify & Full-Stack Developer',
+    durationSeconds: 3.5,
+    ringColor: '#8b5cf6',
+    enableRealisticDelay: true,
+    showProgressBar: true,
+  };
+
+  const [preloaderForm, setPreloaderForm] = useState<InitialLoaderConfig>(
+    data.initialLoader || defaultPreloaderState
+  );
+
+  useEffect(() => {
+    if (data.initialLoader) {
+      setPreloaderForm(data.initialLoader);
+    }
+  }, [data.initialLoader]);
+
+  const handleSavePreloader = (config: InitialLoaderConfig) => {
+    updateInitialLoader(config);
+  };
 
   // Client Inquiries State (fetched in real-time from Firestore & LocalStorage cache)
   const [inquiries, setInquiries] = useState<InquiryItem[]>(() => {
@@ -1211,6 +1242,13 @@ export const AdminDashboard: React.FC = () => {
               badge={`${(beamForm.nodes || []).filter((n) => n && n.title && n.title.trim().length > 0).length}/9`}
             />
             <TabButton
+              active={activeTab === 'preloader'}
+              onClick={() => setActiveTab('preloader')}
+              icon={<RotateCcw className="w-4 h-4 text-purple-600 dark:text-purple-400" />}
+              label="Preloader & Animation"
+              badge={preloaderForm.enabled ? 'ON' : 'OFF'}
+            />
+            <TabButton
               active={activeTab === 'education'}
               onClick={() => setActiveTab('education')}
               icon={<GraduationCap className="w-4 h-4" />}
@@ -1299,6 +1337,7 @@ export const AdminDashboard: React.FC = () => {
                 <option value="popup">🔔 Greeting Popup</option>
                 <option value="effects">✨ 3D Particles & Touch FX</option>
                 <option value="animatedBeam">⚡ Animated Beam (9 Slots)</option>
+                <option value="preloader">⏳ Preloader & Animation ({preloaderForm.enabled ? 'ON' : 'OFF'})</option>
                 <option value="education">🎓 Education & Degrees</option>
                 <option value="certificates">🏆 Certifications & Badges</option>
                 <option value="experience">💼 Work Experience</option>
@@ -5391,6 +5430,16 @@ export const AdminDashboard: React.FC = () => {
                 isBeamDirty={isBeamDirty}
                 onSave={handleSaveAnimatedBeam}
                 onResetDefaults={handleResetBeamDefaults}
+              />
+            )}
+
+            {/* PRELOADER SCREEN & ORBITAL INTRO TAB */}
+            {activeTab === 'preloader' && (
+              <AdminPreloaderTab
+                preloaderForm={preloaderForm}
+                setPreloaderForm={setPreloaderForm}
+                onSave={handleSavePreloader}
+                profileAvatar={data.profile.avatarUrl}
               />
             )}
 

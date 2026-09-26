@@ -210,6 +210,18 @@ export interface AnimatedBeamConfig {
   nodes: BeamNodeItem[]; // Maximum 9 items!
 }
 
+export interface InitialLoaderConfig {
+  enabled: boolean;
+  avatarType: 'photo' | 'monogram' | 'tech_core';
+  avatarUrl?: string; // photo or image url (defaults to profile avatar or /myname.png)
+  name?: string; // default "Shariful Islam"
+  tagline?: string; // default "Senior Shopify & Full-Stack Developer"
+  durationSeconds: number; // default 3.5 seconds
+  ringColor?: string; // default '#8b5cf6'
+  enableRealisticDelay?: boolean; // default true (the 90% pause)
+  showProgressBar?: boolean;
+}
+
 export interface PortfolioData {
   profile: ProfileData;
   stats: StatItem[];
@@ -225,6 +237,7 @@ export interface PortfolioData {
   welcomePopup?: WelcomePopupConfig;
   backgroundEffects?: BackgroundEffectsConfig;
   animatedBeam?: AnimatedBeamConfig;
+  initialLoader?: InitialLoaderConfig;
 }
 
 export interface SecurityCredentials {

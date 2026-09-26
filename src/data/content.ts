@@ -639,6 +639,17 @@ export const initialPortfolioData: PortfolioData = {
       },
     ],
   },
+  initialLoader: {
+    enabled: true,
+    avatarType: 'photo',
+    avatarUrl: '/myname.png',
+    name: 'Shariful Islam',
+    tagline: 'Senior Shopify & Full-Stack Developer',
+    durationSeconds: 3.5,
+    ringColor: '#8b5cf6',
+    enableRealisticDelay: true,
+    showProgressBar: true,
+  },
 };
 
 // Backwards compatibility convenience exports
