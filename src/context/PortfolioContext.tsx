@@ -833,24 +833,29 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   const updateBackgroundEffects = (configUpdate: Partial<BackgroundEffectsConfig>) => {
     setData((prev) => {
-      const currentConfig = prev.backgroundEffects || initialPortfolioData.backgroundEffects || {
-        floatingParticles: true,
-        quantity: 220,
-        color: '#8B5CF6',
-        speed: 0.35,
-        depth: 0.65,
-        radius: 1.6,
-        opacity: 0.55,
-        connectParticles: true,
+      const currentConfig = {
+        ...initialPortfolioData.backgroundEffects,
+        ...(prev.backgroundEffects || {}),
       };
+      const updatedEffects: BackgroundEffectsConfig = {
+        ...currentConfig,
+        ...configUpdate,
+      };
+      // If color was changed and touchGlowColor was not explicitly provided in configUpdate,
+      // keep touchGlowColor in sync so the theme and touch/dot fx match harmoniously
+      if (configUpdate.color && !configUpdate.touchGlowColor) {
+        if (!currentConfig.touchGlowColor || currentConfig.touchGlowColor === currentConfig.color) {
+          updatedEffects.touchGlowColor = configUpdate.color;
+        }
+      }
       const updated = {
         ...prev,
-        backgroundEffects: { ...currentConfig, ...configUpdate },
+        backgroundEffects: updatedEffects,
       };
       persistToCloud(updated);
       return updated;
     });
-    showToast('Background 3D Particles settings updated & synced to Cloud!');
+    showToast('3D Particles & Touch FX settings updated & synced to Cloud!');
   };
 
   const updateAnimatedBeam = (configUpdate: Partial<AnimatedBeamConfig>) => {

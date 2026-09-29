@@ -537,6 +537,8 @@ export const initialPortfolioData: PortfolioData = {
     radius: 1.6,
     opacity: 0.55,
     connectParticles: true,
+    mobileTouchEffect: true,
+    touchGlowColor: "#8B5CF6",
   },
 
   animatedBeam: {

@@ -33,6 +33,20 @@ interface HeroSectionProps {
 export const HeroSection: React.FC<HeroSectionProps> = ({ onContactClick, onProjectsClick }) => {
   const { data } = usePortfolio();
   const { profile, stats } = data;
+  const themeColor = data.backgroundEffects?.color || '#8B5CF6';
+
+  const toRgbaColor = (hex: string, alpha: number): string => {
+    let clean = (hex || '#8B5CF6').replace('#', '').trim();
+    if (clean.length === 3) clean = clean.split('').map((x) => x + x).join('');
+    const num = parseInt(clean, 16);
+    if (!isNaN(num) && clean.length === 6) {
+      const r = (num >> 16) & 255;
+      const g = (num >> 8) & 255;
+      const b = num & 255;
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+    return `rgba(139, 92, 246, ${alpha})`;
+  };
 
   const [headlineIndex, setHeadlineIndex] = useState(0);
   const [displayText, setDisplayText] = useState('');
@@ -120,11 +134,17 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onContactClick, onProj
       {/* Dynamic Cursor Spotlight Effect */}
       <div
         ref={spotlightRef}
-        className="absolute top-0 left-0 w-[500px] h-[500px] -ml-[250px] -mt-[250px] rounded-full bg-radial from-purple-500/15 dark:from-purple-500/20 via-sky-500/5 to-transparent blur-3xl pointer-events-none opacity-0 will-change-transform z-0"
+        className="absolute top-0 left-0 w-[500px] h-[500px] -ml-[250px] -mt-[250px] rounded-full blur-3xl pointer-events-none opacity-0 will-change-transform z-0"
+        style={{
+          background: `radial-gradient(circle, ${toRgbaColor(themeColor, 0.22)} 0%, ${toRgbaColor(themeColor, 0.05)} 45%, transparent 70%)`
+        }}
       />
       
       {/* Soft Ambient Glows */}
-      <div className="absolute top-20 left-1/4 w-80 h-80 bg-purple-500/10 dark:bg-purple-600/10 rounded-full blur-3xl pointer-events-none" />
+      <div
+        className="absolute top-20 left-1/4 w-80 h-80 rounded-full blur-3xl pointer-events-none opacity-40 dark:opacity-30"
+        style={{ backgroundColor: toRgbaColor(themeColor, 0.35) }}
+      />
       <div className="absolute bottom-20 right-1/4 w-80 h-80 bg-sky-500/10 dark:bg-sky-600/10 rounded-full blur-3xl pointer-events-none" />
 
       <div className="max-w-7xl mx-auto w-full relative z-10 space-y-16">

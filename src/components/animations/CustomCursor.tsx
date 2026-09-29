@@ -1,7 +1,25 @@
 import React, { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 
-export const CustomCursor: React.FC = () => {
+interface CustomCursorProps {
+  color?: string;
+}
+
+// Convert hex to rgba helper
+const hexToRgba = (hex: string, alpha: number): string => {
+  let clean = (hex || '#8B5CF6').replace('#', '').trim();
+  if (clean.length === 3) clean = clean.split('').map((x) => x + x).join('');
+  const num = parseInt(clean, 16);
+  if (!isNaN(num) && clean.length === 6) {
+    const r = (num >> 16) & 255;
+    const g = (num >> 8) & 255;
+    const b = num & 255;
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  }
+  return `rgba(139, 92, 246, ${alpha})`;
+};
+
+export const CustomCursor: React.FC<CustomCursorProps> = ({ color = '#8B5CF6' }) => {
   const dotRef = useRef<HTMLDivElement>(null);
   const ringRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
@@ -73,24 +91,40 @@ export const CustomCursor: React.FC = () => {
       {/* Center pinpoint dot */}
       <div
         ref={dotRef}
-        className="fixed top-0 left-0 w-2 h-2 -ml-1 -mt-1 rounded-full bg-purple-600 dark:bg-purple-400 pointer-events-none z-10 transition-transform duration-100"
-        style={{ transform: 'translate3d(-100px, -100px, 0)' }}
+        className="fixed top-0 left-0 w-2.5 h-2.5 -ml-1.25 -mt-1.25 rounded-full pointer-events-none z-10 transition-transform duration-100"
+        style={{
+          transform: 'translate3d(-100px, -100px, 0)',
+          backgroundColor: color,
+          boxShadow: `0 0 10px ${hexToRgba(color, 0.85)}, 0 0 4px ${color}`,
+        }}
       />
 
       {/* Trailing smooth magnetic ring */}
       <div
         ref={ringRef}
-        className={`fixed top-0 left-0 -ml-5 -mt-5 rounded-full border border-purple-500/60 dark:border-purple-400/70 pointer-events-none flex items-center justify-center transition-all duration-300 ${
+        className={`fixed top-0 left-0 -ml-5 -mt-5 rounded-full pointer-events-none flex items-center justify-center transition-all duration-300 ${
           isHovered
             ? cursorText
-              ? 'w-14 h-14 -ml-7 -mt-7 bg-purple-600/90 text-white border-transparent backdrop-blur-xs scale-110 shadow-lg'
-              : 'w-12 h-12 -ml-6 -mt-6 bg-purple-500/15 dark:bg-purple-400/20 scale-125 border-purple-600 dark:border-purple-300'
-            : 'w-10 h-10 bg-transparent'
+              ? 'w-14 h-14 -ml-7 -mt-7 text-white backdrop-blur-xs scale-110 shadow-lg'
+              : 'w-12 h-12 -ml-6 -mt-6 scale-125'
+            : 'w-10 h-10'
         }`}
-        style={{ transform: 'translate3d(-100px, -100px, 0)' }}
+        style={{
+          transform: 'translate3d(-100px, -100px, 0)',
+          borderWidth: '1.5px',
+          borderColor: isHovered ? color : hexToRgba(color, 0.6),
+          backgroundColor: isHovered
+            ? cursorText
+              ? color
+              : hexToRgba(color, 0.18)
+            : 'transparent',
+          boxShadow: isHovered
+            ? `0 0 20px ${hexToRgba(color, 0.45)}`
+            : `0 0 8px ${hexToRgba(color, 0.12)}`,
+        }}
       >
         {cursorText && (
-          <span className="text-[9px] font-bold uppercase tracking-wider select-none">
+          <span className="text-[9px] font-bold uppercase tracking-wider select-none text-white">
             {cursorText}
           </span>
         )}

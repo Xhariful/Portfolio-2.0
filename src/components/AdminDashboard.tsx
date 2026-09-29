@@ -1102,6 +1102,15 @@ export const AdminDashboard: React.FC = () => {
     showToast(`Skill moved ${direction === 'up' ? 'up' : 'down'}!`);
   };
 
+  const handleCloseDashboard = () => {
+    // If effects settings were modified, auto-save so user instantly sees changes on site
+    if (isEffectsDirty.current) {
+      isEffectsDirty.current = false;
+      updateBackgroundEffects(effectsForm);
+    }
+    setIsDashboardOpen(false);
+  };
+
   return (
     <div
       data-lenis-prevent
@@ -1183,7 +1192,7 @@ export const AdminDashboard: React.FC = () => {
               <span className="hidden sm:inline">{isSyncingCloud ? 'Syncing...' : 'Sync Cloud'}</span>
             </button>
             <button
-              onClick={() => setIsDashboardOpen(false)}
+              onClick={handleCloseDashboard}
               className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 text-xs font-semibold shadow-sm transition-all cursor-pointer"
               title="Close panel and return to portfolio"
             >
@@ -1199,7 +1208,7 @@ export const AdminDashboard: React.FC = () => {
               <span>Lock & Sign Out</span>
             </button>
             <button
-              onClick={() => setIsDashboardOpen(false)}
+              onClick={handleCloseDashboard}
               aria-label="Close Dashboard"
               className="p-2 rounded-xl bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 transition-colors cursor-pointer"
             >
@@ -5191,7 +5200,11 @@ export const AdminDashboard: React.FC = () => {
                         type="button"
                         onClick={() => {
                           isEffectsDirty.current = true;
-                          setEffectsForm((prev) => ({ ...prev, color: preset.hex }));
+                          setEffectsForm((prev) => ({
+                            ...prev,
+                            color: preset.hex,
+                            touchGlowColor: preset.hex,
+                          }));
                         }}
                         className={`px-3 py-1.5 rounded-xl text-xs font-medium border flex items-center gap-2 cursor-pointer transition-all ${
                           effectsForm.color?.toLowerCase() === preset.hex.toLowerCase()
@@ -5216,7 +5229,12 @@ export const AdminDashboard: React.FC = () => {
                           value={effectsForm.color || '#8B5CF6'}
                           onChange={(e) => {
                             isEffectsDirty.current = true;
-                            setEffectsForm((prev) => ({ ...prev, color: e.target.value }));
+                            const val = e.target.value;
+                            setEffectsForm((prev) => ({
+                              ...prev,
+                              color: val,
+                              touchGlowColor: prev.touchGlowColor === prev.color || !prev.touchGlowColor ? val : prev.touchGlowColor,
+                            }));
                           }}
                           className="w-10 h-10 rounded-xl cursor-pointer border border-slate-300 dark:border-zinc-700 bg-transparent p-0.5"
                         />
@@ -5225,7 +5243,12 @@ export const AdminDashboard: React.FC = () => {
                           value={effectsForm.color || '#8B5CF6'}
                           onChange={(e) => {
                             isEffectsDirty.current = true;
-                            setEffectsForm((prev) => ({ ...prev, color: e.target.value }));
+                            const val = e.target.value;
+                            setEffectsForm((prev) => ({
+                              ...prev,
+                              color: val,
+                              touchGlowColor: prev.touchGlowColor === prev.color || !prev.touchGlowColor ? val : prev.touchGlowColor,
+                            }));
                           }}
                           placeholder="#8B5CF6"
                           className="input-field font-mono text-xs flex-1"

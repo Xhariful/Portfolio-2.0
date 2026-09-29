@@ -174,13 +174,14 @@ function PortfolioApp() {
       {/* Magic UI Floating 3D Particles Background Effect */}
       {bgFx?.floatingParticles !== false && (
         <Floating3DParticles
+          key={`particles-${bgFx?.color || 'default'}-${bgFx?.quantity ?? 220}-${bgFx?.speed ?? 0.35}-${bgFx?.radius ?? 1.6}-${bgFx?.opacity ?? 0.55}-${isDark ? 'dark' : 'light'}`}
           className="fixed inset-0 pointer-events-none z-0"
           quantity={bgFx?.quantity ?? 220}
-          color={bgFx?.color ?? (isDark ? '#8B5CF6' : '#7c3aed')}
+          color={bgFx?.color || (isDark ? '#8B5CF6' : '#7c3aed')}
           speed={bgFx?.speed ?? 0.35}
           depth={bgFx?.depth ?? 0.65}
           radius={bgFx?.radius ?? 1.6}
-          opacity={bgFx?.opacity ?? (isDark ? 0.55 : 0.35)}
+          opacity={bgFx?.opacity ?? (isDark ? 0.6 : 0.45)}
           connectParticles={bgFx?.connectParticles ?? true}
         />
       )}
@@ -189,7 +190,7 @@ function PortfolioApp() {
       <ScrollProgress />
 
       {/* Pro-Level Interactive Fluid Custom Cursor (Desktop) */}
-      <CustomCursor />
+      <CustomCursor color={bgFx?.touchGlowColor || bgFx?.color || '#8B5CF6'} />
 
       {/* Pro-Level Interactive Touch Ripple & Hover Halo Effect (Mobile & Tablets) */}
       <MobileTouchEffect

@@ -237,9 +237,13 @@ export const MobileTouchEffect: React.FC<MobileTouchEffectProps> = ({
         ctx.stroke();
 
         // Center pinpoint spark
+        ctx.fillStyle = toRgba(color, 0.95);
+        ctx.beginPath();
+        ctx.arc(ts.x, ts.y, 2.5, 0, Math.PI * 2);
+        ctx.fill();
         ctx.fillStyle = '#ffffff';
         ctx.beginPath();
-        ctx.arc(ts.x, ts.y, 2, 0, Math.PI * 2);
+        ctx.arc(ts.x, ts.y, 1.2, 0, Math.PI * 2);
         ctx.fill();
       }
 
