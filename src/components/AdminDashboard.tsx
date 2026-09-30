@@ -51,7 +51,8 @@ import {
   ArrowDown,
   ArrowUpDown,
   ListOrdered,
-  Workflow
+  Workflow,
+  Images
 } from 'lucide-react';
 import { collection, onSnapshot, query, orderBy, deleteDoc, doc, updateDoc, addDoc, getDocs } from 'firebase/firestore';
 import { db } from '../lib/firebase';
@@ -64,6 +65,7 @@ import {
   SkillCategory,
   ServiceItem,
   ProjectItem,
+  ProjectImageItem,
   StatItem,
   TestimonialItem,
   CertificationItem,
@@ -257,6 +259,7 @@ export const AdminDashboard: React.FC = () => {
     category: 'Shopify',
     description: '',
     image: '',
+    images: [],
     tech: [],
     liveUrl: '',
     githubUrl: '',
@@ -265,6 +268,45 @@ export const AdminDashboard: React.FC = () => {
     highlight: '',
   });
   const [projectTechInput, setProjectTechInput] = useState('');
+  const [newGalleryUrl, setNewGalleryUrl] = useState('');
+  const [newGalleryTitle, setNewGalleryTitle] = useState('');
+  const [newGalleryCaption, setNewGalleryCaption] = useState('');
+
+  const normalizeProjectImages = (proj: Partial<ProjectItem>): ProjectImageItem[] => {
+    const list: ProjectImageItem[] = [];
+    if (Array.isArray(proj.images) && proj.images.length > 0) {
+      proj.images.forEach((item, idx) => {
+        if (typeof item === 'string') {
+          if (item.trim()) {
+            list.push({
+              url: item.trim(),
+              title: idx === 0 ? 'Homepage Full' : `Page ${idx + 1}`,
+            });
+          }
+        } else if (item && item.url) {
+          list.push({
+            url: item.url,
+            title: item.title || (idx === 0 ? 'Homepage Full' : `Page ${idx + 1}`),
+            caption: item.caption,
+          });
+        }
+      });
+    }
+
+    if (list.length === 0 && proj.image) {
+      list.push({
+        url: proj.image,
+        title: 'Homepage Full',
+      });
+    } else if (proj.image && !list.some((img) => img.url === proj.image)) {
+      list.unshift({
+        url: proj.image,
+        title: 'Cover Image',
+      });
+    }
+
+    return list;
+  };
 
   // Service state
   const [isAddingService, setIsAddingService] = useState(false);
@@ -3468,19 +3510,30 @@ export const AdminDashboard: React.FC = () => {
                   {!isAddingProject && !editingProjectSlug && (
                     <button
                       onClick={() => {
+                        const defaultImg = 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1000';
                         setProjectForm({
                           slug: `project-${Date.now()}`,
                           title: '',
                           category: 'Shopify',
                           description: '',
-                          image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1000',
-                          tech: [],
+                          image: defaultImg,
+                          images: [
+                            {
+                              url: defaultImg,
+                              title: 'Homepage Full Showcase',
+                              caption: 'Hero and main landing page showcase',
+                            },
+                          ],
+                          tech: ['Shopify Liquid', 'Tailwind CSS'],
                           liveUrl: 'https://example.com',
                           githubUrl: 'https://github.com/xhariful',
                           year: '2024',
                           featured: true,
                           highlight: 'New Project',
                         });
+                        setNewGalleryUrl('');
+                        setNewGalleryTitle('');
+                        setNewGalleryCaption('');
                         setIsAddingProject(true);
                         setEditingProjectSlug(null);
                       }}
@@ -3496,11 +3549,17 @@ export const AdminDashboard: React.FC = () => {
                   <form
                     onSubmit={(e) => {
                       e.preventDefault();
+                      const normGallery = normalizeProjectImages(projectForm);
+                      const finalProject: ProjectItem = {
+                        ...projectForm,
+                        images: normGallery,
+                        image: projectForm.image || normGallery[0]?.url || '',
+                      };
                       if (isAddingProject) {
-                        addProject(projectForm);
+                        addProject(finalProject);
                         setIsAddingProject(false);
                       } else if (editingProjectSlug) {
-                        editProject(editingProjectSlug, projectForm);
+                        editProject(editingProjectSlug, finalProject);
                         setEditingProjectSlug(null);
                       }
                     }}
@@ -3633,27 +3692,46 @@ export const AdminDashboard: React.FC = () => {
                       </div>
                     </div>
 
+                    {/* Main Cover Image */}
                     <div className="space-y-2">
-                      <FormField label="Project Cover Image URL or Upload">
+                      <FormField label="Main Project Cover Image (কার্ডের প্রধান কভার) *">
                         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
                           <input
                             type="text"
+                            required
                             value={projectForm.image}
-                            onChange={(e) => setProjectForm({ ...projectForm, image: e.target.value })}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              setProjectForm((prev) => {
+                                const curGallery = normalizeProjectImages(prev);
+                                if (curGallery.length > 0) {
+                                  curGallery[0].url = val;
+                                }
+                                return { ...prev, image: val, images: curGallery };
+                              });
+                            }}
                             placeholder="https://images.unsplash.com/... or upload"
                             className="input-field flex-1"
                           />
                           <label className="px-4 py-2.5 rounded-xl bg-purple-100 dark:bg-purple-950/60 hover:bg-purple-200 dark:hover:bg-purple-900 text-purple-700 dark:text-purple-300 border border-purple-300 dark:border-purple-800 text-xs font-bold flex items-center justify-center gap-2 cursor-pointer transition-colors shadow-sm flex-shrink-0">
                             <Upload className="w-4 h-4" />
-                            <span>Upload Image</span>
+                            <span>Upload Cover</span>
                             <input
                               type="file"
                               accept="image/*"
                               className="hidden"
                               onChange={(e) =>
-                                handleImageFilePick(e.target.files?.[0] || null, (url) =>
-                                  setProjectForm({ ...projectForm, image: url })
-                                )
+                                handleImageFilePick(e.target.files?.[0] || null, (url) => {
+                                  setProjectForm((prev) => {
+                                    const curGallery = normalizeProjectImages(prev);
+                                    if (curGallery.length > 0) {
+                                      curGallery[0].url = url;
+                                    } else {
+                                      curGallery.push({ url, title: 'Homepage Full Showcase' });
+                                    }
+                                    return { ...prev, image: url, images: curGallery };
+                                  });
+                                })
                               }
                             />
                           </label>
@@ -3672,10 +3750,330 @@ export const AdminDashboard: React.FC = () => {
                             }}
                           />
                           <span className="absolute bottom-0 inset-x-0 bg-black/60 text-white text-[9px] font-mono text-center py-0.5">
-                            Cover Preview
+                            Primary Cover
                           </span>
                         </div>
                       )}
+                    </div>
+
+                    {/* Multi-Image & Multi-Page Gallery Section */}
+                    <div className="pt-4 border-t border-purple-200 dark:border-purple-800/40 space-y-4">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <div>
+                          <h4 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                            <Images className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                            <span>Website Pages & Multi-Image Gallery (একাধিক পেইজের স্ক্রিনশট ও ইমেজ)</span>
+                          </h4>
+                          <p className="text-xs text-slate-500 dark:text-zinc-400">
+                            Upload multiple website screenshots (Homepage, Product Page, Cart Drawer, Checkout, Mobile View). In the popup, visitors can scroll through long screenshots and browse each page in the thumbnail bar.
+                          </p>
+                        </div>
+                        <span className="px-2.5 py-1 rounded-full bg-purple-100 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 text-xs font-mono font-bold self-start sm:self-center shrink-0">
+                          {normalizeProjectImages(projectForm).length} Screenshots in Gallery
+                        </span>
+                      </div>
+
+                      {/* Actions: Batch Upload Files + Add via URL */}
+                      <div className="p-4 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 space-y-3.5 shadow-sm">
+                        <div className="flex flex-wrap items-center gap-3">
+                          {/* Batch File Upload Button */}
+                          <label className="px-4 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold flex items-center gap-2 cursor-pointer transition-colors shadow-sm">
+                            <Upload className="w-4 h-4" />
+                            <span>Batch Upload Screenshots (একাধিক স্ক্রিনশট ফাইল একবারে আপলোড)</span>
+                            <input
+                              type="file"
+                              multiple
+                              accept="image/*"
+                              className="hidden"
+                              onChange={async (e) => {
+                                const files = e.target.files;
+                                if (!files || files.length === 0) return;
+                                setIsProcessingImage(true);
+                                const newItems: ProjectImageItem[] = [];
+                                const currentList = normalizeProjectImages(projectForm);
+
+                                for (let i = 0; i < files.length; i++) {
+                                  const file = files[i];
+                                  if (!file.type.startsWith('image/')) continue;
+
+                                  await new Promise<void>((resolve) => {
+                                    handleImageFilePick(
+                                      file,
+                                      (dataUrl) => {
+                                        const cleanName = file.name
+                                          .replace(/\.[^/.]+$/, '')
+                                          .replace(/[-_]/g, ' ')
+                                          .replace(/\b\w/g, (c) => c.toUpperCase());
+
+                                        newItems.push({
+                                          url: dataUrl,
+                                          title: cleanName || `Page ${currentList.length + newItems.length + 1}`,
+                                          caption: '',
+                                        });
+                                        resolve();
+                                      },
+                                      { maxWidth: 1920, maxHeight: 4000, quality: 0.85 }
+                                    );
+                                  });
+                                }
+
+                                if (newItems.length > 0) {
+                                  const updatedList = [...currentList, ...newItems];
+                                  setProjectForm((prev) => ({
+                                    ...prev,
+                                    images: updatedList,
+                                    image: prev.image || updatedList[0]?.url || '',
+                                  }));
+                                  showToast(`Added ${newItems.length} screenshot(s) to gallery!`);
+                                }
+                                setIsProcessingImage(false);
+                              }}
+                            />
+                          </label>
+
+                          {isProcessingImage && (
+                            <span className="text-xs font-mono text-purple-600 dark:text-purple-400 flex items-center gap-1.5 animate-pulse">
+                              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                              <span>Processing screenshots...</span>
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Or Add Single Image via URL & Title */}
+                        <div className="pt-2 border-t border-slate-100 dark:border-zinc-800 space-y-2">
+                          <span className="text-xs font-semibold text-slate-700 dark:text-zinc-300">
+                            Or add image via URL:
+                          </span>
+                          <div className="grid sm:grid-cols-12 gap-2">
+                            <div className="sm:col-span-5">
+                              <input
+                                type="url"
+                                value={newGalleryUrl}
+                                onChange={(e) => setNewGalleryUrl(e.target.value)}
+                                placeholder="Image URL (https://...)"
+                                className="input-field text-xs py-2"
+                              />
+                            </div>
+                            <div className="sm:col-span-4">
+                              <input
+                                type="text"
+                                value={newGalleryTitle}
+                                onChange={(e) => setNewGalleryTitle(e.target.value)}
+                                placeholder="Page Title (e.g. Product Detail)"
+                                className="input-field text-xs py-2"
+                              />
+                            </div>
+                            <div className="sm:col-span-3">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  if (!newGalleryUrl.trim()) {
+                                    showToast('Please enter an image URL');
+                                    return;
+                                  }
+                                  const currentList = normalizeProjectImages(projectForm);
+                                  const newItem: ProjectImageItem = {
+                                    url: newGalleryUrl.trim(),
+                                    title: newGalleryTitle.trim() || `Page ${currentList.length + 1}`,
+                                    caption: newGalleryCaption.trim() || '',
+                                  };
+                                  const updatedList = [...currentList, newItem];
+                                  setProjectForm((prev) => ({
+                                    ...prev,
+                                    images: updatedList,
+                                    image: prev.image || updatedList[0]?.url || '',
+                                  }));
+                                  setNewGalleryUrl('');
+                                  setNewGalleryTitle('');
+                                  setNewGalleryCaption('');
+                                  showToast('Added page to gallery!');
+                                }}
+                                className="w-full py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer"
+                              >
+                                <Plus className="w-3.5 h-3.5" />
+                                <span>Add to Gallery</span>
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* Quick Title Presets */}
+                          <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                            <span className="text-[10px] text-slate-400 font-mono">Quick titles:</span>
+                            {['Homepage Full', 'Product Page', 'Collection Grid', 'Cart Drawer', 'Checkout Flow', 'Mobile Responsive', 'About Story'].map((preset) => (
+                              <button
+                                key={preset}
+                                type="button"
+                                onClick={() => setNewGalleryTitle(preset)}
+                                className="px-2 py-0.5 rounded-md bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-[10px] font-mono text-slate-600 dark:text-zinc-300 transition-colors cursor-pointer"
+                              >
+                                + {preset}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Gallery Item Cards List */}
+                      <div className="space-y-2.5">
+                        {normalizeProjectImages(projectForm).map((item, idx) => {
+                          const isCover = (projectForm.image && projectForm.image === item.url) || idx === 0;
+                          return (
+                            <div
+                              key={idx}
+                              className="p-3 sm:p-3.5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 shadow-xs"
+                            >
+                              <div className="flex items-center gap-3 min-w-0 flex-1">
+                                {/* Thumbnail Preview */}
+                                <div className="w-20 sm:w-24 h-14 sm:h-16 rounded-xl overflow-hidden border border-slate-200 dark:border-zinc-700 bg-slate-100 dark:bg-zinc-950 shrink-0 relative">
+                                  <img
+                                    src={item.url}
+                                    alt={item.title || `Page ${idx + 1}`}
+                                    className="w-full h-full object-cover object-top"
+                                    onError={(e) => {
+                                      (e.target as HTMLImageElement).src =
+                                        'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=600';
+                                    }}
+                                  />
+                                  <span className="absolute bottom-0 inset-x-0 bg-black/70 text-white text-[9px] font-mono text-center py-0.5">
+                                    #{idx + 1}
+                                  </span>
+                                </div>
+
+                                {/* Editable Title & Caption */}
+                                <div className="min-w-0 flex-1 space-y-1.5">
+                                  <div className="flex items-center gap-2">
+                                    <input
+                                      type="text"
+                                      value={item.title || ''}
+                                      onChange={(e) => {
+                                        const newTitle = e.target.value;
+                                        setProjectForm((prev) => {
+                                          const list = [...normalizeProjectImages(prev)];
+                                          list[idx] = { ...list[idx], title: newTitle };
+                                          return { ...prev, images: list };
+                                        });
+                                      }}
+                                      placeholder={`Page ${idx + 1} Title`}
+                                      className="input-field text-xs py-1.5 font-bold"
+                                    />
+                                    {isCover && (
+                                      <span className="px-2 py-0.5 rounded-md bg-purple-100 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 text-[10px] font-mono font-bold shrink-0 border border-purple-200 dark:border-purple-800">
+                                        Cover
+                                      </span>
+                                    )}
+                                  </div>
+                                  <input
+                                    type="text"
+                                    value={item.caption || ''}
+                                    onChange={(e) => {
+                                      const newCap = e.target.value;
+                                      setProjectForm((prev) => {
+                                        const list = [...normalizeProjectImages(prev)];
+                                        list[idx] = { ...list[idx], caption: newCap };
+                                        return { ...prev, images: list };
+                                      });
+                                    }}
+                                    placeholder="Optional caption / notes for this page..."
+                                    className="input-field text-[11px] py-1 text-slate-500 dark:text-zinc-400"
+                                  />
+                                </div>
+                              </div>
+
+                              {/* Action Buttons: Set as Cover, Move Up/Down, Delete */}
+                              <div className="flex items-center gap-1.5 self-end sm:self-center shrink-0">
+                                {!isCover && (
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setProjectForm((prev) => {
+                                        const list = [...normalizeProjectImages(prev)];
+                                        const [target] = list.splice(idx, 1);
+                                        list.unshift(target);
+                                        return {
+                                          ...prev,
+                                          images: list,
+                                          image: target.url,
+                                        };
+                                      });
+                                      showToast('Set as main cover image!');
+                                    }}
+                                    className="px-2.5 py-1.5 rounded-lg bg-purple-50 hover:bg-purple-100 dark:bg-purple-950/50 dark:hover:bg-purple-900/60 text-purple-700 dark:text-purple-300 text-xs font-semibold transition-colors cursor-pointer border border-purple-200 dark:border-purple-800/60"
+                                    title="Make this the primary cover screenshot"
+                                  >
+                                    Make Cover
+                                  </button>
+                                )}
+
+                                {/* Move Up/Left */}
+                                <button
+                                  type="button"
+                                  disabled={idx === 0}
+                                  onClick={() => {
+                                    setProjectForm((prev) => {
+                                      const list = [...normalizeProjectImages(prev)];
+                                      const temp = list[idx - 1];
+                                      list[idx - 1] = list[idx];
+                                      list[idx] = temp;
+                                      return {
+                                        ...prev,
+                                        images: list,
+                                        image: list[0]?.url || prev.image,
+                                      };
+                                    });
+                                  }}
+                                  className="p-1.5 rounded-lg text-slate-600 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-zinc-800 disabled:opacity-25 disabled:cursor-not-allowed cursor-pointer transition-colors"
+                                  title="Move Earlier"
+                                >
+                                  <ArrowUp className="w-4 h-4" />
+                                </button>
+
+                                {/* Move Down/Right */}
+                                <button
+                                  type="button"
+                                  disabled={idx === normalizeProjectImages(projectForm).length - 1}
+                                  onClick={() => {
+                                    setProjectForm((prev) => {
+                                      const list = [...normalizeProjectImages(prev)];
+                                      const temp = list[idx + 1];
+                                      list[idx + 1] = list[idx];
+                                      list[idx] = temp;
+                                      return {
+                                        ...prev,
+                                        images: list,
+                                        image: list[0]?.url || prev.image,
+                                      };
+                                    });
+                                  }}
+                                  className="p-1.5 rounded-lg text-slate-600 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-zinc-800 disabled:opacity-25 disabled:cursor-not-allowed cursor-pointer transition-colors"
+                                  title="Move Later"
+                                >
+                                  <ArrowDown className="w-4 h-4" />
+                                </button>
+
+                                {/* Delete */}
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setProjectForm((prev) => {
+                                      const list = normalizeProjectImages(prev).filter((_, i) => i !== idx);
+                                      return {
+                                        ...prev,
+                                        images: list,
+                                        image: list[0]?.url || (prev.image === item.url ? '' : prev.image),
+                                      };
+                                    });
+                                    showToast('Removed page from gallery');
+                                  }}
+                                  className="p-1.5 rounded-lg text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 cursor-pointer transition-colors"
+                                  title="Remove Page"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
 
                     <div className="flex items-center gap-3 pt-2">
@@ -3731,9 +4129,15 @@ export const AdminDashboard: React.FC = () => {
                             </span>
                             <h4 className="text-base font-bold text-slate-900 dark:text-white line-clamp-1">{proj.title}</h4>
                           </div>
-                          <span className="px-2 py-0.5 rounded bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 text-xs font-mono shrink-0">
-                            {proj.category}
-                          </span>
+                          <div className="flex items-center gap-1.5 shrink-0">
+                            <span className="font-mono text-[10px] px-2 py-0.5 rounded-full bg-slate-100 dark:bg-zinc-900 text-purple-600 dark:text-purple-400 font-bold flex items-center gap-1 border border-purple-200/60 dark:border-purple-800/40">
+                              <Images className="w-3 h-3" />
+                              <span>{normalizeProjectImages(proj).length} pages</span>
+                            </span>
+                            <span className="px-2 py-0.5 rounded bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 text-xs font-mono shrink-0">
+                              {proj.category}
+                            </span>
+                          </div>
                         </div>
                         <p className="text-xs text-slate-600 dark:text-zinc-400 line-clamp-2">{proj.description}</p>
                         <div className="flex flex-wrap gap-1 pt-1">
@@ -3791,7 +4195,15 @@ export const AdminDashboard: React.FC = () => {
                         <div className="flex items-center gap-1.5">
                           <button
                             onClick={() => {
-                              setProjectForm({ ...proj });
+                              const norm = normalizeProjectImages(proj);
+                              setProjectForm({
+                                ...proj,
+                                images: norm,
+                                image: proj.image || norm[0]?.url || '',
+                              });
+                              setNewGalleryUrl('');
+                              setNewGalleryTitle('');
+                              setNewGalleryCaption('');
                               setEditingProjectSlug(proj.slug);
                               setIsAddingProject(false);
                             }}

@@ -164,6 +164,12 @@ export const initialPortfolioData: PortfolioData = {
       description:
         "Custom Shopify 2.0 store for a premium lifestyle brand. Sub-second page loads, custom product configurator, and dynamic multi-currency support.",
       image: project1,
+      images: [
+        { url: project1, title: "Homepage Full Showcase", caption: "Custom liquid hero section with responsive typography and dynamic video loop." },
+        { url: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=1200", title: "Product Detail & Variant Swatches", caption: "Sticky add-to-cart drawer, metafields color swatches, and size guide." },
+        { url: "https://images.unsplash.com/photo-1472851294608-062f824d29cc?q=80&w=1200", title: "Collection Grid & Faceted Filters", caption: "AJAX collection filtering with instant faceted category sorting." },
+        { url: "https://images.unsplash.com/photo-1556742049-0a67c5574f73?q=80&w=1200", title: "Slide-Out Cart & Upsells", caption: "Free shipping threshold bar and automated cross-sell product bundles." }
+      ],
       tech: ["Shopify Liquid", "Tailwind CSS", "JavaScript", "Metafields"],
       liveUrl: "https://example.com/vantage",
       githubUrl: "https://github.com/xhariful/vantage-shopify",
@@ -178,6 +184,12 @@ export const initialPortfolioData: PortfolioData = {
       description:
         "High-performance corporate platform with Django REST backend, React frontend, customer intake portal, and automated invoice delivery.",
       image: project2,
+      images: [
+        { url: project2, title: "Corporate Landing Overview", caption: "Responsive multi-section layout with GSAP smooth scroll integrations." },
+        { url: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1200", title: "Customer Portal & Intake Form", caption: "Secure client authentication with custom onboarding questionnaire." },
+        { url: "https://images.unsplash.com/photo-1551836022-d5d88e9218df?q=80&w=1200", title: "Case Studies & Work Portfolio", caption: "Interactive filtering and deep-dive technical project breakdowns." },
+        { url: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1200", title: "Client Billing & Invoices", caption: "Automated PDF generator and payment processing integration." }
+      ],
       tech: ["Python", "Django", "React", "PostgreSQL"],
       liveUrl: "https://example.com/luminary",
       githubUrl: "https://github.com/xhariful/luminary-core",
@@ -192,6 +204,12 @@ export const initialPortfolioData: PortfolioData = {
       description:
         "Automated inventory monitoring and revenue reporting dashboard for Shopify merchants using Python background workers and webhooks.",
       image: project3,
+      images: [
+        { url: project3, title: "Live Revenue & Order Analytics", caption: "Real-time metrics charts with webhook data ingestion pipelines." },
+        { url: "https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?q=80&w=1200", title: "Inventory Forecasting & Bot Rules", caption: "Automated alert triggers for low inventory and stockouts." },
+        { url: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1200", title: "Sales Channel Performance", caption: "Multi-channel revenue breakdown across web, TikTok, and retail POS." },
+        { url: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1200", title: "Daily Executive Digest", caption: "Automated Slack & Telegram summary reports sent every morning." }
+      ],
       tech: ["Python", "Shopify API", "FastAPI", "Tailwind"],
       liveUrl: "https://example.com/north",
       githubUrl: "https://github.com/xhariful/store-analytics",
@@ -206,6 +224,12 @@ export const initialPortfolioData: PortfolioData = {
       description:
         "Editorial portfolio experience with smooth scroll interactions, dark/light aesthetics, and interactive gallery filtering.",
       image: project4,
+      images: [
+        { url: project4, title: "Editorial Homepage & Hero", caption: "Minimalist spatial architecture showcase with fluid typography." },
+        { url: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1200", title: "Project Detail View & Blueprint", caption: "High-resolution architectural photography viewer with blueprints." },
+        { url: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=1200", title: "Materials & Sustainable Craft", caption: "Interactive tactile material selector and ecological impact metrics." },
+        { url: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?q=80&w=1200", title: "Studio Practice & Team", caption: "Editorial story timeline with international awards and monographs." }
+      ],
       tech: ["React", "Motion", "Tailwind CSS", "Vite"],
       liveUrl: "https://example.com/atelier",
       githubUrl: "https://github.com/xhariful/atelier-web",
@@ -220,6 +244,12 @@ export const initialPortfolioData: PortfolioData = {
       description:
         "High-volume Shopify Plus store featuring bundle builders, custom size recommendation engines, and seamless Klaviyo integration.",
       image: project1,
+      images: [
+        { url: project1, title: "Hero & Seasonal Drop Campaign", caption: "High-impact conversion hero banner with instant shop-the-look hotspot pins." },
+        { url: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1200", title: "Bundle Builder & Size Matcher", caption: "Interactive mix-and-match apparel kit builder with volume discounts." },
+        { url: "https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=1200", title: "Lookbook & Streetwear Editorial", caption: "Shoppable runway gallery with high-speed lazy-loaded image grids." },
+        { url: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=1200", title: "Mobile Checkout & Quick Buy", caption: "1-tap Apple Pay / Shop Pay checkout flow with 42% mobile conversion." }
+      ],
       tech: ["Shopify Plus", "Liquid", "Alpine.js", "Klaviyo API"],
       liveUrl: "https://example.com/solaris",
       githubUrl: "https://github.com/xhariful/solaris-store",
@@ -234,6 +264,11 @@ export const initialPortfolioData: PortfolioData = {
       description:
         "Multi-tenant CRM SaaS platform with real-time lead tracking, Django ORM database pipelines, and interactive analytics charting.",
       image: project2,
+      images: [
+        { url: project2, title: "Main Pipeline & Deal Stages", caption: "Kanban drag-and-drop opportunity board with instant revenue forecasts." },
+        { url: "https://images.unsplash.com/photo-1551836022-d5d88e9218df?q=80&w=1200", title: "Customer 360 & Call Logs", caption: "Unified timeline of customer communications, emails, and contracts." },
+        { url: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1200", title: "Team Performance Metrics", caption: "Quota leaderboard and conversion velocity tracking per sales rep." }
+      ],
       tech: ["Python", "Django REST", "React.js", "Redis"],
       liveUrl: "https://example.com/nexus",
       githubUrl: "https://github.com/xhariful/nexus-crm",
@@ -248,6 +283,11 @@ export const initialPortfolioData: PortfolioData = {
       description:
         "High-concurrency web scraping and automated pricing intelligence engine for multi-channel merchant monitoring.",
       image: project3,
+      images: [
+        { url: project3, title: "Bot Swarm Control Center", caption: "Cluster health, rotating proxy pool status, and throughput monitoring." },
+        { url: "https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?q=80&w=1200", title: "Competitor Price Matrix", caption: "Real-time price discrepancy detection and automated margin alerts." },
+        { url: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1200", title: "Data Ingestion Pipeline", caption: "Celery task scheduler processing 1M+ pricing records every day." }
+      ],
       tech: ["Python", "Celery", "PostgreSQL", "FastAPI"],
       liveUrl: "https://example.com/aether",
       githubUrl: "https://github.com/xhariful/aether-scraper",
@@ -262,6 +302,11 @@ export const initialPortfolioData: PortfolioData = {
       description:
         "Production-ready design system and component catalog built with Tailwind CSS, TypeScript, and accessible headless primitives.",
       image: project4,
+      images: [
+        { url: project4, title: "Component Library & Tokens", caption: "Live interactive component playground with copy-paste JSX snippets." },
+        { url: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1200", title: "Accessible Form System", caption: "Full keyboard accessible input controls, validation, and error states." },
+        { url: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?q=80&w=1200", title: "Color Tokens & Dark Themes", caption: "Dynamic theme switching tokens tested across all WCAG AAA criteria." }
+      ],
       tech: ["React", "TypeScript", "Tailwind CSS", "Storybook"],
       liveUrl: "https://example.com/zenith",
       githubUrl: "https://github.com/xhariful/zenith-ui",

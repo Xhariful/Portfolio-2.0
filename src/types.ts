@@ -65,12 +65,20 @@ export interface ServiceItem {
   tags: string[];
 }
 
+export interface ProjectImageItem {
+  id?: string;
+  url: string;
+  title?: string;
+  caption?: string;
+}
+
 export interface ProjectItem {
   slug: string;
   title: string;
   category: string;
   description: string;
   image: string;
+  images?: (string | ProjectImageItem)[];
   tech: string[];
   liveUrl: string;
   githubUrl: string;
