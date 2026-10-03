@@ -9,6 +9,12 @@ service cloud.firestore {
       allow write: if true;
     }
 
+    // Individual project items storage to bypass 1MB single-document limits
+    match /projects/{documentId} {
+      allow read: if true;
+      allow write: if true;
+    }
+
     // Master credentials storage for cross-PC login synchronization.
     match /admin_auth/{documentId} {
       allow read: if true;

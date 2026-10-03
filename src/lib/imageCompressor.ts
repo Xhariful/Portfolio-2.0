@@ -27,9 +27,9 @@ export async function compressImageFile(
   }
 
   const {
-    maxWidth = 1400,
-    maxHeight = 1400,
-    quality = 0.82,
+    maxWidth = 1200,
+    maxHeight = 1800,
+    quality = 0.76,
     mimeType = 'image/webp',
   } = options;
 
@@ -59,20 +59,35 @@ export async function compressImageFile(
 
         const ctx = canvas.getContext('2d');
         if (!ctx) {
-          // Fallback to original data url
           resolve(readerEvent.target?.result as string);
           return;
         }
 
-        // Use high quality image smoothing
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = 'high';
         ctx.drawImage(img, 0, 0, width, height);
 
-        // Try webp first, fallback to jpeg if unsupported
         let compressedDataUrl = canvas.toDataURL(mimeType, quality);
         if (!compressedDataUrl.startsWith(`data:${mimeType}`)) {
           compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+        }
+
+        // If still over 90KB, do a quick secondary pass with reduced dimensions & quality
+        if (compressedDataUrl.length > 120000) {
+          const smallCanvas = document.createElement('canvas');
+          const scale = 0.8;
+          smallCanvas.width = Math.round(width * scale);
+          smallCanvas.height = Math.round(height * scale);
+          const sCtx = smallCanvas.getContext('2d');
+          if (sCtx) {
+            sCtx.imageSmoothingEnabled = true;
+            sCtx.imageSmoothingQuality = 'high';
+            sCtx.drawImage(canvas, 0, 0, smallCanvas.width, smallCanvas.height);
+            const secondaryPass = smallCanvas.toDataURL(mimeType, 0.68);
+            if (secondaryPass.length < compressedDataUrl.length) {
+              compressedDataUrl = secondaryPass;
+            }
+          }
         }
 
         resolve(compressedDataUrl);
@@ -80,5 +95,48 @@ export async function compressImageFile(
       img.src = readerEvent.target?.result as string;
     };
     reader.readAsDataURL(file);
+  });
+}
+
+/**
+ * Optimizes an existing base64 string to keep it under target KB (e.g. 70KB)
+ */
+export async function optimizeExistingDataUrl(dataUrl: string, maxTargetKb = 80): Promise<string> {
+  if (!dataUrl || !dataUrl.startsWith('data:image/') || dataUrl.length < maxTargetKb * 1024) {
+    return dataUrl;
+  }
+  return new Promise((resolve) => {
+    try {
+      const img = new Image();
+      img.onload = () => {
+        let width = img.width;
+        let height = img.height;
+        const maxDim = 1100;
+        if (width > maxDim || height > maxDim) {
+          if (width > height) {
+            height = Math.round((height * maxDim) / width);
+            width = maxDim;
+          } else {
+            width = Math.round((width * maxDim) / height);
+            height = maxDim;
+          }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          resolve(dataUrl);
+          return;
+        }
+        ctx.drawImage(img, 0, 0, width, height);
+        const result = canvas.toDataURL('image/webp', 0.72);
+        resolve(result.length < dataUrl.length ? result : dataUrl);
+      };
+      img.onerror = () => resolve(dataUrl);
+      img.src = dataUrl;
+    } catch {
+      resolve(dataUrl);
+    }
   });
 }

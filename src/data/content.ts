@@ -550,16 +550,16 @@ export const initialPortfolioData: PortfolioData = {
   ],
 
   seo: {
-    metaTitle: "Shariful Islam - Senior Shopify Liquid Developer & Full-Stack Developer",
-    metaDescription: "Senior Shopify Liquid Developer and Full-Stack Engineer specializing in custom Liquid builds, Shopify theme architecture, Python/Django APIs, and modern React web applications.",
-    keywords: "Shariful Islam, Senior Shopify Liquid Developer, Shopify Developer, Shopify Plus Expert, Liquid Theme Developer, Full-Stack Developer, React Developer, Django, Python Developer, Store Optimization",
+    metaTitle: "Shariful Islam | Shariful Portfolio - Senior Shopify & Full-Stack Developer",
+    metaDescription: "Official portfolio of Shariful Islam (Shariful) - Senior Shopify Liquid Developer & Full-Stack Engineer. Delivering custom Shopify 2.0 storefronts, Liquid themes, Python APIs, and React web apps.",
+    keywords: "Shariful, Shariful Islam, Shariful portfolio, Shariful Islam portfolio, Shariful developer, Shariful Shopify developer, Senior Shopify Liquid Developer, Shopify Expert, Liquid Theme Developer, Full-Stack Developer, React Developer, Python Django Developer, Web Developer Portfolio Dhaka Bangladesh",
     author: "Shariful Islam",
-    canonicalUrl: "https://sharif-ul-islam.vercel.app/",
+    canonicalUrl: "https://sharifulportfolio.vercel.app/",
     ogImage: "/myname.png",
     faviconUrl: "/favicon.svg",
     faviconType: "preset",
     faviconPreset: "code",
-    googleSiteVerification: "",
+    googleSiteVerification: "d9lq44buHQQVwwa0g35tnO2Lmu6ibpxBJsNkVww63gE",
     structuredDataEnabled: true,
   },
 

@@ -253,6 +253,7 @@ export const AdminDashboard: React.FC = () => {
   // Project state
   const [isAddingProject, setIsAddingProject] = useState(false);
   const [editingProjectSlug, setEditingProjectSlug] = useState<string | null>(null);
+  const [isSavingProject, setIsSavingProject] = useState(false);
   const [projectForm, setProjectForm] = useState<ProjectItem>({
     slug: '',
     title: '',
@@ -3547,20 +3548,25 @@ export const AdminDashboard: React.FC = () => {
 
                 {(isAddingProject || editingProjectSlug) && (
                   <form
-                    onSubmit={(e) => {
+                    onSubmit={async (e) => {
                       e.preventDefault();
-                      const normGallery = normalizeProjectImages(projectForm);
-                      const finalProject: ProjectItem = {
-                        ...projectForm,
-                        images: normGallery,
-                        image: projectForm.image || normGallery[0]?.url || '',
-                      };
-                      if (isAddingProject) {
-                        addProject(finalProject);
-                        setIsAddingProject(false);
-                      } else if (editingProjectSlug) {
-                        editProject(editingProjectSlug, finalProject);
-                        setEditingProjectSlug(null);
+                      setIsSavingProject(true);
+                      try {
+                        const normGallery = normalizeProjectImages(projectForm);
+                        const finalProject: ProjectItem = {
+                          ...projectForm,
+                          images: normGallery,
+                          image: projectForm.image || normGallery[0]?.url || '',
+                        };
+                        if (isAddingProject) {
+                          await addProject(finalProject);
+                          setIsAddingProject(false);
+                        } else if (editingProjectSlug) {
+                          await editProject(editingProjectSlug, finalProject);
+                          setEditingProjectSlug(null);
+                        }
+                      } finally {
+                        setIsSavingProject(false);
                       }
                     }}
                     className="p-6 rounded-2xl bg-purple-50/50 dark:bg-zinc-950 border border-purple-200 dark:border-purple-800/40 space-y-4"
@@ -3812,7 +3818,7 @@ export const AdminDashboard: React.FC = () => {
                                         });
                                         resolve();
                                       },
-                                      { maxWidth: 1920, maxHeight: 4000, quality: 0.85 }
+                                      { maxWidth: 1440, maxHeight: 2560, quality: 0.78 }
                                     );
                                   });
                                 }
@@ -4079,9 +4085,11 @@ export const AdminDashboard: React.FC = () => {
                     <div className="flex items-center gap-3 pt-2">
                       <button
                         type="submit"
-                        className="px-6 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold tracking-wide uppercase cursor-pointer"
+                        disabled={isSavingProject || isProcessingImage}
+                        className="px-6 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold tracking-wide uppercase cursor-pointer disabled:opacity-50 flex items-center gap-2"
                       >
-                        Save Project
+                        {isSavingProject && <Loader2 className="w-4 h-4 animate-spin" />}
+                        <span>{isSavingProject ? 'Saving to Database...' : 'Save Project'}</span>
                       </button>
                       <button
                         type="button"

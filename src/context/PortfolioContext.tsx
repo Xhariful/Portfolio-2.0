@@ -22,7 +22,7 @@ import {
 } from '../types';
 import { initialPortfolioData } from '../data/content';
 import { db, testFirestoreConnection } from '../lib/firebase';
-import { doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore';
+import { doc, getDoc, setDoc, onSnapshot, collection, getDocs, deleteDoc } from 'firebase/firestore';
 import { pauseLenis, resumeLenis } from '../hooks/useLenisScroll';
 
 const STORAGE_KEY = 'shariful_portfolio_dynamic_data_v3';
@@ -102,9 +102,9 @@ interface PortfolioContextType {
   deleteEducation: (id: string) => void;
 
   // Project Helpers
-  addProject: (item: ProjectItem) => void;
-  editProject: (slug: string, updated: Partial<ProjectItem>) => void;
-  deleteProject: (slug: string) => void;
+  addProject: (item: ProjectItem) => Promise<boolean> | void;
+  editProject: (slug: string, updated: Partial<ProjectItem>) => Promise<boolean> | void;
+  deleteProject: (slug: string) => Promise<boolean> | void;
 
   // Service Helpers
   addService: (item: ServiceItem) => void;
@@ -220,15 +220,23 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }, 3200);
   }, []);
 
-  // Save to LocalStorage cache
+  // Save to LocalStorage cache safely
   useEffect(() => {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     } catch (e) {
-      console.warn('LocalStorage quota limit reached for full portfolio, clearing old temporary cache items:', e);
+      console.warn('LocalStorage quota limit reached for full portfolio, saving lightweight cache:', e);
       try {
-        // Clear redundant keys and retry
-        sessionStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        const lightweightProjects = (data.projects || []).map((p) => ({
+          ...p,
+          image: p.image && p.image.length > 30000 ? '' : p.image,
+          images: (p.images || []).map((img) =>
+            typeof img === 'string'
+              ? (img.length > 30000 ? '' : img)
+              : { ...img, url: img.url && img.url.length > 30000 ? '' : img.url }
+          ),
+        }));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...data, projects: lightweightProjects }));
       } catch {
         // non-blocking
       }
@@ -243,9 +251,48 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }
   }, [securityConfig]);
 
+  // Dedicated Project Persistence to Cloud Collection
+  const persistProjectToCloud = useCallback(async (project: ProjectItem) => {
+    try {
+      setIsSyncingCloud(true);
+      const docId = project.slug || `project-${Date.now()}`;
+      const projectDocRef = doc(db, 'projects', docId);
+      await setDoc(projectDocRef, {
+        ...project,
+        updatedAt: new Date().toISOString(),
+      }, { merge: true });
+      setLastCloudSyncTime(new Date().toLocaleTimeString());
+      setIsCloudConnected(true);
+      return true;
+    } catch (err: unknown) {
+      console.error('[Cloud DB] Error saving project to Firestore:', err);
+      const errMsg = err instanceof Error ? err.message : String(err);
+      showToast('Cloud save warning: ' + errMsg);
+      return false;
+    } finally {
+      setIsSyncingCloud(false);
+    }
+  }, [showToast]);
+
+  const removeProjectFromCloud = useCallback(async (slug: string) => {
+    try {
+      setIsSyncingCloud(true);
+      const projectDocRef = doc(db, 'projects', slug);
+      await deleteDoc(projectDocRef);
+      setLastCloudSyncTime(new Date().toLocaleTimeString());
+      return true;
+    } catch (err: unknown) {
+      console.error('[Cloud DB] Error deleting project from Firestore:', err);
+      return false;
+    } finally {
+      setIsSyncingCloud(false);
+    }
+  }, []);
+
   // Firestore Real-Time Listener & Initial Cloud Fetch
   useEffect(() => {
     let unsubscribePortfolio: (() => void) | null = null;
+    let unsubscribeProjects: (() => void) | null = null;
     let unsubscribeAuth: (() => void) | null = null;
 
     async function initCloudSync() {
@@ -259,6 +306,7 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
         const portfolioDocRef = doc(db, FIRESTORE_PORTFOLIO_COLLECTION, FIRESTORE_PORTFOLIO_DOC);
         const authDocRef = doc(db, FIRESTORE_AUTH_COLLECTION, FIRESTORE_AUTH_DOC);
+        const projectsColRef = collection(db, 'projects');
 
         // Helper timeout for mobile networks
         const withTimeout = <T,>(promise: Promise<T>, ms = 3500): Promise<T> => {
@@ -290,16 +338,52 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           }));
           setLastCloudSyncTime(new Date().toLocaleTimeString());
         } else {
-          // If cloud document is not seeded yet, push current master portfolio to cloud so it's globally live
+          // If cloud document is not seeded yet, push initial portfolio to cloud
           console.log('[Cloud DB] Seeding initial portfolio content to Cloud Firestore...');
+          const slimProjects = (initialPortfolioData.projects || []).map((p) => ({
+            slug: p.slug,
+            title: p.title,
+            category: p.category,
+            liveUrl: p.liveUrl,
+            githubUrl: p.githubUrl,
+            highlight: p.highlight,
+            year: p.year,
+            description: p.description,
+            tech: p.tech,
+          }));
           await setDoc(portfolioDocRef, {
             ...initialPortfolioData,
+            projects: slimProjects,
             updatedAt: new Date().toISOString(),
           });
           setLastCloudSyncTime(new Date().toLocaleTimeString());
         }
 
-        // 2. Fetch remote master credentials & access keys from cloud
+        // 2. Fetch individual projects from /projects/ collection
+        try {
+          const projectsSnap = await withTimeout(getDocs(projectsColRef));
+          if (!projectsSnap.empty) {
+            const cloudProjects = projectsSnap.docs.map((d) => d.data() as ProjectItem);
+            cloudProjects.sort((a, b) => {
+              if (typeof a.order === 'number' && typeof b.order === 'number') {
+                return a.order - b.order;
+              }
+              const timeA = a.updatedAt ? new Date(a.updatedAt).getTime() : 0;
+              const timeB = b.updatedAt ? new Date(b.updatedAt).getTime() : 0;
+              if (timeA && timeB) return timeB - timeA;
+              return (b.slug || '').localeCompare(a.slug || '');
+            });
+            setData((prev) => ({
+              ...prev,
+              projects: cloudProjects,
+            }));
+            console.log('[Cloud DB] Loaded', cloudProjects.length, 'projects from dedicated collection.');
+          }
+        } catch (projErr) {
+          console.warn('[Cloud DB] Could not load projects collection:', projErr);
+        }
+
+        // 3. Fetch remote master credentials & access keys from cloud
         const authSnap = await withTimeout(getDoc(authDocRef));
         if (authSnap.exists()) {
           const cloudAuth = authSnap.data() as Partial<SecurityConfig>;
@@ -324,7 +408,7 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
         hasInitializedFromCloud.current = true;
 
-        // 3. Setup real-time listener for multi-device sync
+        // 4. Setup real-time listener for global portfolio content
         unsubscribePortfolio = onSnapshot(portfolioDocRef, (snap) => {
           if (snap.exists()) {
             const remoteData = snap.data() as Partial<PortfolioData>;
@@ -335,6 +419,8 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
             setData((prev) => ({
               ...prev,
               ...remoteData,
+              // Never let remoteData.projects overwrite live projects from the dedicated collection
+              projects: prev.projects && prev.projects.length > 0 ? prev.projects : (remoteData.projects || prev.projects),
               profile: mergedProfile,
               seo: { ...prev.seo, ...(remoteData.seo || {}) },
               welcomePopup: { ...prev.welcomePopup, ...(remoteData.welcomePopup || {}) },
@@ -346,6 +432,28 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           }
         });
 
+        // 5. Setup real-time listener for projects collection
+        unsubscribeProjects = onSnapshot(projectsColRef, (snap) => {
+          if (!snap.empty) {
+            const remoteProjects = snap.docs.map((d) => d.data() as ProjectItem);
+            remoteProjects.sort((a, b) => {
+              if (typeof a.order === 'number' && typeof b.order === 'number') {
+                return a.order - b.order;
+              }
+              const timeA = a.updatedAt ? new Date(a.updatedAt).getTime() : 0;
+              const timeB = b.updatedAt ? new Date(b.updatedAt).getTime() : 0;
+              if (timeA && timeB) return timeB - timeA;
+              return (b.slug || '').localeCompare(a.slug || '');
+            });
+            setData((prev) => ({
+              ...prev,
+              projects: remoteProjects,
+            }));
+            setLastCloudSyncTime(new Date().toLocaleTimeString());
+          }
+        });
+
+        // 6. Setup real-time listener for master credentials
         unsubscribeAuth = onSnapshot(authDocRef, (snap) => {
           if (snap.exists()) {
             const remoteAuth = snap.data() as Partial<SecurityConfig>;
@@ -370,17 +478,31 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
     return () => {
       if (unsubscribePortfolio) unsubscribePortfolio();
+      if (unsubscribeProjects) unsubscribeProjects();
       if (unsubscribeAuth) unsubscribeAuth();
     };
   }, []);
 
-  // Sync state changes to Cloud Firestore
+  // Sync state changes to Cloud Firestore (with slim projects to avoid 1MB document limit)
   const persistToCloud = useCallback(async (newData: PortfolioData) => {
     try {
       setIsSyncingCloud(true);
       const portfolioDocRef = doc(db, FIRESTORE_PORTFOLIO_COLLECTION, FIRESTORE_PORTFOLIO_DOC);
+      // Strip heavy project screenshot arrays inside global_content so global_content document size is tiny (<250KB) and never hits Firestore 1MB limit
+      const slimProjects = (newData.projects || []).map((p) => ({
+        slug: p.slug,
+        title: p.title,
+        category: p.category,
+        liveUrl: p.liveUrl,
+        githubUrl: p.githubUrl,
+        highlight: p.highlight,
+        year: p.year,
+        description: p.description,
+        tech: p.tech,
+      }));
       await setDoc(portfolioDocRef, {
         ...newData,
+        projects: slimProjects,
         updatedAt: new Date().toISOString(),
       }, { merge: true });
       setLastCloudSyncTime(new Date().toLocaleTimeString());
@@ -421,8 +543,25 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     try {
       const portfolioDocRef = doc(db, FIRESTORE_PORTFOLIO_COLLECTION, FIRESTORE_PORTFOLIO_DOC);
       const authDocRef = doc(db, FIRESTORE_AUTH_COLLECTION, FIRESTORE_AUTH_DOC);
-      await setDoc(portfolioDocRef, { ...data, updatedAt: new Date().toISOString() });
+      const slimProjects = (data.projects || []).map((p) => ({
+        slug: p.slug,
+        title: p.title,
+        category: p.category,
+        liveUrl: p.liveUrl,
+        githubUrl: p.githubUrl,
+        highlight: p.highlight,
+        year: p.year,
+        description: p.description,
+        tech: p.tech,
+      }));
+      await setDoc(portfolioDocRef, { ...data, projects: slimProjects, updatedAt: new Date().toISOString() });
       await setDoc(authDocRef, { ...securityConfig, updatedAt: new Date().toISOString() });
+      for (let i = 0; i < data.projects.length; i++) {
+        const p = data.projects[i];
+        if (p.slug) {
+          await setDoc(doc(db, 'projects', p.slug), { ...p, order: i, updatedAt: new Date().toISOString() }, { merge: true });
+        }
+      }
       setLastCloudSyncTime(new Date().toLocaleTimeString());
       showToast('☁️ Cloud database synchronized successfully!');
     } catch (e) {
@@ -759,6 +898,9 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       persistToCloud(updated);
       return updated;
     });
+    projects.forEach((p, idx) => {
+      persistProjectToCloud({ ...p, order: idx });
+    });
     showToast('Projects updated & synced to Cloud!');
   };
 
@@ -968,41 +1110,54 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   };
 
   // Project Helpers
-  const addProject = (item: ProjectItem) => {
-    const newItem = {
+  const addProject = async (item: ProjectItem) => {
+    const newItem: ProjectItem = {
       ...item,
       slug: item.slug || `project-${Date.now()}`,
+      updatedAt: new Date().toISOString(),
     };
     setData((prev) => {
       const updated = { ...prev, projects: [newItem, ...prev.projects] };
-      persistToCloud(updated);
       return updated;
     });
-    showToast('Project created!');
+    const success = await persistProjectToCloud(newItem);
+    if (success) {
+      showToast('✅ Store project saved & synced to live database!');
+      return true;
+    }
+    return false;
   };
 
-  const editProject = (slug: string, updated: Partial<ProjectItem>) => {
+  const editProject = async (slug: string, updated: Partial<ProjectItem>) => {
+    let finalProject: ProjectItem | null = null;
     setData((prev) => {
-      const updatedData = {
-        ...prev,
-        projects: prev.projects.map((p) => (p.slug === slug ? { ...p, ...updated } : p)),
-      };
-      persistToCloud(updatedData);
-      return updatedData;
+      const updatedProjects = prev.projects.map((p) => {
+        if (p.slug === slug) {
+          finalProject = { ...p, ...updated, updatedAt: new Date().toISOString() };
+          return finalProject;
+        }
+        return p;
+      });
+      return { ...prev, projects: updatedProjects };
     });
-    showToast('Project updated!');
+    if (finalProject) {
+      const success = await persistProjectToCloud(finalProject);
+      if (success) {
+        showToast('✅ Store project updated & synced to live database!');
+        return true;
+      }
+    }
+    return false;
   };
 
-  const deleteProject = (slug: string) => {
-    setData((prev) => {
-      const updated = {
-        ...prev,
-        projects: prev.projects.filter((p) => p.slug !== slug),
-      };
-      persistToCloud(updated);
-      return updated;
-    });
-    showToast('Project removed.');
+  const deleteProject = async (slug: string) => {
+    setData((prev) => ({
+      ...prev,
+      projects: prev.projects.filter((p) => p.slug !== slug),
+    }));
+    await removeProjectFromCloud(slug);
+    showToast('Store project removed.');
+    return true;
   };
 
   // Service Helpers

@@ -85,6 +85,8 @@ export interface ProjectItem {
   year: string;
   featured: boolean;
   highlight?: string;
+  order?: number;
+  updatedAt?: string;
 }
 
 export interface EducationItem {
