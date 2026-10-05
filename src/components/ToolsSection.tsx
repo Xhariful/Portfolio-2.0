@@ -1,6 +1,6 @@
 import React from 'react';
-import { Sparkles, Wand2, ArrowUpRight, FileImage, Code2, Zap, CheckCircle2 } from 'lucide-react';
-import { Magnetic } from './animations/Magnetic';
+import { Wand2, ArrowUpRight, FileImage, Code2 } from 'lucide-react';
+import { Text3DFlip } from './ui/text-3d-flip';
 
 interface ToolsSectionProps {
   onNavigateToTool?: (route: string) => void;
@@ -17,24 +17,29 @@ export const ToolsSection: React.FC<ToolsSectionProps> = ({ onNavigateToTool }) 
   };
 
   return (
-    <section id="tools" className="py-20 sm:py-28 relative overflow-hidden">
-      {/* Background Decorative Accent */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[350px] bg-purple-600/10 dark:bg-purple-600/15 rounded-full blur-[120px] pointer-events-none" />
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-12">
+    <section id="tools" className="py-24 px-4 sm:px-6 lg:px-8 relative border-t border-slate-200/80 dark:border-zinc-800/80 bg-transparent scroll-mt-24">
+      <div className="max-w-7xl mx-auto space-y-12">
         {/* Section Header */}
-        <div className="text-center space-y-4 max-w-3xl mx-auto">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-purple-100/80 dark:bg-purple-950/70 border border-purple-200 dark:border-purple-800 text-purple-700 dark:text-purple-300 text-xs font-mono font-semibold">
-            <Zap className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
-            <span>Interactive Utilities</span>
+        <div className="text-center max-w-3xl mx-auto space-y-3">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-purple-500/20 bg-purple-500/10 backdrop-blur-xs text-purple-700 dark:text-purple-300 text-xs font-mono">
+            <Wand2 className="w-3.5 h-3.5" />
+            <span>INTERACTIVE UTILITIES</span>
           </div>
 
-          <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-slate-900 dark:text-white">
-            Our <span className="bg-gradient-to-r from-purple-600 via-indigo-500 to-purple-600 bg-clip-text text-transparent">Tools</span>
+          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+            <Text3DFlip
+              className="font-extrabold justify-center"
+              textClassName="text-slate-900 dark:text-white"
+              flipTextClassName="text-purple-600 dark:text-purple-400"
+              rotateDirection="top"
+              staggerDuration={0.025}
+            >
+              Our <span className="gradient-text">Tools</span>
+            </Text3DFlip>
           </h2>
 
-          <p className="text-sm sm:text-base text-slate-600 dark:text-zinc-400 leading-relaxed">
-            Free, high-performance utilities for everyone. Easily remove image backgrounds, optimize your assets, and speed up your workflow with zero watermarks and zero registration fees.
+          <p className="text-base text-slate-600 dark:text-zinc-400">
+            Free, high-performance web utilities for everyone. Easily remove image backgrounds and optimize assets with zero watermarks.
           </p>
         </div>
 
@@ -77,18 +82,16 @@ export const ToolsSection: React.FC<ToolsSectionProps> = ({ onNavigateToTool }) 
               </div>
             </div>
 
-            {/* CTA Button */}
+            {/* CTA Button - Full Width Centered matching other cards */}
             <div className="pt-6 mt-6 border-t border-slate-100 dark:border-zinc-800">
-              <Magnetic strength={0.25}>
-                <button
-                  type="button"
-                  onClick={() => handleLaunchTool('/tools/remove-background')}
-                  className="w-full py-3 px-5 rounded-2xl bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-700 hover:from-purple-500 hover:via-indigo-500 hover:to-purple-600 text-white font-bold text-xs sm:text-sm tracking-wide shadow-md hover:shadow-lg hover:shadow-purple-500/25 transition-all flex items-center justify-center gap-2 cursor-pointer"
-                >
-                  <span>Launch Tool Free</span>
-                  <ArrowUpRight className="w-4 h-4" />
-                </button>
-              </Magnetic>
+              <button
+                type="button"
+                onClick={() => handleLaunchTool('/tools/remove-background')}
+                className="w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-700 hover:from-purple-500 hover:via-indigo-500 hover:to-purple-600 text-white font-bold text-xs tracking-wide shadow-md hover:shadow-lg hover:shadow-purple-500/25 transition-all flex items-center justify-center gap-2 cursor-pointer text-center"
+              >
+                <span>Let's Remove BG</span>
+                <ArrowUpRight className="w-4 h-4" />
+              </button>
             </div>
           </div>
 
