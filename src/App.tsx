@@ -22,8 +22,9 @@ import { MobileTouchEffect } from './components/animations/MobileTouchEffect';
 import { ScrollReveal } from './components/animations/ScrollReveal';
 import { Floating3DParticles } from './components/ui/floating-3d-particles';
 import { InitialLoader } from './components/animations/InitialLoader';
+import { ToolsSection } from './components/ToolsSection';
 
-// Lazy-load non-critical modals and heavy admin portal to keep mobile bundle ultra-lightweight
+// Lazy-load non-critical modals, tools, and heavy admin portal to keep mobile bundle ultra-lightweight
 const WelcomeGreetingModal = React.lazy(() =>
   import('./components/WelcomeGreetingModal').then((m) => ({ default: m.WelcomeGreetingModal }))
 );
@@ -33,10 +34,36 @@ const AdminLoginModal = React.lazy(() =>
 const AdminDashboard = React.lazy(() =>
   import('./components/AdminDashboard').then((m) => ({ default: m.AdminDashboard }))
 );
+const RemoveBackground = React.lazy(() =>
+  import('./pages/tools/RemoveBackground').then((m) => ({ default: m.RemoveBackground }))
+);
 
 function PortfolioApp() {
   // Initialize buttery-smooth Lenis inertial scroll linked with GSAP ScrollTrigger
   useLenisScroll();
+
+  const [currentPath, setCurrentPath] = useState<string>(() => {
+    if (typeof window !== 'undefined') {
+      return window.location.pathname;
+    }
+    return '/';
+  });
+
+  useEffect(() => {
+    const handleLocationChange = () => {
+      setCurrentPath(window.location.pathname);
+    };
+    window.addEventListener('popstate', handleLocationChange);
+    return () => window.removeEventListener('popstate', handleLocationChange);
+  }, []);
+
+  const navigateTo = (path: string) => {
+    if (typeof window !== 'undefined') {
+      window.history.pushState(null, '', path);
+      setCurrentPath(path);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
 
   const [activeSection, setActiveSection] = useState('hero');
   const [isDark, setIsDark] = useState<boolean>(() => {
@@ -166,6 +193,24 @@ function PortfolioApp() {
     }
   };
 
+  if (currentPath.startsWith('/tools')) {
+    return (
+      <React.Suspense
+        fallback={
+          <div className="min-h-screen bg-slate-950 flex items-center justify-center text-purple-400">
+            <div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
+          </div>
+        }
+      >
+        <RemoveBackground
+          onBackToPortfolio={() => navigateTo('/')}
+          isDark={isDark}
+          onToggleTheme={toggleTheme}
+        />
+      </React.Suspense>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-zinc-950 text-slate-900 dark:text-zinc-100 selection:bg-purple-600 selection:text-white transition-colors duration-300 antialiased relative">
       {/* Dynamic Initial Loading Screen with Photo/Avatar & Orbital High-Tech Animation */}
@@ -217,6 +262,11 @@ function PortfolioApp() {
         {/* About & Credentials */}
         <ScrollReveal direction="up" distance={36} duration={0.7} blur amount={0.06}>
           <AboutSection onContactClick={() => scrollToSection('contact')} />
+        </ScrollReveal>
+
+        {/* Our Tools - Free Interactive Utilities Hub */}
+        <ScrollReveal direction="up" distance={36} duration={0.7} blur amount={0.06}>
+          <ToolsSection onNavigateToTool={(route) => navigateTo(route)} />
         </ScrollReveal>
 
         {/* Education & Courses */}
