@@ -1,9 +1,9 @@
-import express, { Request, Response } from 'express';
+import express from 'express';
+import type { Request, Response, NextFunction } from 'express';
 import dotenv from 'dotenv';
 import multer from 'multer';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { removeBackground as imglyRemoveBackground } from '@imgly/background-removal-node';
 
 dotenv.config();
 
@@ -11,9 +11,25 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = Number(process.env.PORT) || 3000;
+const HOST = '0.0.0.0';
 const REMOVE_BG_API_KEY =
   process.env.REMOVE_BG_API_KEY || 'Pi85bEV6S535Njz51tyNcFtf';
+
+// CORS Middleware to allow requests from any origin / preview iframe
+app.use((req: Request, res: Response, next: NextFunction) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE');
+  res.header(
+    'Access-Control-Allow-Headers',
+    'Origin, X-Requested-With, Content-Type, Accept, Authorization, X-Api-Key'
+  );
+  if (req.method === 'OPTIONS') {
+    res.sendStatus(204);
+    return;
+  }
+  next();
+});
 
 // Setup multer memory storage with 15MB limit
 const upload = multer({
@@ -46,7 +62,21 @@ app.get('/api/health', (_req: Request, res: Response) => {
 // Remove Background Proxy Endpoint (Powered by remove.bg)
 app.post(
   '/api/remove-background',
-  upload.single('image_file'),
+  (req: Request, res: Response, next: NextFunction) => {
+    upload.single('image_file')(req, res, (err) => {
+      if (err) {
+        console.warn('[Multer Upload Error]', err);
+        res.status(400).json({
+          success: false,
+          error:
+            err.message ||
+            'Image upload failed. Please ensure file is a JPG, PNG, or WebP under 15MB.',
+        });
+        return;
+      }
+      next();
+    });
+  },
   async (req: Request, res: Response) => {
     try {
       let imageBuffer: Buffer | null = null;
@@ -80,7 +110,7 @@ app.post(
 
       let outputBuffer: Buffer | null = null;
 
-      // 1. Primary: Call official remove.bg API
+      // 1. Call official remove.bg API
       if (REMOVE_BG_API_KEY) {
         try {
           const formData = new FormData();
@@ -91,32 +121,89 @@ app.post(
           );
           formData.append('size', 'auto');
 
+          // AbortController with 25s timeout to prevent proxy hangs
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 25000);
+
           const removeBgResponse = await fetch('https://api.remove.bg/v1.0/removebg', {
             method: 'POST',
             headers: {
               'X-Api-Key': REMOVE_BG_API_KEY,
             },
             body: formData,
+            signal: controller.signal,
           });
+          clearTimeout(timeoutId);
 
           if (removeBgResponse.ok) {
             const arrayBuffer = await removeBgResponse.arrayBuffer();
             outputBuffer = Buffer.from(arrayBuffer);
           } else {
             const errText = await removeBgResponse.text();
-            console.warn('[remove.bg API response non-200, fallback to neural engine]', removeBgResponse.status, errText);
+            console.warn('[remove.bg API response non-200]', removeBgResponse.status, errText);
+
+            let parsedError = '';
+            try {
+              const errJson = JSON.parse(errText);
+              if (errJson.errors && errJson.errors[0]?.title) {
+                parsedError = errJson.errors[0].title;
+              }
+            } catch {
+              parsedError = errText;
+            }
+
+            // If 402 (insufficient credits for full size), automatically retry with free preview size
+            if (removeBgResponse.status === 402 || parsedError.toLowerCase().includes('credit')) {
+              console.log('[remove.bg] Retrying with size=preview for free calls...');
+              const retryForm = new FormData();
+              retryForm.append(
+                'image_file',
+                new Blob([imageBuffer], { type: mimeType }),
+                originalFilename
+              );
+              retryForm.append('size', 'preview');
+
+              const retryRes = await fetch('https://api.remove.bg/v1.0/removebg', {
+                method: 'POST',
+                headers: {
+                  'X-Api-Key': REMOVE_BG_API_KEY,
+                },
+                body: retryForm,
+              });
+
+              if (retryRes.ok) {
+                const ab = await retryRes.arrayBuffer();
+                outputBuffer = Buffer.from(ab);
+              }
+            }
+
+            if (!outputBuffer && parsedError) {
+              res.status(removeBgResponse.status).json({
+                success: false,
+                error: parsedError || 'Failed to remove background from this image.',
+              });
+              return;
+            }
           }
-        } catch (rbErr) {
-          console.warn('[remove.bg API error, fallback to neural engine]', rbErr);
+        } catch (rbErr: any) {
+          console.warn('[remove.bg error]', rbErr);
+          res.status(500).json({
+            success: false,
+            error:
+              rbErr?.name === 'AbortError'
+                ? 'Processing timed out. Please try a slightly smaller image.'
+                : rbErr?.message || 'Error communicating with background removal service.',
+          });
+          return;
         }
       }
 
-      // 2. Fallback: If remove.bg fails or quota exceeded, use clean AI Neural Engine
       if (!outputBuffer) {
-        const inputBlob = new Blob([imageBuffer], { type: mimeType });
-        const resultBlob = await imglyRemoveBackground(inputBlob);
-        const arrayBuf = await resultBlob.arrayBuffer();
-        outputBuffer = Buffer.from(arrayBuf);
+        res.status(500).json({
+          success: false,
+          error: 'Could not process image background. Please try another image.',
+        });
+        return;
       }
 
       const outputBase64 = `data:image/png;base64,${outputBuffer.toString('base64')}`;
@@ -129,7 +216,10 @@ app.post(
 
       if (wantsBinary) {
         res.setHeader('Content-Type', 'image/png');
-        res.setHeader('Content-Disposition', 'attachment; filename="transparent-output.png"');
+        res.setHeader(
+          'Content-Disposition',
+          'attachment; filename="transparent-output.png"'
+        );
         res.send(outputBuffer);
       } else {
         res.json({
@@ -152,6 +242,15 @@ app.post(
   }
 );
 
+// Global Error Handler Middleware: Guarantees JSON response
+app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
+  console.error('[Global Server Error]', err);
+  res.status(500).json({
+    success: false,
+    error: err?.message || 'An unexpected server error occurred.',
+  });
+});
+
 // Mount Vite or serve static dist
 async function startServer() {
   const isProduction = process.env.NODE_ENV === 'production';
@@ -166,13 +265,13 @@ async function startServer() {
   } else {
     const distPath = path.resolve(__dirname, 'dist');
     app.use(express.static(distPath));
-    app.get('*', (_req, res) => {
+    app.get('*', (_req: Request, res: Response) => {
       res.sendFile(path.join(distPath, 'index.html'));
     });
   }
 
-  app.listen(PORT, () => {
-    console.log(`[Full-Stack Server] running on http://localhost:${PORT}`);
+  app.listen(PORT, HOST, () => {
+    console.log(`[Full-Stack Server] running on http://${HOST}:${PORT}`);
   });
 }
 
