@@ -25,21 +25,37 @@ export const RemoveBackground: React.FC<RemoveBackgroundProps> = ({
   const [processedSize, setProcessedSize] = useState<number | undefined>(undefined);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  // Clean up object URLs to prevent browser memory leaks
+  // Clean up object URLs only when unmounting the page
   useEffect(() => {
     return () => {
       if (previewUrl && previewUrl.startsWith('blob:')) {
-        URL.revokeObjectURL(previewUrl);
+        try {
+          URL.revokeObjectURL(previewUrl);
+        } catch {}
       }
     };
-  }, [previewUrl]);
+  }, []);
 
   const handleImageSelected = (file: File) => {
     setErrorMsg(null);
     setResultUrl(null);
     setSelectedFile(file);
-    const objUrl = URL.createObjectURL(file);
-    setPreviewUrl(objUrl);
+
+    // Fast initial object URL
+    try {
+      const initialUrl = URL.createObjectURL(file);
+      setPreviewUrl(initialUrl);
+    } catch {}
+
+    // Read full persistent base64 data URL so mobile browsers never lose the image
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const dataUrl = e.target?.result as string;
+      if (dataUrl) {
+        setPreviewUrl(dataUrl);
+      }
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleStartRemoval = async () => {

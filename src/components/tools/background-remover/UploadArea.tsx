@@ -16,8 +16,12 @@ export const UploadArea: React.FC<UploadAreaProps> = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const validateAndProcess = (file: File) => {
-    if (!file.type.startsWith('image/')) {
-      onError('Please upload a valid image file (PNG, JPG, JPEG, or WebP).');
+    const isImage =
+      (file.type && file.type.startsWith('image/')) ||
+      /\.(jpe?g|png|webp|heic|heif|gif|bmp|svg)$/i.test(file.name);
+
+    if (!isImage) {
+      onError('Please upload a valid image file (PNG, JPG, JPEG, WebP, or HEIC).');
       return;
     }
     if (file.size > 15 * 1024 * 1024) {
@@ -80,7 +84,7 @@ export const UploadArea: React.FC<UploadAreaProps> = ({
         <input
           ref={fileInputRef}
           type="file"
-          accept="image/png, image/jpeg, image/jpg, image/webp"
+          accept="image/*"
           className="hidden"
           onChange={handleFileChange}
           disabled={disabled}

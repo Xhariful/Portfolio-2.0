@@ -16,6 +16,8 @@ export const ImagePreview: React.FC<ImagePreviewProps> = ({
   onClear,
   disabled = false,
 }) => {
+  const [hasError, setHasError] = React.useState(false);
+
   const formatSize = (bytes: number) => {
     if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
     return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
@@ -26,11 +28,26 @@ export const ImagePreview: React.FC<ImagePreviewProps> = ({
       <div className="flex flex-col md:flex-row items-center gap-6">
         {/* Thumbnail Preview Container */}
         <div className="relative w-full md:w-56 h-56 rounded-2xl overflow-hidden bg-slate-100 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 flex items-center justify-center shrink-0 group">
-          <img
-            src={previewUrl}
-            alt="Original upload"
-            className="w-full h-full object-contain p-2"
-          />
+          {!hasError ? (
+            <img
+              src={previewUrl}
+              alt="Original upload"
+              onError={() => setHasError(true)}
+              className="w-full h-full object-contain p-2"
+            />
+          ) : (
+            <div className="flex flex-col items-center justify-center p-4 text-center space-y-2">
+              <div className="w-12 h-12 rounded-xl bg-purple-100 dark:bg-purple-950/60 text-purple-600 flex items-center justify-center">
+                <FileCheck className="w-6 h-6" />
+              </div>
+              <span className="text-xs font-semibold text-slate-700 dark:text-zinc-300">
+                Image Loaded
+              </span>
+              <span className="text-[10px] text-slate-400 font-mono">
+                {file.name}
+              </span>
+            </div>
+          )}
           <div className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-md bg-black/70 backdrop-blur-md text-white text-[10px] font-mono uppercase tracking-wider">
             Original
           </div>
