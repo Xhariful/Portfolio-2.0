@@ -36,14 +36,43 @@ export const RemoveBackground: React.FC<RemoveBackgroundProps> = ({
     };
   }, []);
 
-  const handleImageSelected = (file: File) => {
+  const handleImageSelected = async (file: File) => {
     setErrorMsg(null);
     setResultUrl(null);
-    setSelectedFile(file);
+
+    // Check if this is an iPhone / Samsung HEIC or HEIF photo
+    const isHeic =
+      file.name.toLowerCase().endsWith('.heic') ||
+      file.name.toLowerCase().endsWith('.heif') ||
+      file.type.includes('heic') ||
+      file.type.includes('heif');
+
+    let processedFile = file;
+
+    if (isHeic) {
+      try {
+        const heic2anyModule = (await import('heic2any')).default;
+        const converted = await heic2anyModule({
+          blob: file,
+          toType: 'image/jpeg',
+          quality: 0.92,
+        });
+        const singleBlob = Array.isArray(converted) ? converted[0] : converted;
+        processedFile = new File(
+          [singleBlob],
+          file.name.replace(/\.(heic|heif)$/i, '.jpg'),
+          { type: 'image/jpeg' }
+        );
+      } catch (convErr) {
+        console.warn('[HEIC client conversion error, server Sharp will handle]', convErr);
+      }
+    }
+
+    setSelectedFile(processedFile);
 
     // Fast initial object URL
     try {
-      const initialUrl = URL.createObjectURL(file);
+      const initialUrl = URL.createObjectURL(processedFile);
       setPreviewUrl(initialUrl);
     } catch {}
 
@@ -55,7 +84,7 @@ export const RemoveBackground: React.FC<RemoveBackgroundProps> = ({
         setPreviewUrl(dataUrl);
       }
     };
-    reader.readAsDataURL(file);
+    reader.readAsDataURL(processedFile);
   };
 
   const handleStartRemoval = async () => {

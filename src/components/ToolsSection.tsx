@@ -95,41 +95,53 @@ export const ToolsSection: React.FC<ToolsSectionProps> = ({ onNavigateToTool }) 
             </div>
           </div>
 
-          {/* Card 2: Upcoming Image Compressor */}
-          <div className="group relative rounded-3xl bg-white/70 dark:bg-zinc-900/60 border border-slate-200 dark:border-zinc-800/80 p-6 sm:p-8 shadow-sm flex flex-col justify-between opacity-85 hover:opacity-100 transition-opacity">
+          {/* Card 2: Active Image Compressor */}
+          <div className="group relative rounded-3xl bg-white dark:bg-zinc-900/90 border-2 border-indigo-500/40 dark:border-indigo-500/50 p-6 sm:p-8 shadow-xl hover:shadow-2xl hover:shadow-indigo-500/20 transition-all duration-300 flex flex-col justify-between">
             <div className="space-y-4">
+              {/* Badge & Icon */}
               <div className="flex items-center justify-between">
-                <div className="w-14 h-14 rounded-2xl bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 flex items-center justify-center">
-                  <FileImage className="w-7 h-7 text-indigo-500" />
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 via-purple-600 to-indigo-700 text-white flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
+                  <FileImage className="w-7 h-7" />
                 </div>
-                <span className="px-2.5 py-1 rounded-full bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400 border border-slate-200 dark:border-zinc-700 text-[10px] font-mono uppercase font-semibold">
-                  Coming Next
+                <span className="px-3 py-1 rounded-full bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-800 text-[11px] font-mono font-bold uppercase tracking-wider flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  Live & Free
                 </span>
               </div>
 
               <div>
-                <h3 className="text-xl font-bold text-slate-900 dark:text-white">
-                  Image Compressor & WebP Optimizer
+                <h3 className="text-xl font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                  Image Compressor & WebP
                 </h3>
-                <p className="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 mt-2 leading-relaxed">
-                  Compress photos and graphics by up to 80% without visible quality loss to boost website performance and load speeds.
+                <p className="text-xs sm:text-sm text-slate-600 dark:text-zinc-400 mt-2 leading-relaxed">
+                  Compress single or 50+ bulk images in 1-click. Save up to 85% storage with smart WebP conversion and batch ZIP download.
                 </p>
               </div>
 
+              {/* Feature Tags */}
               <div className="flex flex-wrap gap-1.5 pt-2">
-                <span className="px-2.5 py-1 rounded-md bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400 text-[11px] font-mono">
-                  Speed Booster
+                <span className="px-2.5 py-1 rounded-md bg-indigo-50 dark:bg-zinc-800 text-indigo-700 dark:text-indigo-300 text-[11px] font-mono">
+                  Bulk ZIP Mode
                 </span>
-                <span className="px-2.5 py-1 rounded-md bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400 text-[11px] font-mono">
-                  Batch WebP Convert
+                <span className="px-2.5 py-1 rounded-md bg-indigo-50 dark:bg-zinc-800 text-indigo-700 dark:text-indigo-300 text-[11px] font-mono">
+                  Smart WebP
+                </span>
+                <span className="px-2.5 py-1 rounded-md bg-indigo-50 dark:bg-zinc-800 text-indigo-700 dark:text-indigo-300 text-[11px] font-mono">
+                  Up to -85%
                 </span>
               </div>
             </div>
 
+            {/* CTA Button */}
             <div className="pt-6 mt-6 border-t border-slate-100 dark:border-zinc-800">
-              <div className="w-full py-3 px-4 rounded-2xl bg-slate-100 dark:bg-zinc-800/80 text-slate-400 dark:text-zinc-500 font-semibold text-xs text-center">
-                In Active Development
-              </div>
+              <button
+                type="button"
+                onClick={() => handleLaunchTool('/tools/image-compressor')}
+                className="w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 hover:from-indigo-500 hover:via-purple-500 hover:to-indigo-600 text-white font-bold text-xs tracking-wide shadow-md hover:shadow-lg hover:shadow-indigo-500/25 transition-all flex items-center justify-center gap-2 cursor-pointer text-center"
+              >
+                <span>Let's Compress Images</span>
+                <ArrowUpRight className="w-4 h-4" />
+              </button>
             </div>
           </div>
 

@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import multer from 'multer';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import sharp from 'sharp';
 
 dotenv.config();
 
@@ -38,8 +39,11 @@ const upload = multer({
     fileSize: 15 * 1024 * 1024, // 15MB
   },
   fileFilter: (_req, file, cb) => {
-    if (!file.mimetype.startsWith('image/')) {
-      return cb(new Error('Only image files (JPG, PNG, WebP) are allowed'));
+    const isAccepted =
+      file.mimetype.startsWith('image/') ||
+      /\.(jpe?g|png|webp|heic|heif|gif|bmp)$/i.test(file.originalname);
+    if (!isAccepted) {
+      return cb(new Error('Only image files (JPG, PNG, WebP, HEIC) are allowed'));
     }
     cb(null, true);
   },
@@ -106,6 +110,26 @@ app.post(
           error: 'No image provided. Please upload an image file.',
         });
         return;
+      }
+
+      // Normalize HEIC, HEIF, or unusual mobile camera formats with Sharp
+      try {
+        const metadata = await sharp(imageBuffer).metadata();
+        const isHeic =
+          metadata.format === 'heif' ||
+          mimeType.includes('heic') ||
+          mimeType.includes('heif') ||
+          originalFilename.toLowerCase().endsWith('.heic') ||
+          originalFilename.toLowerCase().endsWith('.heif');
+
+        if (isHeic || (metadata.format && metadata.format !== 'png' && metadata.format !== 'jpeg')) {
+          console.log(`[Server Sharp] Converting ${metadata.format || mimeType} to standard JPEG for remove.bg...`);
+          imageBuffer = await sharp(imageBuffer).jpeg({ quality: 95 }).toBuffer();
+          mimeType = 'image/jpeg';
+          originalFilename = originalFilename.replace(/\.(heic|heif)$/i, '.jpg');
+        }
+      } catch (sharpErr) {
+        console.warn('[Sharp normalization check]', sharpErr);
       }
 
       let outputBuffer: Buffer | null = null;

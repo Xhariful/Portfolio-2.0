@@ -37,6 +37,9 @@ const AdminDashboard = React.lazy(() =>
 const RemoveBackground = React.lazy(() =>
   import('./pages/tools/RemoveBackground').then((m) => ({ default: m.RemoveBackground }))
 );
+const ImageCompressor = React.lazy(() =>
+  import('./pages/tools/ImageCompressor').then((m) => ({ default: m.ImageCompressor }))
+);
 
 function PortfolioApp() {
   // Initialize buttery-smooth Lenis inertial scroll linked with GSAP ScrollTrigger
@@ -192,6 +195,24 @@ function PortfolioApp() {
       }
     }
   };
+
+  if (currentPath === '/tools/image-compressor' || currentPath === '/tools/compressor') {
+    return (
+      <React.Suspense
+        fallback={
+          <div className="min-h-screen bg-slate-950 flex items-center justify-center text-indigo-400">
+            <div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+          </div>
+        }
+      >
+        <ImageCompressor
+          onBackToPortfolio={() => navigateTo('/')}
+          isDark={isDark}
+          onToggleTheme={toggleTheme}
+        />
+      </React.Suspense>
+    );
+  }
 
   if (currentPath.startsWith('/tools')) {
     return (

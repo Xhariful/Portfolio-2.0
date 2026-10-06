@@ -6,6 +6,7 @@ import {
   SkillCategory,
   ServiceItem,
   ProjectItem,
+  ProjectImageItem,
   EducationItem,
   WorkExperienceItem,
   CertificationItem,
@@ -138,6 +139,74 @@ interface PortfolioContextType {
 
 const PortfolioContext = createContext<PortfolioContextType | undefined>(undefined);
 
+// Helper to guarantee clean, valid ProjectItem without undefined values that break Firestore
+export const sanitizeProjectItem = (p: Partial<ProjectItem> | null | undefined, fallbackSlug?: string): ProjectItem => {
+  if (!p) {
+    const slug = fallbackSlug || `project-${Date.now()}`;
+    return {
+      slug,
+      title: 'Untitled Project',
+      category: 'Shopify',
+      description: '',
+      image: '',
+      images: [],
+      tech: [],
+      liveUrl: '',
+      githubUrl: '',
+      year: new Date().getFullYear().toString(),
+      featured: true,
+      highlight: '',
+      order: 0,
+      updatedAt: new Date().toISOString(),
+    };
+  }
+
+  const rawImages = Array.isArray(p.images) ? p.images : [];
+  const cleanImages: ProjectImageItem[] = rawImages
+    .map((img, idx) => {
+      if (typeof img === 'string') {
+        const trimmed = img.trim();
+        return trimmed ? { url: trimmed, title: idx === 0 ? 'Homepage Full' : `Page ${idx + 1}`, caption: '' } : null;
+      }
+      if (img && typeof img === 'object' && img.url) {
+        return {
+          url: img.url,
+          title: img.title || (idx === 0 ? 'Homepage Full' : `Page ${idx + 1}`),
+          caption: img.caption || '',
+        };
+      }
+      return null;
+    })
+    .filter(Boolean) as ProjectImageItem[];
+
+  if (cleanImages.length === 0 && p.image) {
+    cleanImages.push({
+      url: p.image,
+      title: 'Homepage Full',
+      caption: '',
+    });
+  }
+
+  const cleanSlug = (p.slug || fallbackSlug || `project-${Date.now()}`).trim();
+
+  return {
+    slug: cleanSlug,
+    title: (p.title || '').trim(),
+    category: (p.category || 'Shopify').trim(),
+    description: (p.description || '').trim(),
+    image: (p.image || cleanImages[0]?.url || '').trim(),
+    images: cleanImages,
+    tech: Array.isArray(p.tech) ? p.tech.map((t) => String(t).trim()).filter(Boolean) : [],
+    liveUrl: (p.liveUrl || '').trim(),
+    githubUrl: (p.githubUrl || '').trim(),
+    year: String(p.year || new Date().getFullYear()).trim(),
+    featured: Boolean(p.featured ?? true),
+    highlight: (p.highlight || '').trim(),
+    order: typeof p.order === 'number' ? p.order : 0,
+    updatedAt: p.updatedAt || new Date().toISOString(),
+  };
+};
+
 export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   // 1. Portfolio Dynamic Content Data (Initialized from localStorage fallback or initial content)
   const [data, setData] = useState<PortfolioData>(() => {
@@ -255,12 +324,10 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const persistProjectToCloud = useCallback(async (project: ProjectItem) => {
     try {
       setIsSyncingCloud(true);
-      const docId = project.slug || `project-${Date.now()}`;
+      const cleanProject = sanitizeProjectItem(project, project.slug);
+      const docId = cleanProject.slug;
       const projectDocRef = doc(db, 'projects', docId);
-      await setDoc(projectDocRef, {
-        ...project,
-        updatedAt: new Date().toISOString(),
-      }, { merge: true });
+      await setDoc(projectDocRef, cleanProject, { merge: true });
       setLastCloudSyncTime(new Date().toLocaleTimeString());
       setIsCloudConnected(true);
       return true;
@@ -363,7 +430,9 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         try {
           const projectsSnap = await withTimeout(getDocs(projectsColRef));
           if (!projectsSnap.empty) {
-            const cloudProjects = projectsSnap.docs.map((d) => d.data() as ProjectItem);
+            const cloudProjects = projectsSnap.docs.map((d) =>
+              sanitizeProjectItem(d.data() as Partial<ProjectItem>, d.id)
+            );
             cloudProjects.sort((a, b) => {
               if (typeof a.order === 'number' && typeof b.order === 'number') {
                 return a.order - b.order;
@@ -435,7 +504,9 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         // 5. Setup real-time listener for projects collection
         unsubscribeProjects = onSnapshot(projectsColRef, (snap) => {
           if (!snap.empty) {
-            const remoteProjects = snap.docs.map((d) => d.data() as ProjectItem);
+            const remoteProjects = snap.docs.map((d) =>
+              sanitizeProjectItem(d.data() as Partial<ProjectItem>, d.id)
+            );
             remoteProjects.sort((a, b) => {
               if (typeof a.order === 'number' && typeof b.order === 'number') {
                 return a.order - b.order;
@@ -1111,13 +1182,16 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   // Project Helpers
   const addProject = async (item: ProjectItem) => {
-    const newItem: ProjectItem = {
+    const newItem = sanitizeProjectItem({
       ...item,
       slug: item.slug || `project-${Date.now()}`,
       updatedAt: new Date().toISOString(),
-    };
+    });
     setData((prev) => {
-      const updated = { ...prev, projects: [newItem, ...prev.projects] };
+      const updated = {
+        ...prev,
+        projects: [newItem, ...(prev.projects || []).filter((p) => p.slug !== newItem.slug)],
+      };
       return updated;
     });
     const success = await persistProjectToCloud(newItem);
@@ -1129,25 +1203,46 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   };
 
   const editProject = async (slug: string, updated: Partial<ProjectItem>) => {
-    let finalProject: ProjectItem | null = null;
-    setData((prev) => {
-      const updatedProjects = prev.projects.map((p) => {
-        if (p.slug === slug) {
-          finalProject = { ...p, ...updated, updatedAt: new Date().toISOString() };
-          return finalProject;
+    try {
+      setIsSyncingCloud(true);
+      // 1. Find existing project to merge safely
+      const existing = data.projects.find((p) => p.slug === slug);
+      const finalProject = sanitizeProjectItem(
+        {
+          ...(existing || {}),
+          ...updated,
+          slug,
+          updatedAt: new Date().toISOString(),
+        },
+        slug
+      );
+
+      // 2. Immediately update local state synchronously
+      setData((prev) => {
+        const list = [...(prev.projects || [])];
+        const idx = list.findIndex((p) => p.slug === slug);
+        if (idx !== -1) {
+          list[idx] = finalProject;
+        } else {
+          list.unshift(finalProject);
         }
-        return p;
+        return { ...prev, projects: list };
       });
-      return { ...prev, projects: updatedProjects };
-    });
-    if (finalProject) {
+
+      // 3. Persist directly to Firestore collection
       const success = await persistProjectToCloud(finalProject);
       if (success) {
         showToast('✅ Store project updated & synced to live database!');
         return true;
       }
+      return false;
+    } catch (err: unknown) {
+      console.error('[PortfolioContext] Failed to edit project:', err);
+      showToast('Project edit encountered an error');
+      return false;
+    } finally {
+      setIsSyncingCloud(false);
     }
-    return false;
   };
 
   const deleteProject = async (slug: string) => {

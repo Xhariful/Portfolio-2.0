@@ -6,20 +6,16 @@ export interface RemoveBackgroundResponse {
   error?: string;
 }
 
-const DIRECT_REMOVE_BG_KEY = 'Pi85bEV6S535Njz51tyNcFtf';
-
 /**
- * Service to call the background remover.
- * First tries the backend proxy (/api/remove-background).
- * If the proxy is unavailable (e.g. during dev preview reload or container restart),
- * it seamlessly falls back to direct API execution so the user never gets an error!
+ * Service to call the background remover proxy endpoint.
+ * Note: External services like remove.bg do NOT support CORS for client-side browser fetch.
+ * All requests must flow securely through the server proxy (/api/remove-background).
  */
 export async function removeBackground(file: File): Promise<RemoveBackgroundResponse> {
   const formData = new FormData();
   formData.append('image_file', file);
 
   try {
-    // 1. Try server proxy endpoint
     const response = await fetch('/api/remove-background', {
       method: 'POST',
       body: formData,
@@ -32,7 +28,6 @@ export async function removeBackground(file: File): Promise<RemoveBackgroundResp
       try {
         data = JSON.parse(responseText);
       } catch {
-        // Not valid JSON (e.g. gateway timeout or proxy error)
         console.warn('[backgroundRemovalService] Non-JSON server response:', responseText.slice(0, 150));
       }
     }
@@ -46,100 +41,26 @@ export async function removeBackground(file: File): Promise<RemoveBackgroundResp
       };
     }
 
-    // If server returned an explicit error message, check if we should fallback
-    if (data?.error && !data.error.includes('Internal server error') && !data.error.includes('HTML')) {
-      console.warn('[backgroundRemovalService] Server returned error, attempting direct client fallback:', data.error);
-    }
-  } catch (proxyErr) {
-    console.warn('[backgroundRemovalService] Server proxy network failure, switching to direct client fallback:', proxyErr);
-  }
-
-  // 2. Seamless Client-Side Direct Fallback using remove.bg
-  try {
-    console.log('[backgroundRemovalService] Running client-side direct remove.bg processing...');
-    const directForm = new FormData();
-    directForm.append('image_file', file);
-    directForm.append('size', 'auto');
-
-    const directRes = await fetch('https://api.remove.bg/v1.0/removebg', {
-      method: 'POST',
-      headers: {
-        'X-Api-Key': DIRECT_REMOVE_BG_KEY,
-      },
-      body: directForm,
-    });
-
-    if (directRes.ok) {
-      const blob = await directRes.blob();
-      const base64Data = await new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onloadend = () => resolve(reader.result as string);
-        reader.onerror = reject;
-        reader.readAsDataURL(blob);
-      });
-
-      return {
-        success: true,
-        image: base64Data,
-        originalSize: file.size,
-        processedSize: blob.size,
-      };
-    }
-
-    // If auto failed (e.g. credit limit), try preview size for free calls
-    const errText = await directRes.text();
-    if (directRes.status === 402 || errText.toLowerCase().includes('credit')) {
-      const previewForm = new FormData();
-      previewForm.append('image_file', file);
-      previewForm.append('size', 'preview');
-
-      const previewRes = await fetch('https://api.remove.bg/v1.0/removebg', {
-        method: 'POST',
-        headers: {
-          'X-Api-Key': DIRECT_REMOVE_BG_KEY,
-        },
-        body: previewForm,
-      });
-
-      if (previewRes.ok) {
-        const pBlob = await previewRes.blob();
-        const pBase64 = await new Promise<string>((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onloadend = () => resolve(reader.result as string);
-          reader.onerror = reject;
-          reader.readAsDataURL(pBlob);
-        });
-
-        return {
-          success: true,
-          image: pBase64,
-          originalSize: file.size,
-          processedSize: pBlob.size,
-        };
-      }
-    }
-
-    let parsedDirectError = 'Failed to remove background from image';
-    try {
-      const parsed = JSON.parse(errText);
-      if (parsed.errors && parsed.errors[0]?.title) {
-        parsedDirectError = parsed.errors[0].title;
-      }
-    } catch {
-      if (errText && errText.length < 120) parsedDirectError = errText;
-    }
+    // Return the specific, human-readable error from the server
+    const errorMessage =
+      data?.error ||
+      (response.status !== 200
+        ? `Server error (${response.status}). Please try again.`
+        : 'Failed to remove background from this image.');
 
     return {
       success: false,
-      error: parsedDirectError,
+      error: errorMessage,
     };
-  } catch (clientErr: any) {
-    console.error('[backgroundRemovalService] Client direct call error:', clientErr);
+  } catch (err: unknown) {
+    console.error('[backgroundRemovalService] Network error:', err);
+    const msg =
+      err instanceof Error
+        ? err.message
+        : 'Network connection error. Please check your internet connection.';
     return {
       success: false,
-      error:
-        clientErr?.message ||
-        'Could not process background removal. Please check your internet connection.',
+      error: msg,
     };
   }
 }

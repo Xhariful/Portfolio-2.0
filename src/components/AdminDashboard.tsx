@@ -251,6 +251,7 @@ export const AdminDashboard: React.FC = () => {
   const [expSkillInput, setExpSkillInput] = useState('');
 
   // Project state
+  const projectFormRef = useRef<HTMLFormElement | null>(null);
   const [isAddingProject, setIsAddingProject] = useState(false);
   const [editingProjectSlug, setEditingProjectSlug] = useState<string | null>(null);
   const [isSavingProject, setIsSavingProject] = useState(false);
@@ -3528,7 +3529,7 @@ export const AdminDashboard: React.FC = () => {
                           tech: ['Shopify Liquid', 'Tailwind CSS'],
                           liveUrl: 'https://example.com',
                           githubUrl: 'https://github.com/xhariful',
-                          year: '2024',
+                          year: new Date().getFullYear().toString(),
                           featured: true,
                           highlight: 'New Project',
                         });
@@ -3537,6 +3538,13 @@ export const AdminDashboard: React.FC = () => {
                         setNewGalleryCaption('');
                         setIsAddingProject(true);
                         setEditingProjectSlug(null);
+                        setTimeout(() => {
+                          if (projectFormRef.current) {
+                            projectFormRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                          } else if (contentPanelRef.current) {
+                            contentPanelRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+                          }
+                        }, 50);
                       }}
                       className="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold flex items-center gap-1.5 cursor-pointer shadow-sm"
                     >
@@ -3548,6 +3556,7 @@ export const AdminDashboard: React.FC = () => {
 
                 {(isAddingProject || editingProjectSlug) && (
                   <form
+                    ref={projectFormRef}
                     onSubmit={async (e) => {
                       e.preventDefault();
                       setIsSavingProject(true);
@@ -3571,6 +3580,36 @@ export const AdminDashboard: React.FC = () => {
                     }}
                     className="p-6 rounded-2xl bg-purple-50/50 dark:bg-zinc-950 border border-purple-200 dark:border-purple-800/40 space-y-4"
                   >
+                    {/* Header Banner distinguishing Editing vs Adding */}
+                    <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-sm">
+                      <div className="flex items-center gap-2.5">
+                        <div className="p-1.5 rounded-lg bg-white/20">
+                          <Edit2 className="w-4 h-4 text-white" />
+                        </div>
+                        <div>
+                          <h4 className="text-sm font-bold leading-tight">
+                            {editingProjectSlug
+                              ? `Editing Project: "${projectForm.title || editingProjectSlug}"`
+                              : 'Add New Showcase Project'}
+                          </h4>
+                          <p className="text-[11px] text-purple-100">
+                            {editingProjectSlug
+                              ? 'Modify fields below and click "Update & Sync" to persist directly to live Firestore database.'
+                              : 'Fill in project details and upload screenshots to feature in your live portfolio.'}
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsAddingProject(false);
+                          setEditingProjectSlug(null);
+                        }}
+                        className="px-3 py-1.5 rounded-lg bg-white/20 hover:bg-white/30 text-white text-xs font-semibold cursor-pointer transition-colors"
+                      >
+                        Cancel
+                      </button>
+                    </div>
                     <div className="grid sm:grid-cols-2 gap-4">
                       <FormField label="Project Title *">
                         <input
@@ -4089,7 +4128,13 @@ export const AdminDashboard: React.FC = () => {
                         className="px-6 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold tracking-wide uppercase cursor-pointer disabled:opacity-50 flex items-center gap-2"
                       >
                         {isSavingProject && <Loader2 className="w-4 h-4 animate-spin" />}
-                        <span>{isSavingProject ? 'Saving to Database...' : 'Save Project'}</span>
+                        <span>
+                          {isSavingProject
+                            ? 'Saving to Database...'
+                            : editingProjectSlug
+                            ? 'Update Project & Sync'
+                            : 'Save Project'}
+                        </span>
                       </button>
                       <button
                         type="button"
@@ -4124,113 +4169,167 @@ export const AdminDashboard: React.FC = () => {
                 </div>
 
                 <div className="grid sm:grid-cols-2 gap-4">
-                  {data.projects.map((proj, pIdx) => (
-                    <div
-                      key={proj.slug}
-                      className="p-5 rounded-2xl bg-white dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 flex flex-col justify-between space-y-3 shadow-sm hover:border-purple-300 dark:hover:border-purple-800 transition-colors"
-                    >
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between gap-2">
-                          <div className="flex items-center gap-2">
-                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-purple-600 text-white text-xs font-mono font-bold shadow-xs">
-                              #{pIdx + 1}
-                            </span>
-                            <h4 className="text-base font-bold text-slate-900 dark:text-white line-clamp-1">{proj.title}</h4>
+                  {data.projects.map((proj, pIdx) => {
+                    const isCurrentlyEditing = editingProjectSlug === proj.slug;
+                    return (
+                      <div
+                        key={proj.slug || `proj-${pIdx}`}
+                        className={`p-5 rounded-2xl transition-all duration-200 flex flex-col justify-between space-y-3 shadow-sm ${
+                          isCurrentlyEditing
+                            ? 'bg-purple-50/70 dark:bg-purple-950/40 border-2 border-purple-500 ring-2 ring-purple-500/20'
+                            : 'bg-white dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 hover:border-purple-300 dark:hover:border-purple-800'
+                        }`}
+                      >
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between gap-2">
+                            <div className="flex items-center gap-2">
+                              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-purple-600 text-white text-xs font-mono font-bold shadow-xs">
+                                #{pIdx + 1}
+                              </span>
+                              <h4 className="text-base font-bold text-slate-900 dark:text-white line-clamp-1">{proj.title}</h4>
+                            </div>
+                            <div className="flex items-center gap-1.5 shrink-0">
+                              {isCurrentlyEditing && (
+                                <span className="font-mono text-[10px] px-2 py-0.5 rounded-full bg-purple-600 text-white font-bold animate-pulse">
+                                  Editing Now
+                                </span>
+                              )}
+                              <span className="font-mono text-[10px] px-2 py-0.5 rounded-full bg-slate-100 dark:bg-zinc-900 text-purple-600 dark:text-purple-400 font-bold flex items-center gap-1 border border-purple-200/60 dark:border-purple-800/40">
+                                <Images className="w-3 h-3" />
+                                <span>{normalizeProjectImages(proj).length} pages</span>
+                              </span>
+                              <span className="px-2 py-0.5 rounded bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 text-xs font-mono shrink-0">
+                                {proj.category}
+                              </span>
+                            </div>
                           </div>
-                          <div className="flex items-center gap-1.5 shrink-0">
-                            <span className="font-mono text-[10px] px-2 py-0.5 rounded-full bg-slate-100 dark:bg-zinc-900 text-purple-600 dark:text-purple-400 font-bold flex items-center gap-1 border border-purple-200/60 dark:border-purple-800/40">
-                              <Images className="w-3 h-3" />
-                              <span>{normalizeProjectImages(proj).length} pages</span>
-                            </span>
-                            <span className="px-2 py-0.5 rounded bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 text-xs font-mono shrink-0">
-                              {proj.category}
-                            </span>
-                          </div>
-                        </div>
-                        <p className="text-xs text-slate-600 dark:text-zinc-400 line-clamp-2">{proj.description}</p>
-                        <div className="flex flex-wrap gap-1 pt-1">
-                          {proj.tech.map((t, tIdx) => (
-                            <span
-                              key={tIdx}
-                              className="px-2 py-0.5 rounded bg-slate-100 dark:bg-zinc-900 text-[10px] font-mono text-slate-600 dark:text-zinc-400"
-                            >
-                              {t}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-
-                      <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-100 dark:border-zinc-800">
-                        {/* Serial Reorder Buttons */}
-                        <div className="flex items-center gap-1 bg-slate-50 dark:bg-zinc-900 p-1 rounded-xl border border-slate-200 dark:border-zinc-800">
-                          <button
-                            type="button"
-                            disabled={pIdx === 0}
-                            onClick={() => moveProject(pIdx, 'up')}
-                            className="p-1.5 rounded-lg text-slate-700 dark:text-zinc-300 hover:bg-slate-200 dark:hover:bg-zinc-800 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors"
-                            title="Move Project Up (Higher Priority)"
-                          >
-                            <ArrowUp className="w-3.5 h-3.5" />
-                          </button>
-                          <button
-                            type="button"
-                            disabled={pIdx === data.projects.length - 1}
-                            onClick={() => moveProject(pIdx, 'down')}
-                            className="p-1.5 rounded-lg text-slate-700 dark:text-zinc-300 hover:bg-slate-200 dark:hover:bg-zinc-800 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors"
-                            title="Move Project Down (Lower Priority)"
-                          >
-                            <ArrowDown className="w-3.5 h-3.5" />
-                          </button>
-                          
-                          <div className="flex items-center gap-1 pl-1 pr-1.5 border-l border-slate-200 dark:border-zinc-700 text-[11px] font-mono">
-                            <span className="text-slate-400">Pos:</span>
-                            <select
-                              value={pIdx + 1}
-                              onChange={(e) => moveProjectToPosition(pIdx, e.target.value)}
-                              className="bg-transparent font-bold text-purple-600 dark:text-purple-400 focus:outline-none cursor-pointer"
-                              title="Jump directly to position number"
-                            >
-                              {data.projects.map((_, i) => (
-                                <option key={i} value={i + 1} className="bg-white dark:bg-zinc-900 text-slate-900 dark:text-white">
-                                  #{i + 1}
-                                </option>
-                              ))}
-                            </select>
+                          <p className="text-xs text-slate-600 dark:text-zinc-400 line-clamp-2">{proj.description}</p>
+                          <div className="flex flex-wrap gap-1 pt-1">
+                            {proj.tech.map((t, tIdx) => (
+                              <span
+                                key={tIdx}
+                                className="px-2 py-0.5 rounded bg-slate-100 dark:bg-zinc-900 text-[10px] font-mono text-slate-600 dark:text-zinc-400"
+                              >
+                                {t}
+                              </span>
+                            ))}
                           </div>
                         </div>
 
-                        {/* Edit & Delete */}
-                        <div className="flex items-center gap-1.5">
-                          <button
-                            onClick={() => {
-                              const norm = normalizeProjectImages(proj);
-                              setProjectForm({
-                                ...proj,
-                                images: norm,
-                                image: proj.image || norm[0]?.url || '',
-                              });
-                              setNewGalleryUrl('');
-                              setNewGalleryTitle('');
-                              setNewGalleryCaption('');
-                              setEditingProjectSlug(proj.slug);
-                              setIsAddingProject(false);
-                            }}
-                            className="p-2 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 cursor-pointer transition-colors"
-                            title="Edit Project"
-                          >
-                            <Edit2 className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => deleteProject(proj.slug)}
-                            className="p-2 rounded-lg text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 cursor-pointer transition-colors"
-                            title="Delete Project"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
+                        <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-100 dark:border-zinc-800">
+                          {/* Serial Reorder Buttons */}
+                          <div className="flex items-center gap-1 bg-slate-50 dark:bg-zinc-900 p-1 rounded-xl border border-slate-200 dark:border-zinc-800">
+                            <button
+                              type="button"
+                              disabled={pIdx === 0}
+                              onClick={() => moveProject(pIdx, 'up')}
+                              className="p-1.5 rounded-lg text-slate-700 dark:text-zinc-300 hover:bg-slate-200 dark:hover:bg-zinc-800 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors"
+                              title="Move Project Up (Higher Priority)"
+                            >
+                              <ArrowUp className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              type="button"
+                              disabled={pIdx === data.projects.length - 1}
+                              onClick={() => moveProject(pIdx, 'down')}
+                              className="p-1.5 rounded-lg text-slate-700 dark:text-zinc-300 hover:bg-slate-200 dark:hover:bg-zinc-800 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors"
+                              title="Move Project Down (Lower Priority)"
+                            >
+                              <ArrowDown className="w-3.5 h-3.5" />
+                            </button>
+                            
+                            <div className="flex items-center gap-1 pl-1 pr-1.5 border-l border-slate-200 dark:border-zinc-700 text-[11px] font-mono">
+                              <span className="text-slate-400">Pos:</span>
+                              <select
+                                value={pIdx + 1}
+                                onChange={(e) => moveProjectToPosition(pIdx, e.target.value)}
+                                className="bg-transparent font-bold text-purple-600 dark:text-purple-400 focus:outline-none cursor-pointer"
+                                title="Jump directly to position number"
+                              >
+                                {data.projects.map((_, i) => (
+                                  <option key={i} value={i + 1} className="bg-white dark:bg-zinc-900 text-slate-900 dark:text-white">
+                                    #{i + 1}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+                          </div>
+
+                          {/* Edit & Delete */}
+                          <div className="flex items-center gap-1.5">
+                            {isCurrentlyEditing && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  projectFormRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                }}
+                                className="px-2.5 py-1.5 rounded-lg bg-purple-600 hover:bg-purple-700 text-white text-[11px] font-bold cursor-pointer flex items-center gap-1 shadow-sm"
+                                title="Scroll to edit form above"
+                              >
+                                <ArrowUp className="w-3.5 h-3.5" />
+                                <span>Form ↑</span>
+                              </button>
+                            )}
+                            <button
+                              onClick={() => {
+                                const norm = normalizeProjectImages(proj);
+                                setProjectForm({
+                                  slug: proj.slug,
+                                  title: proj.title || '',
+                                  category: proj.category || 'Shopify',
+                                  description: proj.description || '',
+                                  image: proj.image || norm[0]?.url || '',
+                                  images: norm,
+                                  tech: Array.isArray(proj.tech) ? proj.tech : [],
+                                  liveUrl: proj.liveUrl || '',
+                                  githubUrl: proj.githubUrl || '',
+                                  year: proj.year || new Date().getFullYear().toString(),
+                                  featured: proj.featured ?? true,
+                                  highlight: proj.highlight || '',
+                                  order: typeof proj.order === 'number' ? proj.order : pIdx,
+                                });
+                                setNewGalleryUrl('');
+                                setNewGalleryTitle('');
+                                setNewGalleryCaption('');
+                                setEditingProjectSlug(proj.slug);
+                                setIsAddingProject(false);
+                                showToast(`Editing "${proj.title || 'Project'}" (Scrolled to editor above)`);
+                                setTimeout(() => {
+                                  if (projectFormRef.current) {
+                                    projectFormRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                  } else if (contentPanelRef.current) {
+                                    contentPanelRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+                                  }
+                                }, 60);
+                              }}
+                              className={`p-2 rounded-lg cursor-pointer transition-colors ${
+                                isCurrentlyEditing
+                                  ? 'bg-purple-600 text-white hover:bg-purple-700'
+                                  : 'bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300'
+                              }`}
+                              title="Edit Project"
+                            >
+                              <Edit2 className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={async () => {
+                                if (window.confirm(`Are you sure you want to delete "${proj.title || 'this project'}"? This cannot be undone.`)) {
+                                  if (editingProjectSlug === proj.slug) {
+                                    setEditingProjectSlug(null);
+                                  }
+                                  await deleteProject(proj.slug);
+                                }
+                              }}
+                              className="p-2 rounded-lg text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 cursor-pointer transition-colors"
+                              title="Delete Project"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             )}
