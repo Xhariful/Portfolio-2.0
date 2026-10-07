@@ -3557,23 +3557,51 @@ export const AdminDashboard: React.FC = () => {
                 {(isAddingProject || editingProjectSlug) && (
                   <form
                     ref={projectFormRef}
+                    noValidate
                     onSubmit={async (e) => {
                       e.preventDefault();
+                      if (!projectForm.title.trim()) {
+                        showToast('Please enter a project title');
+                        return;
+                      }
+
                       setIsSavingProject(true);
                       try {
                         const normGallery = normalizeProjectImages(projectForm);
+                        const coverImg = (projectForm.image || normGallery[0]?.url || '').trim();
+
+                        // Sanitize URLs to prevent silent browser failures, prepending https:// if needed
+                        const cleanUrl = (raw: string) => {
+                          const val = (raw || '').trim();
+                          if (!val || val === '#' || val.toLowerCase() === 'n/a') return '';
+                          if (/^[a-zA-Z][a-zA-Z0-9+.-]*:\/\//.test(val)) return val;
+                          return `https://${val}`;
+                        };
+
                         const finalProject: ProjectItem = {
                           ...projectForm,
+                          slug: (projectForm.slug || editingProjectSlug || `project-${Date.now()}`).trim(),
+                          title: projectForm.title.trim(),
+                          liveUrl: cleanUrl(projectForm.liveUrl),
+                          githubUrl: cleanUrl(projectForm.githubUrl),
                           images: normGallery,
-                          image: projectForm.image || normGallery[0]?.url || '',
+                          image: coverImg,
+                          updatedAt: new Date().toISOString(),
                         };
+
                         if (isAddingProject) {
                           await addProject(finalProject);
                           setIsAddingProject(false);
+                          showToast('✅ Project added and saved to database!');
                         } else if (editingProjectSlug) {
                           await editProject(editingProjectSlug, finalProject);
                           setEditingProjectSlug(null);
+                          showToast(`✅ "${finalProject.title}" updated and synced to database!`);
                         }
+                      } catch (err: unknown) {
+                        console.error('Error saving project:', err);
+                        const msg = err instanceof Error ? err.message : String(err);
+                        showToast('Save failed: ' + msg);
                       } finally {
                         setIsSavingProject(false);
                       }
@@ -3636,18 +3664,22 @@ export const AdminDashboard: React.FC = () => {
                     </div>
 
                     <div className="grid sm:grid-cols-2 gap-4">
-                      <FormField label="Live Demo URL">
+                      <FormField label="Live Demo URL (e.g. https://yourstore.com)">
                         <input
-                          type="url"
+                          type="text"
+                          inputMode="url"
+                          placeholder="https://yourstore.com or yourstore.com"
                           value={projectForm.liveUrl}
                           onChange={(e) => setProjectForm({ ...projectForm, liveUrl: e.target.value })}
                           className="input-field"
                         />
                       </FormField>
 
-                      <FormField label="GitHub Repository URL">
+                      <FormField label="GitHub Repository URL (e.g. https://github.com/...)">
                         <input
-                          type="url"
+                          type="text"
+                          inputMode="url"
+                          placeholder="https://github.com/..."
                           value={projectForm.githubUrl}
                           onChange={(e) => setProjectForm({ ...projectForm, githubUrl: e.target.value })}
                           className="input-field"
@@ -4273,12 +4305,13 @@ export const AdminDashboard: React.FC = () => {
                             <button
                               onClick={() => {
                                 const norm = normalizeProjectImages(proj);
+                                const cover = proj.image || norm[0]?.url || '';
                                 setProjectForm({
                                   slug: proj.slug,
                                   title: proj.title || '',
                                   category: proj.category || 'Shopify',
                                   description: proj.description || '',
-                                  image: proj.image || norm[0]?.url || '',
+                                  image: cover,
                                   images: norm,
                                   tech: Array.isArray(proj.tech) ? proj.tech : [],
                                   liveUrl: proj.liveUrl || '',
@@ -4294,13 +4327,19 @@ export const AdminDashboard: React.FC = () => {
                                 setEditingProjectSlug(proj.slug);
                                 setIsAddingProject(false);
                                 showToast(`Editing "${proj.title || 'Project'}" (Scrolled to editor above)`);
+
+                                // Immediately scroll container to top so edit form is visible
+                                if (contentPanelRef.current) {
+                                  contentPanelRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+                                }
                                 setTimeout(() => {
-                                  if (projectFormRef.current) {
-                                    projectFormRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                                  } else if (contentPanelRef.current) {
+                                  if (contentPanelRef.current) {
                                     contentPanelRef.current.scrollTo({ top: 0, behavior: 'smooth' });
                                   }
-                                }, 60);
+                                  if (projectFormRef.current) {
+                                    projectFormRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                  }
+                                }, 50);
                               }}
                               className={`p-2 rounded-lg cursor-pointer transition-colors ${
                                 isCurrentlyEditing

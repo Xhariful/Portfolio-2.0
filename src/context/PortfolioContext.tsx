@@ -328,6 +328,37 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       const docId = cleanProject.slug;
       const projectDocRef = doc(db, 'projects', docId);
       await setDoc(projectDocRef, cleanProject, { merge: true });
+
+      // Keep main portfolio document's slim projects list in sync as well
+      try {
+        const portfolioDocRef = doc(db, FIRESTORE_PORTFOLIO_COLLECTION, FIRESTORE_PORTFOLIO_DOC);
+        setData((currentData) => {
+          const list = [...(currentData.projects || [])];
+          const idx = list.findIndex((p) => p.slug === cleanProject.slug);
+          if (idx !== -1) {
+            list[idx] = cleanProject;
+          } else {
+            list.unshift(cleanProject);
+          }
+          const slimProjects = list.map((p) => ({
+            slug: p.slug,
+            title: p.title,
+            category: p.category,
+            liveUrl: p.liveUrl,
+            githubUrl: p.githubUrl,
+            highlight: p.highlight,
+            year: p.year,
+            description: p.description,
+            tech: p.tech,
+            image: p.image && p.image.length > 50000 ? '' : p.image,
+          }));
+          setDoc(portfolioDocRef, { projects: slimProjects, updatedAt: new Date().toISOString() }, { merge: true }).catch(() => {});
+          return { ...currentData, projects: list };
+        });
+      } catch (globalSyncErr) {
+        console.warn('[Cloud DB] Secondary portfolio doc sync skipped:', globalSyncErr);
+      }
+
       setLastCloudSyncTime(new Date().toLocaleTimeString());
       setIsCloudConnected(true);
       return true;
@@ -346,6 +377,31 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       setIsSyncingCloud(true);
       const projectDocRef = doc(db, 'projects', slug);
       await deleteDoc(projectDocRef);
+
+      // Keep main portfolio document slim projects in sync
+      try {
+        const portfolioDocRef = doc(db, FIRESTORE_PORTFOLIO_COLLECTION, FIRESTORE_PORTFOLIO_DOC);
+        setData((currentData) => {
+          const list = (currentData.projects || []).filter((p) => p.slug !== slug);
+          const slimProjects = list.map((p) => ({
+            slug: p.slug,
+            title: p.title,
+            category: p.category,
+            liveUrl: p.liveUrl,
+            githubUrl: p.githubUrl,
+            highlight: p.highlight,
+            year: p.year,
+            description: p.description,
+            tech: p.tech,
+            image: p.image && p.image.length > 50000 ? '' : p.image,
+          }));
+          setDoc(portfolioDocRef, { projects: slimProjects, updatedAt: new Date().toISOString() }, { merge: true }).catch(() => {});
+          return { ...currentData, projects: list };
+        });
+      } catch (err) {
+        console.warn('[Cloud DB] Could not sync delete to main document:', err);
+      }
+
       setLastCloudSyncTime(new Date().toLocaleTimeString());
       return true;
     } catch (err: unknown) {
@@ -1205,22 +1261,27 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const editProject = async (slug: string, updated: Partial<ProjectItem>) => {
     try {
       setIsSyncingCloud(true);
-      // 1. Find existing project to merge safely
-      const existing = data.projects.find((p) => p.slug === slug);
+      // 1. Find existing project to merge safely (by current slug or updated slug)
+      let existing = data.projects.find((p) => p.slug === slug);
+      if (!existing && updated.slug) {
+        existing = data.projects.find((p) => p.slug === updated.slug);
+      }
+      const targetSlug = (updated.slug || slug || `project-${Date.now()}`).trim();
+
       const finalProject = sanitizeProjectItem(
         {
           ...(existing || {}),
           ...updated,
-          slug,
+          slug: targetSlug,
           updatedAt: new Date().toISOString(),
         },
-        slug
+        targetSlug
       );
 
       // 2. Immediately update local state synchronously
       setData((prev) => {
         const list = [...(prev.projects || [])];
-        const idx = list.findIndex((p) => p.slug === slug);
+        const idx = list.findIndex((p) => p.slug === slug || p.slug === targetSlug);
         if (idx !== -1) {
           list[idx] = finalProject;
         } else {
@@ -1229,7 +1290,16 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         return { ...prev, projects: list };
       });
 
-      // 3. Persist directly to Firestore collection
+      // If slug was changed, remove old Firestore document to avoid duplicates
+      if (slug && targetSlug !== slug) {
+        try {
+          await deleteDoc(doc(db, 'projects', slug));
+        } catch (cleanupErr) {
+          console.warn('[Cloud DB] Note: old slug doc removal skipped:', cleanupErr);
+        }
+      }
+
+      // 3. Persist directly to Firestore collection & global document
       const success = await persistProjectToCloud(finalProject);
       if (success) {
         showToast('✅ Store project updated & synced to live database!');
@@ -1238,7 +1308,8 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       return false;
     } catch (err: unknown) {
       console.error('[PortfolioContext] Failed to edit project:', err);
-      showToast('Project edit encountered an error');
+      const errMsg = err instanceof Error ? err.message : String(err);
+      showToast('Project edit encountered an error: ' + errMsg);
       return false;
     } finally {
       setIsSyncingCloud(false);

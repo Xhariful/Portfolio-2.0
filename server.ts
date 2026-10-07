@@ -63,9 +63,17 @@ app.get('/api/health', (_req: Request, res: Response) => {
   });
 });
 
+app.get(['/api/remove-background', '/api/remove-background/'], (_req: Request, res: Response) => {
+  res.json({
+    status: 'ok',
+    message: 'Remove background endpoint ready. Send POST with image_file or image_base64.',
+    provider: 'remove.bg',
+  });
+});
+
 // Remove Background Proxy Endpoint (Powered by remove.bg)
 app.post(
-  '/api/remove-background',
+  ['/api/remove-background', '/api/remove-background/'],
   (req: Request, res: Response, next: NextFunction) => {
     upload.single('image_file')(req, res, (err) => {
       if (err) {
@@ -202,9 +210,13 @@ app.post(
             }
 
             if (!outputBuffer && parsedError) {
-              res.status(removeBgResponse.status).json({
+              const statusToSend =
+                removeBgResponse.status >= 400 && removeBgResponse.status < 500 && removeBgResponse.status !== 405
+                  ? removeBgResponse.status
+                  : 400;
+              res.status(statusToSend).json({
                 success: false,
-                error: parsedError || 'Failed to remove background from this image.',
+                error: parsedError || 'Failed to remove background from this image. Please try again.',
               });
               return;
             }
