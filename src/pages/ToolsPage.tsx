@@ -1,7 +1,9 @@
 import React from 'react';
 import { PageLayout } from '../components/PageLayout';
 import { ToolsSection } from '../components/ToolsSection';
-import { ShieldCheck, Zap, Sparkles, Download, ArrowUpRight } from 'lucide-react';
+import { GamesSection } from '../components/GamesSection';
+import { ShieldCheck, Zap, Sparkles, Download } from 'lucide-react';
+import { openSnakeGameModal } from '../components/NeonSnakeModal';
 
 interface PageProps {
   onNavigate: (path: string) => void;
@@ -10,6 +12,14 @@ interface PageProps {
 }
 
 export const ToolsPage: React.FC<PageProps> = ({ onNavigate, isDark, onToggleTheme }) => {
+  React.useEffect(() => {
+    if (typeof window !== 'undefined' && window.location.hash.includes('snake')) {
+      setTimeout(() => {
+        openSnakeGameModal();
+      }, 300);
+    }
+  }, []);
+
   return (
     <PageLayout
       currentPath="/tools"
@@ -76,6 +86,11 @@ export const ToolsPage: React.FC<PageProps> = ({ onNavigate, isDark, onToggleThe
           </div>
         </div>
       </section>
+
+      {/* Our Games Section - Separated below tools */}
+      <div className="mt-8">
+        <GamesSection onNavigateToGame={(route) => onNavigate(route)} />
+      </div>
     </PageLayout>
   );
 };

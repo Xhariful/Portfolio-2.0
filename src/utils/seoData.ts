@@ -290,6 +290,95 @@ export const PAGE_SEO_MAP: Record<string, PageMetaInfo> = {
     })
   },
 
+  '/tools/snake-game': {
+    title: 'Neon Snake Retro Arcade Game Online | Shariful Islam',
+    description: 'Play classic Neon Snake arcade game online in 60FPS. Navigate with arrow keys, WASD, or touch D-pad. Track your score and beat the high score!',
+    keywords: 'neon snake game, play snake online, retro snake game, arcade game html5, free snake game, canvas snake game, web snake game',
+    canonicalPath: '/tools/snake-game',
+    badge: 'RETRO ARCADE',
+    headline: 'Neon Snake Retro Arcade',
+    subheadline: 'Classic arcade snake game built with smooth 60FPS HTML5 canvas physics, cyber neon glow, and high-score tracking.',
+    breadcrumbs: [
+      { name: 'Home', path: '/' },
+      { name: 'Tools', path: '/tools' },
+      { name: 'Neon Snake', path: '/tools/snake-game' }
+    ],
+    schemaType: 'WebApplication',
+    getSchema: (baseUrl) => ({
+      '@context': 'https://schema.org',
+      '@type': 'WebApplication',
+      name: 'Neon Snake - Retro Arcade Game',
+      applicationCategory: 'GameApplication',
+      operatingSystem: 'All',
+      url: `${baseUrl}/tools/snake-game`,
+      description: 'Playable Neon Snake game running smoothly on modern browsers with keyboard and touch D-pad controls.',
+      offers: {
+        '@type': 'Offer',
+        price: '0',
+        priceCurrency: 'USD'
+      }
+    })
+  },
+
+  '/tools/ip-lookup': {
+    title: 'My IP & Network Inspector Tool | Shariful Islam',
+    description: 'Check your public IP address, ISP provider, geolocation, ASN, network latency ping, and browser environment in real time.',
+    keywords: 'what is my ip, ip lookup, public ip address, network inspector, ip geolocation, isp checker, ping test, my ip tool',
+    canonicalPath: '/tools/ip-lookup',
+    badge: 'NETWORK TOOL',
+    headline: 'My IP & Network Inspector',
+    subheadline: 'Instant public IP lookup, IPv4/IPv6 detection, ISP provider, ASN details, geolocation, and live network latency test.',
+    breadcrumbs: [
+      { name: 'Home', path: '/' },
+      { name: 'Tools', path: '/tools' },
+      { name: 'IP Lookup', path: '/tools/ip-lookup' }
+    ],
+    schemaType: 'WebApplication',
+    getSchema: (baseUrl) => ({
+      '@context': 'https://schema.org',
+      '@type': 'WebApplication',
+      name: 'My IP & Network Inspector - Shariful Islam Tools',
+      applicationCategory: 'NetworkingApplication',
+      operatingSystem: 'All',
+      url: `${baseUrl}/tools/ip-lookup`,
+      description: 'Free browser-based real-time IP lookup and network diagnostic tool.',
+      offers: {
+        '@type': 'Offer',
+        price: '0',
+        priceCurrency: 'USD'
+      }
+    })
+  },
+
+  '/games': {
+    title: 'Retro Arcade & Casual Browser Games | Shariful Islam',
+    description: 'Play fun, lightweight retro arcade games built with 60 FPS HTML5 canvas physics and Web Audio. Play Neon Snake online right now with zero installs.',
+    keywords: 'browser games, retro arcade games, neon snake online, free html5 games, casual web games, play snake game',
+    canonicalPath: '/games',
+    badge: 'ARCADE GAMES',
+    headline: 'Our Games Hub',
+    subheadline: 'Retro arcade and casual mini-games built with smooth 60 FPS canvas physics and Web Audio.',
+    breadcrumbs: [
+      { name: 'Home', path: '/' },
+      { name: 'Games', path: '/games' }
+    ],
+    schemaType: 'WebApplication',
+    getSchema: (baseUrl) => ({
+      '@context': 'https://schema.org',
+      '@type': 'WebApplication',
+      name: 'Our Games - Retro Arcade Games Hub',
+      applicationCategory: 'GameApplication',
+      operatingSystem: 'All',
+      url: `${baseUrl}/games`,
+      description: 'Retro arcade games hub featuring Neon Snake and upcoming browser titles.',
+      offers: {
+        '@type': 'Offer',
+        price: '0',
+        priceCurrency: 'USD'
+      }
+    })
+  },
+
   '/education': {
     title: 'Education & Academic Qualifications | Shariful Islam',
     description: 'Academic background, computer science degree credentials, and technical coursework completed by Shariful Islam.',

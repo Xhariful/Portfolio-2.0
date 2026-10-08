@@ -1,5 +1,5 @@
 import React from 'react';
-import { Wand2, ArrowUpRight, FileImage, Code2 } from 'lucide-react';
+import { Wand2, ArrowUpRight, FileImage, Globe, Shield, Wifi } from 'lucide-react';
 import { Text3DFlip } from './ui/text-3d-flip';
 
 interface ToolsSectionProps {
@@ -8,8 +8,28 @@ interface ToolsSectionProps {
 
 export const ToolsSection: React.FC<ToolsSectionProps> = ({ onNavigateToTool }) => {
   const handleLaunchTool = (route: string) => {
+    if (route.includes('#')) {
+      const [path, hash] = route.split('#');
+      const isAlreadyOnTools =
+        typeof window !== 'undefined' &&
+        (window.location.pathname === '/tools' || window.location.pathname.startsWith('/tools/'));
+      if (isAlreadyOnTools && (path === '/tools' || path === '')) {
+        const el = document.getElementById(hash);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth' });
+          return;
+        }
+      }
+    }
     if (onNavigateToTool) {
       onNavigateToTool(route);
+      setTimeout(() => {
+        if (route.includes('#')) {
+          const hash = route.split('#')[1];
+          const el = document.getElementById(hash);
+          if (el) el.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 150);
     } else {
       window.history.pushState(null, '', route);
       window.dispatchEvent(new PopStateEvent('popstate'));
@@ -39,7 +59,7 @@ export const ToolsSection: React.FC<ToolsSectionProps> = ({ onNavigateToTool }) 
           </h2>
 
           <p className="text-base text-slate-600 dark:text-zinc-400">
-            Free, high-performance web utilities for everyone. Easily remove image backgrounds and optimize assets with zero watermarks.
+            Free, high-performance web utilities for everyone. Remove image backgrounds, compress photos with bulk ZIP export, and inspect network IP details.
           </p>
 
           <div className="pt-1">
@@ -156,41 +176,52 @@ export const ToolsSection: React.FC<ToolsSectionProps> = ({ onNavigateToTool }) 
             </div>
           </div>
 
-          {/* Card 3: Upcoming Code Helper */}
-          <div className="group relative rounded-3xl bg-white/70 dark:bg-zinc-900/60 border border-slate-200 dark:border-zinc-800/80 p-6 sm:p-8 shadow-sm flex flex-col justify-between opacity-85 hover:opacity-100 transition-opacity">
+          {/* Card 3: My IP & Network Inspector */}
+          <div className="group relative rounded-3xl bg-white dark:bg-zinc-900/90 border-2 border-cyan-500/40 dark:border-cyan-500/50 p-6 sm:p-8 shadow-xl hover:shadow-2xl hover:shadow-cyan-500/20 transition-all duration-300 flex flex-col justify-between">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <div className="w-14 h-14 rounded-2xl bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 flex items-center justify-center">
-                  <Code2 className="w-7 h-7 text-purple-500" />
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-cyan-500 via-teal-600 to-blue-600 text-white flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
+                  <Globe className="w-7 h-7" />
                 </div>
-                <span className="px-2.5 py-1 rounded-full bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400 border border-slate-200 dark:border-zinc-700 text-[10px] font-mono uppercase font-semibold">
-                  In Roadmap
+                <span className="px-3 py-1 rounded-full bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-800 text-[11px] font-mono font-bold uppercase tracking-wider flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  Live & Free
                 </span>
               </div>
 
               <div>
-                <h3 className="text-xl font-bold text-slate-900 dark:text-white">
-                  Code & Markup Helper
+                <h3 className="text-xl font-bold text-slate-900 dark:text-white group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors">
+                  My IP & Network Inspector
                 </h3>
-                <p className="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 mt-2 leading-relaxed">
-                  Quickly generate clean code snippets, structured data schemas, and modern web presets.
+                <p className="text-xs sm:text-sm text-slate-600 dark:text-zinc-400 mt-2 leading-relaxed">
+                  Instant public IP lookup, IPv4/IPv6 detection, ISP provider, ASN details, geolocation, and live network latency ping test.
                 </p>
               </div>
 
+              {/* Feature Tags */}
               <div className="flex flex-wrap gap-1.5 pt-2">
-                <span className="px-2.5 py-1 rounded-md bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400 text-[11px] font-mono">
-                  Clean Code
+                <span className="px-2.5 py-1 rounded-md bg-cyan-50 dark:bg-zinc-800 text-cyan-700 dark:text-cyan-300 text-[11px] font-mono">
+                  IPv4 / IPv6
                 </span>
-                <span className="px-2.5 py-1 rounded-md bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400 text-[11px] font-mono">
-                  Schema Presets
+                <span className="px-2.5 py-1 rounded-md bg-cyan-50 dark:bg-zinc-800 text-cyan-700 dark:text-cyan-300 text-[11px] font-mono">
+                  ISP & Geolocation
+                </span>
+                <span className="px-2.5 py-1 rounded-md bg-cyan-50 dark:bg-zinc-800 text-cyan-700 dark:text-cyan-300 text-[11px] font-mono">
+                  Latency Ping
                 </span>
               </div>
             </div>
 
+            {/* CTA Button */}
             <div className="pt-6 mt-6 border-t border-slate-100 dark:border-zinc-800">
-              <div className="w-full py-3 px-4 rounded-2xl bg-slate-100 dark:bg-zinc-800/80 text-slate-400 dark:text-zinc-500 font-semibold text-xs text-center">
-                Coming Soon
-              </div>
+              <button
+                type="button"
+                onClick={() => handleLaunchTool('/tools/ip-lookup')}
+                className="w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-cyan-600 via-teal-600 to-blue-600 hover:from-cyan-500 hover:via-teal-500 hover:to-blue-500 text-white font-bold text-xs tracking-wide shadow-md hover:shadow-lg hover:shadow-cyan-500/25 transition-all flex items-center justify-center gap-2 cursor-pointer text-center group/btn active:scale-98"
+              >
+                <span>Check My IP</span>
+                <ArrowUpRight className="w-4 h-4 group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform" />
+              </button>
             </div>
           </div>
         </div>

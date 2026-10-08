@@ -48,6 +48,14 @@
     <priority>0.90</priority>
   </url>
 
+  <!-- Standalone Tool: Neon Snake Retro Arcade Game -->
+  <url>
+    <loc>https://sharifulportfolio.vercel.app/tools/snake-game</loc>
+    <lastmod>2026-10-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
   <!-- Individual About Page -->
   <url>
     <loc>https://sharifulportfolio.vercel.app/about</loc>

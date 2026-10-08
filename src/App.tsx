@@ -23,6 +23,7 @@ import { ScrollReveal } from './components/animations/ScrollReveal';
 import { Floating3DParticles } from './components/ui/floating-3d-particles';
 import { InitialLoader } from './components/animations/InitialLoader';
 import { ToolsSection } from './components/ToolsSection';
+import { GamesSection } from './components/GamesSection';
 import { AboutPage } from './pages/AboutPage';
 import { ServicesPage } from './pages/ServicesPage';
 import { ProjectsPage } from './pages/ProjectsPage';
@@ -49,6 +50,12 @@ const RemoveBackground = React.lazy(() =>
 );
 const ImageCompressor = React.lazy(() =>
   import('./pages/tools/ImageCompressor').then((m) => ({ default: m.ImageCompressor }))
+);
+const IpLookup = React.lazy(() =>
+  import('./pages/tools/IpLookup').then((m) => ({ default: m.IpLookup }))
+);
+const NeonSnakeModal = React.lazy(() =>
+  import('./components/NeonSnakeModal').then((m) => ({ default: m.NeonSnakeModal }))
 );
 
 function PortfolioApp() {
@@ -218,6 +225,9 @@ function PortfolioApp() {
 
         {/* Admin Content Management Dashboard Modal (Accessible only after successful authentication) */}
         <AdminDashboard />
+
+        {/* Playable Neon Snake Retro Arcade Modal Popup */}
+        <NeonSnakeModal />
       </React.Suspense>
 
       {/* Live Toast Feedback Notification */}
@@ -271,10 +281,37 @@ function PortfolioApp() {
     );
   }
 
-  if (normalized === '/tools') {
+  if (
+    normalized === '/tools' ||
+    normalized === '/games' ||
+    normalized === '/games/snake' ||
+    normalized === '/tools/snake' ||
+    normalized === '/tools/snake-game'
+  ) {
     return (
       <>
         <ToolsPage onNavigate={navigateTo} isDark={isDark} onToggleTheme={toggleTheme} />
+        {renderGlobalOverlays()}
+      </>
+    );
+  }
+
+  if (normalized === '/tools/ip-lookup' || normalized === '/tools/my-ip' || normalized === '/tools/ip') {
+    return (
+      <>
+        <React.Suspense
+          fallback={
+            <div className="min-h-screen bg-slate-950 flex items-center justify-center text-cyan-400">
+              <div className="w-8 h-8 border-2 border-cyan-500 border-t-transparent rounded-full animate-spin" />
+            </div>
+          }
+        >
+          <IpLookup
+            onBackToPortfolio={() => navigateTo('/tools')}
+            isDark={isDark}
+            onToggleTheme={toggleTheme}
+          />
+        </React.Suspense>
         {renderGlobalOverlays()}
       </>
     );
@@ -433,6 +470,11 @@ function PortfolioApp() {
         {/* Our Tools - Free Interactive Utilities Hub */}
         <ScrollReveal direction="up" distance={36} duration={0.7} blur amount={0.06}>
           <ToolsSection onNavigateToTool={(route) => navigateTo(route)} />
+        </ScrollReveal>
+
+        {/* Our Games - Retro Arcade & Casual Games */}
+        <ScrollReveal direction="up" distance={36} duration={0.7} blur amount={0.06}>
+          <GamesSection onNavigateToGame={(route) => navigateTo(route)} />
         </ScrollReveal>
 
         {/* Education & Courses */}
