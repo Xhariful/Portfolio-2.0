@@ -45,6 +45,16 @@ export const AboutSection: React.FC<{ onContactClick: () => void }> = ({ onConta
           <p className="text-base text-slate-600 dark:text-zinc-400">
             A look into my background, engineering philosophy, and hands-on milestones across e-commerce and full-stack software development.
           </p>
+
+          <div className="pt-1">
+            <a
+              href="/about"
+              className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-purple-50 dark:bg-purple-950/60 border border-purple-200 dark:border-purple-800 text-purple-700 dark:text-purple-300 text-xs font-semibold hover:bg-purple-100 dark:hover:bg-purple-900/60 transition-all cursor-pointer"
+            >
+              <span>Explore Dedicated About Page</span>
+              <ArrowUpRight className="w-3.5 h-3.5" />
+            </a>
+          </div>
         </div>
 
         {/* Narrative & Visual Grid */}

@@ -144,6 +144,14 @@ export interface AchievementItem {
   description: string;
 }
 
+export interface PageSeoItem {
+  title?: string;
+  description?: string;
+  keywords?: string;
+  canonicalUrl?: string;
+  ogImage?: string;
+}
+
 export interface SeoConfig {
   metaTitle: string;
   metaDescription: string;
@@ -156,6 +164,7 @@ export interface SeoConfig {
   faviconPreset?: string;
   googleSiteVerification?: string;
   structuredDataEnabled?: boolean;
+  pages?: Record<string, PageSeoItem>;
 }
 
 export interface WelcomePopupConfig {

@@ -41,6 +41,17 @@ export const ToolsSection: React.FC<ToolsSectionProps> = ({ onNavigateToTool }) 
           <p className="text-base text-slate-600 dark:text-zinc-400">
             Free, high-performance web utilities for everyone. Easily remove image backgrounds and optimize assets with zero watermarks.
           </p>
+
+          <div className="pt-1">
+            <button
+              type="button"
+              onClick={() => handleLaunchTool('/tools')}
+              className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-purple-50 dark:bg-purple-950/60 border border-purple-200 dark:border-purple-800 text-purple-700 dark:text-purple-300 text-xs font-semibold hover:bg-purple-100 dark:hover:bg-purple-900/60 transition-all cursor-pointer"
+            >
+              <span>Explore Dedicated Tools Studio Hub</span>
+              <ArrowUpRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
         </div>
 
         {/* Tools Cards Grid */}

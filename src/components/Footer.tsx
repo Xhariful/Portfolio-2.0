@@ -139,8 +139,12 @@ export const Footer: React.FC<{ onNavigate: (sectionId: string) => void }> = ({ 
           
           {/* Col 1: Brand & Logo Identity (4 cols) */}
           <div className="lg:col-span-4 space-y-4">
-            <button
-              onClick={() => onNavigate('hero')}
+            <a
+              href="/"
+              onClick={(e) => {
+                e.preventDefault();
+                onNavigate('/');
+              }}
               className="flex items-center gap-3 group text-left cursor-pointer"
             >
               {isImageOnly ? (
@@ -186,7 +190,7 @@ export const Footer: React.FC<{ onNavigate: (sectionId: string) => void }> = ({ 
                   </div>
                 </>
               )}
-            </button>
+            </a>
 
             <p className="text-xs text-slate-600 dark:text-zinc-400 leading-relaxed max-w-sm">
               {profile.tagline || profile.bio.slice(0, 160) + '...'}
@@ -204,33 +208,36 @@ export const Footer: React.FC<{ onNavigate: (sectionId: string) => void }> = ({ 
               Navigation
             </p>
             <div className="grid grid-cols-2 gap-2 text-xs font-medium">
-              <button onClick={() => onNavigate('hero')} className="text-left hover:text-purple-600 dark:hover:text-white transition-colors cursor-pointer py-1">
+              <a href="/" onClick={(e) => { e.preventDefault(); onNavigate('/'); }} className="text-left hover:text-purple-600 dark:hover:text-white transition-colors cursor-pointer py-1">
                 Home
-              </button>
-              <button onClick={() => onNavigate('about')} className="text-left hover:text-purple-600 dark:hover:text-white transition-colors cursor-pointer py-1">
+              </a>
+              <a href="/about" onClick={(e) => { e.preventDefault(); onNavigate('/about'); }} className="text-left hover:text-purple-600 dark:hover:text-white transition-colors cursor-pointer py-1">
                 About Me
-              </button>
-              <button onClick={() => onNavigate('education')} className="text-left hover:text-purple-600 dark:hover:text-white transition-colors cursor-pointer py-1">
-                Education
-              </button>
-              <button onClick={() => onNavigate('certificates')} className="text-left hover:text-purple-600 dark:hover:text-white transition-colors cursor-pointer py-1">
-                Certificates
-              </button>
-              <button onClick={() => onNavigate('skills')} className="text-left hover:text-purple-600 dark:hover:text-white transition-colors cursor-pointer py-1">
-                Skills Stack
-              </button>
-              <button onClick={() => onNavigate('services')} className="text-left hover:text-purple-600 dark:hover:text-white transition-colors cursor-pointer py-1">
+              </a>
+              <a href="/services" onClick={(e) => { e.preventDefault(); onNavigate('/services'); }} className="text-left hover:text-purple-600 dark:hover:text-white transition-colors cursor-pointer py-1">
                 Services
-              </button>
-              <button onClick={() => onNavigate('projects')} className="text-left hover:text-purple-600 dark:hover:text-white transition-colors cursor-pointer py-1">
+              </a>
+              <a href="/projects" onClick={(e) => { e.preventDefault(); onNavigate('/projects'); }} className="text-left hover:text-purple-600 dark:hover:text-white transition-colors cursor-pointer py-1">
                 Projects
-              </button>
-              <button onClick={() => onNavigate('reviews')} className="text-left hover:text-purple-600 dark:hover:text-white transition-colors cursor-pointer py-1">
+              </a>
+              <a href="/tools" onClick={(e) => { e.preventDefault(); onNavigate('/tools'); }} className="text-left hover:text-purple-600 dark:hover:text-white transition-colors cursor-pointer py-1 text-purple-600 dark:text-purple-400 font-bold">
+                Tools Hub
+              </a>
+              <a href="/education" onClick={(e) => { e.preventDefault(); onNavigate('/education'); }} className="text-left hover:text-purple-600 dark:hover:text-white transition-colors cursor-pointer py-1">
+                Education
+              </a>
+              <a href="/certificates" onClick={(e) => { e.preventDefault(); onNavigate('/certificates'); }} className="text-left hover:text-purple-600 dark:hover:text-white transition-colors cursor-pointer py-1">
+                Certificates
+              </a>
+              <a href="/skills" onClick={(e) => { e.preventDefault(); onNavigate('/skills'); }} className="text-left hover:text-purple-600 dark:hover:text-white transition-colors cursor-pointer py-1">
+                Skills Stack
+              </a>
+              <a href="/reviews" onClick={(e) => { e.preventDefault(); onNavigate('/reviews'); }} className="text-left hover:text-purple-600 dark:hover:text-white transition-colors cursor-pointer py-1">
                 Client Reviews
-              </button>
-              <button onClick={() => onNavigate('contact')} className="text-left hover:text-purple-600 dark:hover:text-white transition-colors cursor-pointer py-1">
+              </a>
+              <a href="/contact" onClick={(e) => { e.preventDefault(); onNavigate('/contact'); }} className="text-left hover:text-purple-600 dark:hover:text-white transition-colors cursor-pointer py-1">
                 Get in Touch
-              </button>
+              </a>
             </div>
           </div>
 

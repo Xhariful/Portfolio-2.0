@@ -80,6 +80,7 @@ import {
 import { Floating3DParticles } from './ui/floating-3d-particles';
 import { AdminAnimatedBeamTab } from './AdminAnimatedBeamTab';
 import { AdminPreloaderTab } from './AdminPreloaderTab';
+import { PAGE_SEO_MAP } from '../utils/seoData';
 
 export const AdminDashboard: React.FC = () => {
   const {
@@ -390,6 +391,7 @@ export const AdminDashboard: React.FC = () => {
     googleSiteVerification: "",
     structuredDataEnabled: true,
   });
+  const [selectedSeoPage, setSelectedSeoPage] = useState<string>('/');
 
   // Welcome Popup Form State
   const [popupForm, setPopupForm] = useState<WelcomePopupConfig>(data.welcomePopup || {
@@ -5134,213 +5136,209 @@ export const AdminDashboard: React.FC = () => {
                   </button>
                 </div>
 
-                {/* Live Google Search Preview Card */}
-                <div className="p-5 rounded-2xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 space-y-3">
-                  <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-400">
-                    <Search className="w-3.5 h-3.5 text-blue-500" />
-                    <span>Google Search Result Snippet Preview</span>
-                  </div>
-                  <div className="p-4 rounded-xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 space-y-1.5 shadow-xs">
-                    <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-zinc-400">
-                      <div className="w-4 h-4 rounded-full overflow-hidden bg-slate-100 flex items-center justify-center border border-slate-200 dark:border-zinc-700">
-                        {seoForm.faviconUrl ? (
-                          <img src={seoForm.faviconUrl} alt="Favicon" className="w-3.5 h-3.5 object-contain" />
-                        ) : (
-                          <Globe className="w-3 h-3 text-slate-400" />
-                        )}
-                      </div>
-                      <span className="truncate max-w-xs">{seoForm.canonicalUrl || 'https://sharif-ul-islam.vercel.app/'}</span>
-                    </div>
-                    <h4 className="text-base font-medium text-blue-600 dark:text-blue-400 hover:underline cursor-pointer truncate">
-                      {seoForm.metaTitle || 'Shariful Islam - Senior Shopify Liquid Developer'}
-                    </h4>
-                    <p className="text-xs text-slate-600 dark:text-zinc-400 line-clamp-2 leading-relaxed">
-                      {seoForm.metaDescription || 'Add a compelling meta description to rank higher on Google search results.'}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Favicon Settings Section */}
-                <div className="p-5 rounded-2xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 space-y-4">
-                  <div className="flex items-center justify-between">
+                {/* Individual Page Selector Tabs */}
+                <div className="p-5 rounded-2xl bg-purple-50/70 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-800/60 space-y-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                     <div>
-                      <h4 className="text-sm font-bold text-slate-900 dark:text-white">Browser Tab Favicon</h4>
-                      <p className="text-xs text-slate-500 dark:text-zinc-400">
-                        Choose a quick SVG preset icon or upload your custom logo/favicon image.
+                      <h4 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+                        <Sparkles className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                        <span>Select Page to Configure SEO & Keywords</span>
+                      </h4>
+                      <p className="text-xs text-slate-600 dark:text-zinc-400">
+                        Choose an individual page below to customize its specific title, meta description, and Google ranking keywords.
                       </p>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 flex items-center justify-center shadow-xs">
-                        {seoForm.faviconUrl ? (
-                          <img src={seoForm.faviconUrl} alt="Favicon preview" className="w-6 h-6 object-contain" />
-                        ) : (
-                          <Globe className="w-5 h-5 text-slate-400" />
-                        )}
-                      </div>
-                    </div>
+                    <span className="self-start sm:self-auto px-2.5 py-1 rounded-full bg-purple-100 dark:bg-purple-900/60 text-purple-700 dark:text-purple-300 text-[11px] font-mono font-bold">
+                      Editing: {selectedSeoPage}
+                    </span>
                   </div>
 
-                  {/* Preset Selector */}
-                  <div className="space-y-2">
-                    <label className="block text-xs font-semibold text-slate-700 dark:text-zinc-300">
-                      Quick Favicon Presets:
-                    </label>
-                    <div className="flex flex-wrap gap-2">
-                      {[
-                        {
-                          id: 'code',
-                          label: 'Code Symbol (<>)',
-                          svgUrl: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="24" fill="%239333ea"/><path d="M38 35L22 50L38 65M62 35L78 50L62 65" stroke="white" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>`
-                        },
-                        {
-                          id: 'monogram',
-                          label: 'Letter S Badge',
-                          svgUrl: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="24" fill="%234f46e5"/><text x="50" y="68" font-family="Arial,sans-serif" font-size="54" font-weight="900" fill="white" text-anchor="middle">S</text></svg>`
-                        },
-                        {
-                          id: 'sparkle',
-                          label: 'Sparkle Star (✨)',
-                          svgUrl: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="24" fill="%230ea5e9"/><path d="M50 20L58 42L80 50L58 58L50 80L42 58L20 50L42 42Z" fill="white"/></svg>`
-                        },
-                        {
-                          id: 'terminal',
-                          label: 'Terminal Prompt (>_)',
-                          svgUrl: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="24" fill="%2318181b"/><path d="M26 34L44 50L26 66M50 66H74" stroke="%23a855f7" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>`
-                        },
-                      ].map((preset) => (
+                  <div className="flex flex-wrap gap-1.5 pt-1">
+                    {[
+                      { path: '/', label: 'Home / Global (/)' },
+                      { path: '/about', label: 'About (/about)' },
+                      { path: '/services', label: 'Services (/services)' },
+                      { path: '/projects', label: 'Projects (/projects)' },
+                      { path: '/tools', label: 'Tools Hub (/tools)' },
+                      { path: '/education', label: 'Education (/education)' },
+                      { path: '/certificates', label: 'Certificates (/certificates)' },
+                      { path: '/skills', label: 'Skills (/skills)' },
+                      { path: '/reviews', label: 'Reviews (/reviews)' },
+                      { path: '/contact', label: 'Contact (/contact)' },
+                    ].map((tab) => {
+                      const isActive = selectedSeoPage === tab.path;
+                      return (
                         <button
-                          key={preset.id}
+                          key={tab.path}
                           type="button"
-                          onClick={() => {
-                            setSeoForm((prev) => ({
-                              ...prev,
-                              faviconUrl: preset.svgUrl,
-                              faviconPreset: preset.id,
-                              faviconType: 'preset',
-                            }));
-                            showToast(`Applied "${preset.label}" Favicon preset!`);
-                          }}
-                          className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-2 border cursor-pointer transition-all ${
-                            seoForm.faviconPreset === preset.id
-                              ? 'bg-purple-50 dark:bg-purple-950 border-purple-500 text-purple-600 dark:text-purple-300 shadow-xs'
-                              : 'bg-white dark:bg-zinc-900 border-slate-200 dark:border-zinc-800 text-slate-700 dark:text-zinc-300 hover:bg-slate-50'
+                          onClick={() => setSelectedSeoPage(tab.path)}
+                          className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                            isActive
+                              ? 'bg-purple-600 text-white shadow-md shadow-purple-600/25 font-bold'
+                              : 'bg-white dark:bg-zinc-900 text-slate-700 dark:text-zinc-300 border border-slate-200 dark:border-zinc-800 hover:bg-slate-100 dark:hover:bg-zinc-800'
                           }`}
                         >
-                          <img src={preset.svgUrl} alt={preset.label} className="w-3.5 h-3.5 object-contain" />
-                          <span>{preset.label}</span>
+                          {tab.label}
                         </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Custom Favicon URL or Upload */}
-                  <div className="grid sm:grid-cols-2 gap-4 pt-2">
-                    <FormField label="Favicon Image URL or Path">
-                      <input
-                        type="text"
-                        value={seoForm.faviconUrl}
-                        onChange={(e) => setSeoForm((prev) => ({ ...prev, faviconUrl: e.target.value, faviconPreset: 'custom' }))}
-                        placeholder="/favicon.svg or https://..."
-                        className="input-field"
-                      />
-                    </FormField>
-
-                    <div className="space-y-1.5">
-                      <label className="block text-xs font-semibold text-slate-700 dark:text-zinc-300">
-                        Upload Local Favicon File
-                      </label>
-                      <label className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-dashed border-slate-300 dark:border-zinc-700 hover:border-purple-500 bg-white dark:bg-zinc-900 text-xs font-semibold text-slate-700 dark:text-zinc-300 cursor-pointer transition-colors">
-                        <Upload className="w-4 h-4 text-purple-500" />
-                        <span>Upload Favicon (.svg, .png, .ico)</span>
-                        <input
-                          type="file"
-                          accept="image/*"
-                          className="hidden"
-                          onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            handleImageFilePick(file || null, (url) => {
-                              setSeoForm((prev) => ({ ...prev, faviconUrl: url, faviconPreset: 'custom' }));
-                            });
-                          }}
-                        />
-                      </label>
-                    </div>
+                      );
+                    })}
                   </div>
                 </div>
 
-                {/* Primary Meta Tags */}
-                <div className="space-y-4">
-                  <FormField label="SEO Meta Title (Browser & Search Snippet)">
+                {(() => {
+                  const isHome = selectedSeoPage === '/';
+                  const defaultMeta = PAGE_SEO_MAP[selectedSeoPage] || PAGE_SEO_MAP['/'];
+                  const pageOverride = seoForm.pages?.[selectedSeoPage];
+
+                  const currentTitle = isHome
+                    ? seoForm.metaTitle
+                    : (pageOverride?.title ?? defaultMeta.title);
+
+                  const currentDesc = isHome
+                    ? seoForm.metaDescription
+                    : (pageOverride?.description ?? defaultMeta.description);
+
+                  const currentKeywords = isHome
+                    ? seoForm.keywords
+                    : (pageOverride?.keywords ?? defaultMeta.keywords);
+
+                  const currentCanonical = isHome
+                    ? (seoForm.canonicalUrl || 'https://sharifulportfolio.vercel.app/')
+                    : (pageOverride?.canonicalUrl ?? `https://sharifulportfolio.vercel.app${selectedSeoPage}`);
+
+                  const updateField = (field: 'title' | 'description' | 'keywords' | 'canonicalUrl', val: string) => {
+                    if (isHome) {
+                      if (field === 'title') setSeoForm((prev) => ({ ...prev, metaTitle: val }));
+                      else if (field === 'description') setSeoForm((prev) => ({ ...prev, metaDescription: val }));
+                      else if (field === 'keywords') setSeoForm((prev) => ({ ...prev, keywords: val }));
+                      else if (field === 'canonicalUrl') setSeoForm((prev) => ({ ...prev, canonicalUrl: val }));
+                    } else {
+                      setSeoForm((prev) => {
+                        const existingPages = prev.pages || {};
+                        const existingCurrent = existingPages[selectedSeoPage] || {};
+                        return {
+                          ...prev,
+                          pages: {
+                            ...existingPages,
+                            [selectedSeoPage]: {
+                              ...existingCurrent,
+                              [field]: val,
+                            },
+                          },
+                        };
+                      });
+                    }
+                  };
+
+                  return (
+                    <>
+                      {/* Live Google Search Preview Card */}
+                      <div className="p-5 rounded-2xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 space-y-3">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-400">
+                            <Search className="w-3.5 h-3.5 text-blue-500" />
+                            <span>Google Search Result Snippet Preview ({selectedSeoPage})</span>
+                          </div>
+                          <span className="text-[11px] font-mono text-purple-600 dark:text-purple-400">
+                            {isHome ? 'Default Master Page' : 'Individual Route'}
+                          </span>
+                        </div>
+                        <div className="p-4 rounded-xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 space-y-1.5 shadow-xs">
+                          <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-zinc-400">
+                            <div className="w-4 h-4 rounded-full overflow-hidden bg-slate-100 flex items-center justify-center border border-slate-200 dark:border-zinc-700">
+                              {seoForm.faviconUrl ? (
+                                <img src={seoForm.faviconUrl} alt="Favicon" className="w-3.5 h-3.5 object-contain" />
+                              ) : (
+                                <Globe className="w-3 h-3 text-slate-400" />
+                              )}
+                            </div>
+                            <span className="truncate max-w-xs">{currentCanonical}</span>
+                          </div>
+                          <h4 className="text-base font-medium text-blue-600 dark:text-blue-400 hover:underline cursor-pointer truncate">
+                            {currentTitle}
+                          </h4>
+                          <p className="text-xs text-slate-600 dark:text-zinc-400 line-clamp-2 leading-relaxed">
+                            {currentDesc}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Primary Meta Tags for Currently Selected Page */}
+                      <div className="space-y-4">
+                        <FormField label={`Page SEO Title for [${selectedSeoPage}] (Browser Tab & Search Result)`}>
+                          <input
+                            type="text"
+                            required
+                            value={currentTitle}
+                            onChange={(e) => updateField('title', e.target.value)}
+                            placeholder="e.g. Services | Shariful Islam - Senior Shopify Developer"
+                            className="input-field"
+                          />
+                        </FormField>
+
+                        <FormField label={`Meta Description for [${selectedSeoPage}] (Target: 140 - 160 characters)`}>
+                          <textarea
+                            rows={3}
+                            required
+                            value={currentDesc}
+                            onChange={(e) => updateField('description', e.target.value)}
+                            placeholder="Specific meta description optimized for search intent on this page..."
+                            className="input-field"
+                          />
+                          <div className="flex justify-between text-[11px] text-slate-500 dark:text-zinc-400 mt-1">
+                            <span>Google snippet ideal length: 155 characters</span>
+                            <span className={currentDesc.length > 165 ? 'text-amber-500 font-semibold' : ''}>
+                              {currentDesc.length} characters
+                            </span>
+                          </div>
+                        </FormField>
+
+                        <FormField label={`Target Keywords for [${selectedSeoPage}] (Comma separated)`}>
+                          <input
+                            type="text"
+                            value={currentKeywords}
+                            onChange={(e) => updateField('keywords', e.target.value)}
+                            placeholder="e.g. Shopify Liquid theme, custom storefront, e-commerce developer..."
+                            className="input-field"
+                          />
+                        </FormField>
+
+                        <FormField label={`Canonical URL for [${selectedSeoPage}]`}>
+                          <input
+                            type="text"
+                            value={currentCanonical}
+                            onChange={(e) => updateField('canonicalUrl', e.target.value)}
+                            placeholder={`https://sharifulportfolio.vercel.app${selectedSeoPage}`}
+                            className="input-field"
+                          />
+                        </FormField>
+                      </div>
+                    </>
+                  );
+                })()}
+
+                {/* Global Author, Social Image & Verification Settings */}
+                <div className="grid sm:grid-cols-2 gap-4 pt-4 border-t border-slate-200 dark:border-zinc-800">
+                  <FormField label="Global Author Name">
                     <input
                       type="text"
-                      required
-                      value={seoForm.metaTitle}
-                      onChange={(e) => setSeoForm((prev) => ({ ...prev, metaTitle: e.target.value }))}
-                      placeholder="e.g. Shariful Islam - Senior Shopify Liquid Developer & Full-Stack Developer"
+                      value={seoForm.author}
+                      onChange={(e) => setSeoForm((prev) => ({ ...prev, author: e.target.value }))}
+                      placeholder="Shariful Islam"
                       className="input-field"
                     />
                   </FormField>
 
-                  <FormField label="SEO Meta Description (Target: 140 - 160 characters)">
-                    <textarea
-                      rows={3}
-                      required
-                      value={seoForm.metaDescription}
-                      onChange={(e) => setSeoForm((prev) => ({ ...prev, metaDescription: e.target.value }))}
-                      placeholder="Detailed meta description for Google indexing and search rankings..."
+                  <FormField label="OpenGraph & Twitter Social Share Image URL">
+                    <input
+                      type="text"
+                      value={seoForm.ogImage}
+                      onChange={(e) => setSeoForm((prev) => ({ ...prev, ogImage: e.target.value }))}
+                      placeholder="/myname.png or https://..."
                       className="input-field"
                     />
-                    <div className="flex justify-between text-[11px] text-slate-500 dark:text-zinc-400 mt-1">
-                      <span>Google snippet ideal length: 155 characters</span>
-                      <span className={seoForm.metaDescription.length > 165 ? 'text-amber-500 font-semibold' : ''}>
-                        {seoForm.metaDescription.length} characters
-                      </span>
-                    </div>
                   </FormField>
-
-                  <div className="grid sm:grid-cols-2 gap-4">
-                    <FormField label="Keywords (Comma separated)">
-                      <input
-                        type="text"
-                        value={seoForm.keywords}
-                        onChange={(e) => setSeoForm((prev) => ({ ...prev, keywords: e.target.value }))}
-                        placeholder="Shariful Islam, Shopify, Full-Stack, React, Liquid..."
-                        className="input-field"
-                      />
-                    </FormField>
-
-                    <FormField label="Author Name">
-                      <input
-                        type="text"
-                        value={seoForm.author}
-                        onChange={(e) => setSeoForm((prev) => ({ ...prev, author: e.target.value }))}
-                        placeholder="Shariful Islam"
-                        className="input-field"
-                      />
-                    </FormField>
-                  </div>
-
-                  <div className="grid sm:grid-cols-2 gap-4">
-                    <FormField label="Canonical Website URL">
-                      <input
-                        type="text"
-                        value={seoForm.canonicalUrl}
-                        onChange={(e) => setSeoForm((prev) => ({ ...prev, canonicalUrl: e.target.value }))}
-                        placeholder="https://sharif-ul-islam.vercel.app/"
-                        className="input-field"
-                      />
-                    </FormField>
-
-                    <FormField label="OpenGraph & Twitter Social Share Image URL">
-                      <input
-                        type="text"
-                        value={seoForm.ogImage}
-                        onChange={(e) => setSeoForm((prev) => ({ ...prev, ogImage: e.target.value }))}
-                        placeholder="/myname.png or https://..."
-                        className="input-field"
-                      />
-                    </FormField>
-                  </div>
+                </div>
 
                   <FormField label="Google Search Console Verification Code (Optional)">
                     <input
@@ -5351,7 +5349,6 @@ export const AdminDashboard: React.FC = () => {
                       className="input-field font-mono text-xs"
                     />
                   </FormField>
-                </div>
 
                 <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-200 dark:border-zinc-800">
                   <button

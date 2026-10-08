@@ -80,6 +80,16 @@ export const ServicesSection: React.FC<{ onContactClick: () => void }> = ({ onCo
           <p className="text-base text-slate-600 dark:text-zinc-400">
             From custom Shopify storefronts to robust Python backend automation and high-converting modern web applications.
           </p>
+
+          <div className="pt-1">
+            <a
+              href="/services"
+              className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-purple-50 dark:bg-purple-950/60 border border-purple-200 dark:border-purple-800 text-purple-700 dark:text-purple-300 text-xs font-semibold hover:bg-purple-100 dark:hover:bg-purple-900/60 transition-all cursor-pointer"
+            >
+              <span>Explore Dedicated Services Page</span>
+              <ArrowUpRight className="w-3.5 h-3.5" />
+            </a>
+          </div>
         </div>
 
         {/* Services Grid */}

@@ -6,6 +6,7 @@ import { ProcessingState } from '../../components/tools/background-remover/Proce
 import { BeforeAfter } from '../../components/tools/background-remover/BeforeAfter';
 import { DownloadOptions } from '../../components/tools/background-remover/DownloadOptions';
 import { removeBackground } from '../../services/backgroundRemovalService';
+import { applyPageSeo } from '../../utils/seoData';
 
 interface RemoveBackgroundProps {
   onBackToPortfolio: () => void;
@@ -25,8 +26,9 @@ export const RemoveBackground: React.FC<RemoveBackgroundProps> = ({
   const [processedSize, setProcessedSize] = useState<number | undefined>(undefined);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  // Clean up object URLs only when unmounting the page
+  // Initialize SEO and cleanup object URLs on unmount
   useEffect(() => {
+    applyPageSeo('/tools/remove-background');
     return () => {
       if (previewUrl && previewUrl.startsWith('blob:')) {
         try {

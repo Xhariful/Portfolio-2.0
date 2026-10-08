@@ -28,6 +28,8 @@ interface ImageCompressorProps {
   onToggleTheme?: () => void;
 }
 
+import { applyPageSeo } from '../../utils/seoData';
+
 export const ImageCompressor: React.FC<ImageCompressorProps> = ({
   onBackToPortfolio,
   isDark = true,
@@ -45,7 +47,7 @@ export const ImageCompressor: React.FC<ImageCompressorProps> = ({
 
   // Sync title and SEO
   useEffect(() => {
-    document.title = 'Free Image Compressor & WebP Optimizer | Shariful Islam';
+    applyPageSeo('/tools/image-compressor');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 

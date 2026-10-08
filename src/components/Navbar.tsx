@@ -50,19 +50,20 @@ export const Navbar: React.FC<NavbarProps> = ({
   const [logoImgError, setLogoImgError] = useState(false);
 
   const navItems = [
-    { id: 'hero', label: 'Home' },
-    { id: 'about', label: 'About' },
-    { id: 'education', label: 'Education & Courses' },
-    { id: 'certificates', label: 'Certificates' },
-    { id: 'skills', label: 'Skills' },
-    { id: 'services', label: 'Services' },
-    { id: 'projects', label: 'Projects' },
-    { id: 'reviews', label: 'Reviews' },
-    { id: 'contact', label: 'Contact' },
+    { id: 'hero', route: '/', label: 'Home' },
+    { id: 'about', route: '/about', label: 'About' },
+    { id: 'services', route: '/services', label: 'Services' },
+    { id: 'projects', route: '/projects', label: 'Projects' },
+    { id: 'tools', route: '/tools', label: 'Tools' },
+    { id: 'education', route: '/education', label: 'Education' },
+    { id: 'certificates', route: '/certificates', label: 'Certificates' },
+    { id: 'skills', route: '/skills', label: 'Skills' },
+    { id: 'reviews', route: '/reviews', label: 'Reviews' },
+    { id: 'contact', route: '/contact', label: 'Contact' },
   ];
 
-  const handleNav = (id: string) => {
-    onNavigate(id);
+  const handleNav = (target: string) => {
+    onNavigate(target);
     setMobileMenuOpen(false);
   };
 
@@ -75,8 +76,12 @@ export const Navbar: React.FC<NavbarProps> = ({
         <div className="flex items-center justify-between px-5 py-3 rounded-2xl bg-white/90 dark:bg-zinc-900/85 backdrop-blur-xl border border-slate-200/90 dark:border-zinc-800/80 shadow-md shadow-slate-900/5 dark:shadow-none transition-all">
           
           {/* Brand Logo */}
-          <button
-            onClick={() => handleNav('hero')}
+          <a
+            href="/"
+            onClick={(e) => {
+              e.preventDefault();
+              handleNav('/');
+            }}
             className="flex items-center gap-3 group cursor-pointer text-left"
           >
             {isImageOnly ? (
@@ -123,17 +128,21 @@ export const Navbar: React.FC<NavbarProps> = ({
                 </div>
               </>
             )}
-          </button>
+          </a>
 
           {/* Desktop Navigation Links */}
           <nav className="hidden lg:flex items-center gap-1 bg-slate-100/90 dark:bg-zinc-950/60 p-1.5 rounded-xl border border-slate-200/90 dark:border-zinc-800">
             {navItems.map((item) => {
               const isActive = activeSection === item.id;
               return (
-                <button
+                <a
                   key={item.id}
-                  onClick={() => handleNav(item.id)}
-                  className={`relative px-3.5 py-1.5 rounded-lg text-xs tracking-wide transition-all duration-200 cursor-pointer ${
+                  href={item.route}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleNav(item.route);
+                  }}
+                  className={`relative px-3 py-1.5 rounded-lg text-xs tracking-wide transition-all duration-200 cursor-pointer ${
                     isActive
                       ? 'text-white font-bold'
                       : 'text-slate-600 dark:text-zinc-400 font-medium hover:text-slate-900 dark:hover:text-zinc-100 hover:bg-white/80 dark:hover:bg-zinc-800/50'
@@ -147,7 +156,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     />
                   )}
                   <span className="relative z-10">{item.label}</span>
-                </button>
+                </a>
               );
             })}
           </nav>
@@ -211,9 +220,13 @@ export const Navbar: React.FC<NavbarProps> = ({
                 {navItems.map((item) => {
                   const isActive = activeSection === item.id;
                   return (
-                    <button
+                    <a
                       key={item.id}
-                      onClick={() => handleNav(item.id)}
+                      href={item.route}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleNav(item.route);
+                      }}
                       className={`p-3 rounded-xl text-xs font-semibold transition-all cursor-pointer text-center ${
                         isActive
                           ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold shadow-md shadow-purple-600/25'
@@ -221,19 +234,23 @@ export const Navbar: React.FC<NavbarProps> = ({
                       }`}
                     >
                       {item.label}
-                    </button>
+                    </a>
                   );
                 })}
               </div>
 
               <div className="pt-2 border-t border-slate-200 dark:border-zinc-800">
-                <button
-                  onClick={() => handleNav('contact')}
-                  className="w-full py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs uppercase flex items-center justify-center gap-1 cursor-pointer"
+                <a
+                  href="/contact"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleNav('/contact');
+                  }}
+                  className="w-full py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs uppercase flex items-center justify-center gap-1 cursor-pointer text-center"
                 >
                   <span>Contact</span>
                   <ArrowUpRight className="w-3.5 h-3.5" />
-                </button>
+                </a>
               </div>
             </motion.div>
           )}

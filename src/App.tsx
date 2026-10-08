@@ -23,6 +23,16 @@ import { ScrollReveal } from './components/animations/ScrollReveal';
 import { Floating3DParticles } from './components/ui/floating-3d-particles';
 import { InitialLoader } from './components/animations/InitialLoader';
 import { ToolsSection } from './components/ToolsSection';
+import { AboutPage } from './pages/AboutPage';
+import { ServicesPage } from './pages/ServicesPage';
+import { ProjectsPage } from './pages/ProjectsPage';
+import { ToolsPage } from './pages/ToolsPage';
+import { EducationPage } from './pages/EducationPage';
+import { CertificatesPage } from './pages/CertificatesPage';
+import { SkillsPage } from './pages/SkillsPage';
+import { ReviewsPage } from './pages/ReviewsPage';
+import { ContactPage } from './pages/ContactPage';
+import { normalizePath, applyPageSeo } from './utils/seoData';
 
 // Lazy-load non-critical modals, tools, and heavy admin portal to keep mobile bundle ultra-lightweight
 const WelcomeGreetingModal = React.lazy(() =>
@@ -196,39 +206,164 @@ function PortfolioApp() {
     }
   };
 
-  if (currentPath === '/tools/image-compressor' || currentPath === '/tools/compressor') {
-    return (
-      <React.Suspense
-        fallback={
-          <div className="min-h-screen bg-slate-950 flex items-center justify-center text-indigo-400">
-            <div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
-          </div>
-        }
-      >
-        <ImageCompressor
-          onBackToPortfolio={() => navigateTo('/')}
-          isDark={isDark}
-          onToggleTheme={toggleTheme}
-        />
+  // Helper to render global modals and toast notifications
+  const renderGlobalOverlays = () => (
+    <>
+      <React.Suspense fallback={null}>
+        {/* Dynamic Time-Based Greeting & Project Inquiry Popup */}
+        <WelcomeGreetingModal onContactClick={() => navigateTo('/contact')} />
+
+        {/* Admin Login Popup (Triggered when accessing /admin or shortcut Ctrl+Shift+A) */}
+        <AdminLoginModal />
+
+        {/* Admin Content Management Dashboard Modal (Accessible only after successful authentication) */}
+        <AdminDashboard />
       </React.Suspense>
+
+      {/* Live Toast Feedback Notification */}
+      <AnimatePresence>
+        {toastMessage && (
+          <motion.div
+            initial={{ opacity: 0, y: 30, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 30, scale: 0.95 }}
+            className="fixed bottom-6 right-6 z-[100] flex items-center gap-2.5 px-4 py-3 rounded-2xl bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 shadow-2xl border border-zinc-700 dark:border-zinc-300 text-xs font-semibold"
+          >
+            <CheckCircle2 className="w-4 h-4 text-emerald-400 dark:text-emerald-600 flex-shrink-0" />
+            <span>{toastMessage}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
+  );
+
+  const normalized = normalizePath(currentPath);
+
+  // Sync SEO metadata with document head on route or seo change
+  useEffect(() => {
+    applyPageSeo(currentPath, data.seo);
+  }, [currentPath, data.seo]);
+
+  if (normalized === '/about') {
+    return (
+      <>
+        <AboutPage onNavigate={navigateTo} isDark={isDark} onToggleTheme={toggleTheme} />
+        {renderGlobalOverlays()}
+      </>
     );
   }
 
-  if (currentPath.startsWith('/tools')) {
+  if (normalized === '/services') {
     return (
-      <React.Suspense
-        fallback={
-          <div className="min-h-screen bg-slate-950 flex items-center justify-center text-purple-400">
-            <div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
-          </div>
-        }
-      >
-        <RemoveBackground
-          onBackToPortfolio={() => navigateTo('/')}
-          isDark={isDark}
-          onToggleTheme={toggleTheme}
-        />
-      </React.Suspense>
+      <>
+        <ServicesPage onNavigate={navigateTo} isDark={isDark} onToggleTheme={toggleTheme} />
+        {renderGlobalOverlays()}
+      </>
+    );
+  }
+
+  if (normalized === '/projects') {
+    return (
+      <>
+        <ProjectsPage onNavigate={navigateTo} isDark={isDark} onToggleTheme={toggleTheme} />
+        {renderGlobalOverlays()}
+      </>
+    );
+  }
+
+  if (normalized === '/tools') {
+    return (
+      <>
+        <ToolsPage onNavigate={navigateTo} isDark={isDark} onToggleTheme={toggleTheme} />
+        {renderGlobalOverlays()}
+      </>
+    );
+  }
+
+  if (normalized === '/tools/remove-background') {
+    return (
+      <>
+        <React.Suspense
+          fallback={
+            <div className="min-h-screen bg-slate-950 flex items-center justify-center text-purple-400">
+              <div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
+            </div>
+          }
+        >
+          <RemoveBackground
+            onBackToPortfolio={() => navigateTo('/tools')}
+            isDark={isDark}
+            onToggleTheme={toggleTheme}
+          />
+        </React.Suspense>
+        {renderGlobalOverlays()}
+      </>
+    );
+  }
+
+  if (normalized === '/tools/image-compressor' || normalized === '/tools/compressor') {
+    return (
+      <>
+        <React.Suspense
+          fallback={
+            <div className="min-h-screen bg-slate-950 flex items-center justify-center text-indigo-400">
+              <div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+            </div>
+          }
+        >
+          <ImageCompressor
+            onBackToPortfolio={() => navigateTo('/tools')}
+            isDark={isDark}
+            onToggleTheme={toggleTheme}
+          />
+        </React.Suspense>
+        {renderGlobalOverlays()}
+      </>
+    );
+  }
+
+  if (normalized === '/education') {
+    return (
+      <>
+        <EducationPage onNavigate={navigateTo} isDark={isDark} onToggleTheme={toggleTheme} />
+        {renderGlobalOverlays()}
+      </>
+    );
+  }
+
+  if (normalized === '/certificates') {
+    return (
+      <>
+        <CertificatesPage onNavigate={navigateTo} isDark={isDark} onToggleTheme={toggleTheme} />
+        {renderGlobalOverlays()}
+      </>
+    );
+  }
+
+  if (normalized === '/skills') {
+    return (
+      <>
+        <SkillsPage onNavigate={navigateTo} isDark={isDark} onToggleTheme={toggleTheme} />
+        {renderGlobalOverlays()}
+      </>
+    );
+  }
+
+  if (normalized === '/reviews') {
+    return (
+      <>
+        <ReviewsPage onNavigate={navigateTo} isDark={isDark} onToggleTheme={toggleTheme} />
+        {renderGlobalOverlays()}
+      </>
+    );
+  }
+
+  if (normalized === '/contact') {
+    return (
+      <>
+        <ContactPage onNavigate={navigateTo} isDark={isDark} onToggleTheme={toggleTheme} />
+        {renderGlobalOverlays()}
+      </>
     );
   }
 
@@ -267,7 +402,17 @@ function PortfolioApp() {
       {/* Floating Navigation Bar */}
       <Navbar
         activeSection={activeSection}
-        onNavigate={scrollToSection}
+        onNavigate={(target) => {
+          if (target.startsWith('/')) {
+            if (target === '/') {
+              scrollToSection('hero');
+            } else {
+              navigateTo(target);
+            }
+          } else {
+            scrollToSection(target);
+          }
+        }}
         isDark={isDark}
         onToggleTheme={toggleTheme}
       />
@@ -328,38 +473,26 @@ function PortfolioApp() {
 
       {/* Footer */}
       <ScrollReveal direction="up" distance={32} duration={0.7} blur amount={0.05}>
-        <Footer onNavigate={scrollToSection} />
+        <Footer
+          onNavigate={(target) => {
+            if (target.startsWith('/')) {
+              if (target === '/') {
+                scrollToSection('hero');
+              } else {
+                navigateTo(target);
+              }
+            } else {
+              scrollToSection(target);
+            }
+          }}
+        />
       </ScrollReveal>
 
       {/* Floating Back To Top Button (Shows on scroll at bottom right) */}
       <BackToTop />
 
-      {/* Lazy Loaded Admin Portal & Modals */}
-      <React.Suspense fallback={null}>
-        {/* Dynamic Time-Based Greeting & Project Inquiry Popup */}
-        <WelcomeGreetingModal onContactClick={() => scrollToSection('contact')} />
-
-        {/* Admin Login Popup (Triggered when accessing /admin or shortcut Ctrl+Shift+A) */}
-        <AdminLoginModal />
-
-        {/* Admin Content Management Dashboard Modal (Accessible only after successful authentication) */}
-        <AdminDashboard />
-      </React.Suspense>
-
-      {/* Live Toast Feedback Notification */}
-      <AnimatePresence>
-        {toastMessage && (
-          <motion.div
-            initial={{ opacity: 0, y: 30, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 30, scale: 0.95 }}
-            className="fixed bottom-6 right-6 z-[100] flex items-center gap-2.5 px-4 py-3 rounded-2xl bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 shadow-2xl border border-zinc-700 dark:border-zinc-300 text-xs font-semibold"
-          >
-            <CheckCircle2 className="w-4 h-4 text-emerald-400 dark:text-emerald-600 flex-shrink-0" />
-            <span>{toastMessage}</span>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Global Overlays & Modals */}
+      {renderGlobalOverlays()}
     </div>
   );
 }
