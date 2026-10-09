@@ -189,6 +189,14 @@ export const Navbar: React.FC<NavbarProps> = ({
   const hasCustomLogoImg = profile.logoUrl && profile.logoUrl.trim().length > 0 && !logoImgError;
   const isImageOnly = profile.logoType === 'image' && hasCustomLogoImg;
 
+  // Dynamic logo zoom, width, and height dimensions from Admin Dashboard
+  const customWidth = profile.logoWidth || 130;
+  const customHeight = profile.logoHeight || 42;
+  const customZoom = (profile.logoZoom || 100) / 100;
+  const imageMaxHeight = Math.min(78, Math.max(22, Math.round(customHeight * customZoom)));
+  const imageMaxWidth = Math.min(340, Math.max(36, Math.round(customWidth * customZoom)));
+  const boxSize = Math.min(68, Math.max(28, Math.round(36 * (customWidth / 120) * customZoom)));
+
   return (
     <header className="fixed top-0 left-0 right-0 z-50 px-3 sm:px-6 lg:px-8 pt-3 sm:pt-4">
       <div className="max-w-7xl mx-auto" ref={navContainerRef}>
@@ -204,28 +212,32 @@ export const Navbar: React.FC<NavbarProps> = ({
             className="flex items-center gap-3 group cursor-pointer text-left"
           >
             {isImageOnly ? (
-              <div className="h-9 flex items-center">
+              <div className="flex items-center" style={{ height: `${imageMaxHeight + 4}px` }}>
                 <img
                   src={profile.logoUrl}
                   alt={profile.logoText || profile.name}
-                  width={140}
-                  height={36}
                   loading="eager"
                   decoding="async"
                   onError={() => setLogoImgError(true)}
-                  className="max-h-9 w-auto max-w-[150px] sm:max-w-[200px] object-contain transition-transform group-hover:scale-105"
-                  style={{ maxHeight: `${profile.logoWidth ? Math.min(48, Math.max(28, profile.logoWidth / 3)) : 36}px` }}
+                  className="w-auto object-contain transition-transform group-hover:scale-105"
+                  style={{
+                    maxHeight: `${imageMaxHeight}px`,
+                    maxWidth: `${Math.round(customWidth * customZoom)}px`,
+                  }}
                 />
               </div>
             ) : (
               <>
                 {hasCustomLogoImg ? (
-                  <div className="w-9 h-9 rounded-xl overflow-hidden bg-purple-50 dark:bg-purple-950/60 border border-purple-200 dark:border-purple-800/60 flex items-center justify-center shadow-xs transition-transform group-hover:scale-105 p-1">
+                  <div
+                    style={{ width: `${boxSize}px`, height: `${boxSize}px` }}
+                    className="rounded-xl overflow-hidden bg-purple-50 dark:bg-purple-950/60 border border-purple-200 dark:border-purple-800/60 flex items-center justify-center shadow-xs transition-transform group-hover:scale-105 p-1 shrink-0"
+                  >
                     <img
                       src={profile.logoUrl}
                       alt={profile.logoText || profile.name}
-                      width={36}
-                      height={36}
+                      width={boxSize}
+                      height={boxSize}
                       loading="eager"
                       decoding="async"
                       onError={() => setLogoImgError(true)}
@@ -233,7 +245,10 @@ export const Navbar: React.FC<NavbarProps> = ({
                     />
                   </div>
                 ) : (
-                  <div className="w-9 h-9 rounded-xl bg-purple-600 dark:bg-purple-600/20 border border-purple-600 dark:border-purple-500/30 flex items-center justify-center text-white dark:text-purple-300 shadow-xs transition-transform group-hover:scale-105">
+                  <div
+                    style={{ width: `${boxSize}px`, height: `${boxSize}px` }}
+                    className="rounded-xl bg-purple-600 dark:bg-purple-600/20 border border-purple-600 dark:border-purple-500/30 flex items-center justify-center text-white dark:text-purple-300 shadow-xs transition-transform group-hover:scale-105 shrink-0"
+                  >
                     {renderLogoIcon(profile.logoIcon)}
                   </div>
                 )}

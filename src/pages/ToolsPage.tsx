@@ -1,9 +1,7 @@
 import React from 'react';
 import { PageLayout } from '../components/PageLayout';
 import { ToolsSection } from '../components/ToolsSection';
-import { GamesSection } from '../components/GamesSection';
-import { ShieldCheck, Zap, Sparkles, Download } from 'lucide-react';
-import { openSnakeGameModal } from '../components/NeonSnakeModal';
+import { ShieldCheck, Zap, Sparkles, Download, Gamepad2, ArrowRight } from 'lucide-react';
 
 interface PageProps {
   onNavigate: (path: string) => void;
@@ -12,20 +10,13 @@ interface PageProps {
 }
 
 export const ToolsPage: React.FC<PageProps> = ({ onNavigate, isDark, onToggleTheme }) => {
-  React.useEffect(() => {
-    if (typeof window !== 'undefined' && window.location.hash.includes('snake')) {
-      setTimeout(() => {
-        openSnakeGameModal();
-      }, 300);
-    }
-  }, []);
-
   return (
     <PageLayout
       currentPath="/tools"
       onNavigate={onNavigate}
       isDark={isDark}
       onToggleTheme={onToggleTheme}
+      hideHeaderHero={true}
     >
       {/* Interactive Tools Hub */}
       <ToolsSection onNavigateToTool={(route) => onNavigate(route)} />
@@ -87,9 +78,29 @@ export const ToolsPage: React.FC<PageProps> = ({ onNavigate, isDark, onToggleThe
         </div>
       </section>
 
-      {/* Our Games Section - Separated below tools */}
-      <div className="mt-8">
-        <GamesSection onNavigateToGame={(route) => onNavigate(route)} />
+      {/* Cross-Link Card to Retro Arcade Games */}
+      <div className="mt-8 rounded-3xl p-6 sm:p-8 bg-gradient-to-r from-emerald-950/40 via-zinc-900/60 to-emerald-950/40 border border-emerald-500/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="space-y-1">
+          <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-emerald-400">
+            LOOKING FOR FUN & ENTERTAINMENT?
+          </span>
+          <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <Gamepad2 className="w-5 h-5 text-emerald-400" />
+            <span>Discover Our Retro Arcade Games Hub</span>
+          </h3>
+          <p className="text-xs text-slate-600 dark:text-zinc-400">
+            Play classic 60 FPS Neon Snake Retro Arcade with neon synth audio and competitive local high scores.
+          </p>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => onNavigate('/games')}
+          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold transition-all cursor-pointer shadow-md shadow-emerald-500/20 shrink-0"
+        >
+          <span>Open Arcade Games</span>
+          <ArrowRight className="w-3.5 h-3.5" />
+        </button>
       </div>
     </PageLayout>
   );

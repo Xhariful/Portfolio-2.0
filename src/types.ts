@@ -30,6 +30,8 @@ export interface ProfileData {
   logoIcon?: string;
   logoType?: 'image' | 'text' | 'combined';
   logoWidth?: number;
+  logoZoom?: number;
+  logoHeight?: number;
 
   // Website Custom Images
   heroImage?: string;
@@ -260,6 +262,23 @@ export interface PortfolioData {
   backgroundEffects?: BackgroundEffectsConfig;
   animatedBeam?: AnimatedBeamConfig;
   initialLoader?: InitialLoaderConfig;
+  apiKeys?: ApiKeysConfig;
+}
+
+export interface CustomApiKeyItem {
+  id: string;
+  name: string;
+  key: string;
+  description?: string;
+  updatedAt: string;
+}
+
+export interface ApiKeysConfig {
+  removeBgKey?: string;
+  abuseIpDbKey?: string;
+  geminiApiKey?: string;
+  cloudflareToken?: string;
+  customKeys?: CustomApiKeyItem[];
 }
 
 export interface SecurityCredentials {

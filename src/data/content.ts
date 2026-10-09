@@ -42,6 +42,7 @@ export const initialPortfolioData: PortfolioData = {
     logoIcon: "code",
     logoType: "combined",
     logoWidth: 120,
+    logoZoom: 100,
     heroImage: "",
     aboutImage: "",
     avatarUrl: "",
@@ -699,6 +700,13 @@ export const initialPortfolioData: PortfolioData = {
     ringColor: '#8b5cf6',
     enableRealisticDelay: true,
     showProgressBar: true,
+  },
+  apiKeys: {
+    removeBgKey: '',
+    abuseIpDbKey: '',
+    geminiApiKey: '',
+    cloudflareToken: '',
+    customKeys: [],
   },
 };
 

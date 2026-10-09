@@ -19,6 +19,15 @@ const REMOVE_BG_API_KEY =
   process.env.REMOVE_BG_API_KEY || 'Pi85bEV6S535Njz51tyNcFtf';
 const ABUSEIPDB_API_KEY = process.env.ABUSEIPDB_API_KEY || '';
 
+// Runtime in-memory API keys that can be updated live from Admin Dashboard
+const activeApiKeys = {
+  removeBg: process.env.REMOVE_BG_API_KEY || 'Pi85bEV6S535Njz51tyNcFtf',
+  abuseIpDb: process.env.ABUSEIPDB_API_KEY || '',
+  gemini: process.env.GEMINI_API_KEY || '',
+  cloudflare: '',
+  custom: [] as Array<{ id: string; name: string; key: string; description?: string; updatedAt: string }>,
+};
+
 // CORS Middleware to allow requests from any origin / preview iframe
 app.use((req: Request, res: Response, next: NextFunction) => {
   res.header('Access-Control-Allow-Origin', '*');
@@ -61,9 +70,59 @@ app.get('/api/health', (_req: Request, res: Response) => {
     status: 'ok',
     service: 'Shariful Tools - remove.bg & Network Inspector API',
     provider: 'Shariful Network Inspector',
-    apiKeyConfigured: Boolean(REMOVE_BG_API_KEY),
-    abuseIpDbConfigured: Boolean(ABUSEIPDB_API_KEY),
+    apiKeyConfigured: Boolean(activeApiKeys.removeBg),
+    abuseIpDbConfigured: Boolean(activeApiKeys.abuseIpDb),
   });
+});
+
+// Admin API Keys Management Endpoints
+app.get(['/api/admin/api-keys', '/api/admin/api-keys/'], (_req: Request, res: Response) => {
+  res.json({
+    success: true,
+    keys: {
+      removeBgConfigured: Boolean(activeApiKeys.removeBg),
+      removeBgMasked: activeApiKeys.removeBg
+        ? `${activeApiKeys.removeBg.slice(0, 4)}••••••••${activeApiKeys.removeBg.slice(-4)}`
+        : '',
+      abuseIpDbConfigured: Boolean(activeApiKeys.abuseIpDb),
+      abuseIpDbMasked: activeApiKeys.abuseIpDb
+        ? `${activeApiKeys.abuseIpDb.slice(0, 4)}••••••••${activeApiKeys.abuseIpDb.slice(-4)}`
+        : '',
+      geminiConfigured: Boolean(activeApiKeys.gemini),
+      geminiMasked: activeApiKeys.gemini
+        ? `${activeApiKeys.gemini.slice(0, 4)}••••••••${activeApiKeys.gemini.slice(-4)}`
+        : '',
+      cloudflareConfigured: Boolean(activeApiKeys.cloudflare),
+      customCount: activeApiKeys.custom.length,
+    },
+  });
+});
+
+app.post(['/api/admin/api-keys', '/api/admin/api-keys/'], (req: Request, res: Response) => {
+  try {
+    const { removeBgKey, abuseIpDbKey, geminiApiKey, cloudflareToken, customKeys } = req.body;
+    if (typeof removeBgKey === 'string' && removeBgKey.trim()) {
+      activeApiKeys.removeBg = removeBgKey.trim();
+    }
+    if (typeof abuseIpDbKey === 'string') {
+      activeApiKeys.abuseIpDb = abuseIpDbKey.trim();
+    }
+    if (typeof geminiApiKey === 'string' && geminiApiKey.trim()) {
+      activeApiKeys.gemini = geminiApiKey.trim();
+    }
+    if (typeof cloudflareToken === 'string') {
+      activeApiKeys.cloudflare = cloudflareToken.trim();
+    }
+    if (Array.isArray(customKeys)) {
+      activeApiKeys.custom = customKeys;
+    }
+    res.json({
+      success: true,
+      message: 'API Keys updated and applied to live runtime proxy services.',
+    });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err?.message || 'Failed to update keys' });
+  }
 });
 
 // Network Inspector & Threat Check Endpoint
@@ -114,13 +173,14 @@ app.get(['/api/network/lookup', '/api/network/lookup/'], async (req: Request, re
 
     // Threat Check (AbuseIPDB if key configured)
     let threatData: any = null;
-    if (ABUSEIPDB_API_KEY) {
+    const effectiveAbuseKey = activeApiKeys.abuseIpDb || ABUSEIPDB_API_KEY;
+    if (effectiveAbuseKey) {
       try {
         const abuseRes = await fetch(
           `https://api.abuseipdb.com/api/v2/check?ipAddress=${encodeURIComponent(targetIp)}&maxAgeInDays=90`,
           {
             headers: {
-              Key: ABUSEIPDB_API_KEY,
+              Key: effectiveAbuseKey,
               Accept: 'application/json',
             },
           }
@@ -265,11 +325,12 @@ app.post(
           // AbortController with 25s timeout to prevent proxy hangs
           const controller = new AbortController();
           const timeoutId = setTimeout(() => controller.abort(), 25000);
+          const effectiveRemoveBgKey = activeApiKeys.removeBg || REMOVE_BG_API_KEY;
 
           const removeBgResponse = await fetch('https://api.remove.bg/v1.0/removebg', {
             method: 'POST',
             headers: {
-              'X-Api-Key': REMOVE_BG_API_KEY,
+              'X-Api-Key': effectiveRemoveBgKey,
             },
             body: formData,
             signal: controller.signal,
@@ -307,7 +368,7 @@ app.post(
               const retryRes = await fetch('https://api.remove.bg/v1.0/removebg', {
                 method: 'POST',
                 headers: {
-                  'X-Api-Key': REMOVE_BG_API_KEY,
+                  'X-Api-Key': effectiveRemoveBgKey,
                 },
                 body: retryForm,
               });

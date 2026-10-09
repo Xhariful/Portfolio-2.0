@@ -18,6 +18,7 @@ import {
   AnimatedBeamConfig,
   BeamNodeItem,
   InitialLoaderConfig,
+  ApiKeysConfig,
   SecurityConfig,
   AuthenticatedUser,
 } from '../types';
@@ -96,6 +97,7 @@ interface PortfolioContextType {
   updateBackgroundEffects: (config: Partial<BackgroundEffectsConfig>) => void;
   updateAnimatedBeam: (config: Partial<AnimatedBeamConfig>) => void;
   updateInitialLoader: (config: Partial<InitialLoaderConfig>) => void;
+  updateApiKeys: (keys: Partial<ApiKeysConfig>) => void;
   
   // Education Helpers
   addEducation: (item: EducationItem) => void;
@@ -1169,6 +1171,36 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     showToast('Loading Screen & Animation settings updated & synced to Cloud!');
   };
 
+  const updateApiKeys = (keysUpdate: Partial<ApiKeysConfig>) => {
+    setData((prev) => {
+      const currentKeys = prev.apiKeys || initialPortfolioData.apiKeys || {
+        removeBgKey: '',
+        abuseIpDbKey: '',
+        geminiApiKey: '',
+        cloudflareToken: '',
+        customKeys: [],
+      };
+      const updatedKeys = { ...currentKeys, ...keysUpdate };
+      const updated = {
+        ...prev,
+        apiKeys: updatedKeys,
+      };
+      persistToCloud(updated);
+
+      // Notify backend server proxy immediately
+      try {
+        fetch('/api/admin/api-keys', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(updatedKeys),
+        }).catch(() => {});
+      } catch (_) {}
+
+      return updated;
+    });
+    showToast('API Credentials & Integration Keys saved and synced with cloud services!');
+  };
+
   // Sync SEO metadata, title, and favicon dynamically with document head
   useEffect(() => {
     if (typeof document === 'undefined') return;
@@ -1544,6 +1576,7 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         updateBackgroundEffects,
         updateAnimatedBeam,
         updateInitialLoader,
+        updateApiKeys,
         addEducation,
         editEducation,
         deleteEducation,

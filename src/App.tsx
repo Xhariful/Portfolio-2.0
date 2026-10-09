@@ -28,6 +28,7 @@ import { AboutPage } from './pages/AboutPage';
 import { ServicesPage } from './pages/ServicesPage';
 import { ProjectsPage } from './pages/ProjectsPage';
 import { ToolsPage } from './pages/ToolsPage';
+import { GamesPage } from './pages/GamesPage';
 import { EducationPage } from './pages/EducationPage';
 import { CertificatesPage } from './pages/CertificatesPage';
 import { SkillsPage } from './pages/SkillsPage';
@@ -81,9 +82,22 @@ function PortfolioApp() {
     if (typeof window !== 'undefined') {
       window.history.pushState(null, '', path);
       setCurrentPath(path);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      const lenis = getLenis();
+      if (lenis) {
+        lenis.scrollTo(0, { immediate: true });
+      }
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
     }
   };
+
+  // Ensure scroll reset on path change
+  useEffect(() => {
+    const lenis = getLenis();
+    if (lenis) {
+      lenis.scrollTo(0, { immediate: true });
+    }
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  }, [currentPath]);
 
   const [activeSection, setActiveSection] = useState('hero');
   const [isDark, setIsDark] = useState<boolean>(() => {
@@ -281,8 +295,16 @@ function PortfolioApp() {
     );
   }
 
+  if (normalized === '/tools') {
+    return (
+      <>
+        <ToolsPage onNavigate={navigateTo} isDark={isDark} onToggleTheme={toggleTheme} />
+        {renderGlobalOverlays()}
+      </>
+    );
+  }
+
   if (
-    normalized === '/tools' ||
     normalized === '/games' ||
     normalized === '/games/snake' ||
     normalized === '/tools/snake' ||
@@ -290,7 +312,7 @@ function PortfolioApp() {
   ) {
     return (
       <>
-        <ToolsPage onNavigate={navigateTo} isDark={isDark} onToggleTheme={toggleTheme} />
+        <GamesPage onNavigate={navigateTo} isDark={isDark} onToggleTheme={toggleTheme} />
         {renderGlobalOverlays()}
       </>
     );

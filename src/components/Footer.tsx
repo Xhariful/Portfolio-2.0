@@ -78,6 +78,13 @@ export const Footer: React.FC<{ onNavigate: (sectionId: string) => void }> = ({ 
   const hasCustomLogoImg = profile.logoUrl && profile.logoUrl.trim().length > 0 && !logoImgError;
   const isImageOnly = profile.logoType === 'image' && hasCustomLogoImg;
 
+  // Dynamic logo dimensions
+  const customWidth = profile.logoWidth || 130;
+  const customHeight = profile.logoHeight || 42;
+  const customZoom = (profile.logoZoom || 100) / 100;
+  const imageMaxHeight = Math.min(78, Math.max(22, Math.round(customHeight * customZoom)));
+  const boxSize = Math.min(68, Math.max(28, Math.round(36 * (customWidth / 120) * customZoom)));
+
   return (
     <footer className="relative border-t border-slate-200/80 dark:border-zinc-800/80 bg-slate-50/20 dark:bg-zinc-950/20 pt-16 pb-12 px-4 sm:px-6 lg:px-8 overflow-hidden text-slate-600 dark:text-zinc-400">
       {/* Ambient background glow */}
@@ -148,27 +155,32 @@ export const Footer: React.FC<{ onNavigate: (sectionId: string) => void }> = ({ 
               className="flex items-center gap-3 group text-left cursor-pointer"
             >
               {isImageOnly ? (
-                <div className="h-9 flex items-center">
+                <div className="flex items-center" style={{ height: `${imageMaxHeight + 4}px` }}>
                   <img
                     src={profile.logoUrl}
                     alt={profile.logoText || profile.name}
-                    width={140}
-                    height={36}
                     loading="lazy"
                     decoding="async"
                     onError={() => setLogoImgError(true)}
-                    className="max-h-9 w-auto max-w-[160px] object-contain transition-transform group-hover:scale-105"
+                    className="w-auto object-contain transition-transform group-hover:scale-105"
+                    style={{
+                      maxHeight: `${imageMaxHeight}px`,
+                      maxWidth: `${Math.round(customWidth * customZoom)}px`,
+                    }}
                   />
                 </div>
               ) : (
                 <>
                   {hasCustomLogoImg ? (
-                    <div className="w-9 h-9 rounded-xl overflow-hidden bg-purple-50 dark:bg-purple-950/60 border border-purple-200 dark:border-purple-800/60 flex items-center justify-center shadow-sm p-1 transition-transform group-hover:scale-105">
+                    <div
+                      style={{ width: `${boxSize}px`, height: `${boxSize}px` }}
+                      className="rounded-xl overflow-hidden bg-purple-50 dark:bg-purple-950/60 border border-purple-200 dark:border-purple-800/60 flex items-center justify-center shadow-sm p-1 transition-transform group-hover:scale-105 shrink-0"
+                    >
                       <img
                         src={profile.logoUrl}
                         alt={profile.logoText || profile.name}
-                        width={36}
-                        height={36}
+                        width={boxSize}
+                        height={boxSize}
                         loading="lazy"
                         decoding="async"
                         onError={() => setLogoImgError(true)}
@@ -176,7 +188,10 @@ export const Footer: React.FC<{ onNavigate: (sectionId: string) => void }> = ({ 
                       />
                     </div>
                   ) : (
-                    <div className="w-9 h-9 rounded-xl bg-purple-600 dark:bg-purple-600/20 border border-purple-600 dark:border-purple-500/30 flex items-center justify-center text-white dark:text-purple-300 shadow-sm transition-transform group-hover:scale-105">
+                    <div
+                      style={{ width: `${boxSize}px`, height: `${boxSize}px` }}
+                      className="rounded-xl bg-purple-600 dark:bg-purple-600/20 border border-purple-600 dark:border-purple-500/30 flex items-center justify-center text-white dark:text-purple-300 shadow-sm transition-transform group-hover:scale-105 shrink-0"
+                    >
                       {renderLogoIcon(profile.logoIcon)}
                     </div>
                   )}
@@ -222,6 +237,9 @@ export const Footer: React.FC<{ onNavigate: (sectionId: string) => void }> = ({ 
               </a>
               <a href="/tools" onClick={(e) => { e.preventDefault(); onNavigate('/tools'); }} className="text-left hover:text-purple-600 dark:hover:text-white transition-colors cursor-pointer py-1 text-purple-600 dark:text-purple-400 font-bold">
                 Tools Hub
+              </a>
+              <a href="/games" onClick={(e) => { e.preventDefault(); onNavigate('/games'); }} className="text-left hover:text-emerald-500 dark:hover:text-emerald-400 transition-colors cursor-pointer py-1 text-emerald-600 dark:text-emerald-400 font-bold">
+                Games Hub
               </a>
               <a href="/education" onClick={(e) => { e.preventDefault(); onNavigate('/education'); }} className="text-left hover:text-purple-600 dark:hover:text-white transition-colors cursor-pointer py-1">
                 Education

@@ -36,6 +36,24 @@ export const GamesSection: React.FC<GamesSectionProps> = ({ onNavigateToGame }) 
           <p className="text-base text-slate-600 dark:text-zinc-400">
             Fun, lightweight retro arcade and casual mini-games built with smooth 60 FPS HTML5 canvas physics and Web Audio. Play right in your browser with zero installs or downloads.
           </p>
+
+          <div className="pt-1">
+            <button
+              type="button"
+              onClick={() => {
+                if (onNavigateToGame) {
+                  onNavigateToGame('/games');
+                } else {
+                  window.history.pushState(null, '', '/games');
+                  window.dispatchEvent(new PopStateEvent('popstate'));
+                }
+              }}
+              className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 text-xs font-semibold hover:bg-emerald-100 dark:hover:bg-emerald-900/60 transition-all cursor-pointer"
+            >
+              <span>Explore Dedicated Retro Arcade Hub</span>
+              <ArrowUpRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
         </div>
 
         {/* Games Cards Grid */}
