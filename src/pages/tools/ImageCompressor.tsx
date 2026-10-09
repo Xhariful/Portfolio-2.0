@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
   ArrowLeft,
-  Sun,
-  Moon,
   Sparkles,
   FileArchive,
   Layers,
@@ -10,6 +8,8 @@ import {
   ShieldCheck,
   CheckCircle2,
 } from 'lucide-react';
+import { PageLayout } from '../../components/PageLayout';
+import { applyPageSeo } from '../../utils/seoData';
 import { CompressorUploadArea } from '../../components/tools/image-compressor/CompressorUploadArea';
 import { CompressionSettings } from '../../components/tools/image-compressor/CompressionSettings';
 import { CompressorSummary } from '../../components/tools/image-compressor/CompressorSummary';
@@ -24,14 +24,14 @@ import {
 
 interface ImageCompressorProps {
   onBackToPortfolio?: () => void;
+  onNavigate?: (path: string) => void;
   isDark?: boolean;
   onToggleTheme?: () => void;
 }
 
-import { applyPageSeo } from '../../utils/seoData';
-
 export const ImageCompressor: React.FC<ImageCompressorProps> = ({
   onBackToPortfolio,
+  onNavigate,
   isDark = true,
   onToggleTheme,
 }) => {
@@ -177,48 +177,39 @@ export const ImageCompressor: React.FC<ImageCompressorProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-zinc-950 text-slate-900 dark:text-zinc-100 flex flex-col selection:bg-indigo-600 selection:text-white transition-colors duration-300">
-      {/* Top Navigation Bar */}
-      <header className="sticky top-0 z-40 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md border-b border-slate-200/80 dark:border-zinc-800/80 px-4 sm:px-8 py-3.5 flex items-center justify-between">
-        <div className="flex items-center gap-3">
+    <PageLayout
+      currentPath="/tools/image-compressor"
+      onNavigate={(path) => {
+        if (onNavigate) onNavigate(path);
+        else if (onBackToPortfolio) onBackToPortfolio();
+        else window.location.href = path;
+      }}
+      isDark={isDark}
+      onToggleTheme={onToggleTheme || (() => {})}
+    >
+      <div className="max-w-5xl mx-auto space-y-8">
+        {/* Navigation & Status Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <button
             type="button"
-            onClick={handleBack}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-zinc-800 transition-all cursor-pointer"
+            onClick={() => {
+              if (onNavigate) onNavigate('/tools');
+              else if (onBackToPortfolio) onBackToPortfolio();
+              else window.location.href = '/tools';
+            }}
+            className="inline-flex items-center gap-2 text-xs font-semibold text-slate-600 dark:text-zinc-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors cursor-pointer w-fit"
           >
             <ArrowLeft className="w-4 h-4" />
-            <span>Back to Portfolio</span>
+            <span>Back to All Tools</span>
           </button>
 
-          <div className="h-4 w-px bg-slate-300 dark:bg-zinc-700 hidden sm:block" />
-
-          <div className="hidden sm:flex items-center gap-2 text-xs font-bold text-slate-800 dark:text-zinc-200">
-            <span className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse" />
-            <span>Image Compressor & WebP Optimizer</span>
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 dark:bg-indigo-950/70 border border-indigo-200 dark:border-indigo-800/80 text-indigo-700 dark:text-indigo-300 text-xs font-semibold">
+              <Sparkles className="w-3.5 h-3.5 text-indigo-500" />
+              <span>100% Free • Unlimited Bulk</span>
+            </span>
           </div>
         </div>
-
-        <div className="flex items-center gap-3">
-          <span className="px-3 py-1 rounded-full bg-indigo-50 dark:bg-indigo-950/70 border border-indigo-200 dark:border-indigo-800/80 text-indigo-700 dark:text-indigo-300 text-[11px] font-mono font-semibold hidden md:inline-flex items-center gap-1.5">
-            <Sparkles className="w-3 h-3 text-indigo-500" />
-            <span>100% Free • Unlimited Bulk</span>
-          </span>
-
-          {onToggleTheme && (
-            <button
-              type="button"
-              onClick={onToggleTheme}
-              aria-label="Toggle Color Theme"
-              className="p-2 rounded-xl bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer border border-slate-200 dark:border-zinc-700"
-            >
-              {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-            </button>
-          )}
-        </div>
-      </header>
-
-      {/* Main Container */}
-      <main className="flex-1 max-w-5xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-8">
         {/* Header Hero Section */}
         <div className="text-center space-y-3.5 max-w-3xl mx-auto">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-gradient-to-r from-indigo-500/15 via-purple-500/15 to-indigo-500/15 border border-indigo-500/30 text-indigo-700 dark:text-indigo-300 text-xs font-mono font-bold tracking-wide">
@@ -333,12 +324,7 @@ export const ImageCompressor: React.FC<ImageCompressorProps> = ({
             </p>
           </div>
         </div>
-      </main>
-
-      {/* Footer */}
-      <footer className="mt-12 py-6 border-t border-slate-200/80 dark:border-zinc-800/80 text-center text-xs text-slate-500 dark:text-zinc-400">
-        <p>© 2026 Shariful Islam • All rights reserved.</p>
-      </footer>
-    </div>
+      </div>
+    </PageLayout>
   );
 };

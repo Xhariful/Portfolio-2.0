@@ -210,8 +210,8 @@ export const PAGE_SEO_MAP: Record<string, PageMetaInfo> = {
 
   '/tools': {
     title: 'Free Online Web Utilities & Image Tools | Shariful Islam',
-    description: 'Free interactive web utilities engineered by Shariful Islam: 1-click AI Background Remover and Bulk Image Compressor & WebP Optimizer. 100% free with zero watermarks.',
-    keywords: 'free online tools, remove background online, image compressor, webp converter, developer web utilities, free image tools, Shariful tools, image optimizer free',
+    description: 'Free interactive web utilities engineered by Shariful Islam: 1-click AI Background Remover, Bulk Image Compressor & WebP Optimizer, and My IP & Network Inspector. 100% free with zero watermarks.',
+    keywords: 'free online tools, remove background online, image compressor, webp converter, what is my ip, ip lookup tool, developer web utilities, free image tools, Shariful tools, image optimizer free',
     canonicalPath: '/tools',
     badge: 'INTERACTIVE UTILITIES',
     headline: 'Free Web Utilities & Tools',
@@ -225,8 +225,25 @@ export const PAGE_SEO_MAP: Record<string, PageMetaInfo> = {
       '@context': 'https://schema.org',
       '@type': 'CollectionPage',
       name: 'Shariful Islam - Free Online Web Utilities Hub',
-      description: 'Suite of free image processing and developer utilities including AI Background Remover and Image Compressor.',
-      url: `${baseUrl}/tools`
+      description: 'Suite of free image processing and developer utilities including AI Background Remover, Image Compressor, and IP Network Inspector.',
+      url: `${baseUrl}/tools`,
+      hasPart: [
+        {
+          '@type': 'WebApplication',
+          name: 'AI Background Remover',
+          url: `${baseUrl}/tools/remove-background`
+        },
+        {
+          '@type': 'WebApplication',
+          name: 'Image Compressor & WebP',
+          url: `${baseUrl}/tools/image-compressor`
+        },
+        {
+          '@type': 'WebApplication',
+          name: 'My IP & Network Inspector',
+          url: `${baseUrl}/tools/ip-lookup`
+        }
+      ]
     })
   },
 

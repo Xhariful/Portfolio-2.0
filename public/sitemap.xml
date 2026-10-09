@@ -43,15 +43,31 @@
   <!-- Standalone Tool: Image Compressor & WebP Optimizer -->
   <url>
     <loc>https://sharifulportfolio.vercel.app/tools/image-compressor</loc>
-    <lastmod>2026-10-07</lastmod>
+    <lastmod>2026-10-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.90</priority>
+  </url>
+
+  <!-- Standalone Tool: My IP & Network Inspector -->
+  <url>
+    <loc>https://sharifulportfolio.vercel.app/tools/ip-lookup</loc>
+    <lastmod>2026-10-08</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.90</priority>
+  </url>
+
+  <!-- Individual Games Hub -->
+  <url>
+    <loc>https://sharifulportfolio.vercel.app/games</loc>
+    <lastmod>2026-10-08</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
   </url>
 
   <!-- Standalone Tool: Neon Snake Retro Arcade Game -->
   <url>
     <loc>https://sharifulportfolio.vercel.app/tools/snake-game</loc>
-    <lastmod>2026-10-07</lastmod>
+    <lastmod>2026-10-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.85</priority>
   </url>

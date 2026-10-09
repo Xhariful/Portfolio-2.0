@@ -5156,15 +5156,19 @@ export const AdminDashboard: React.FC = () => {
                   <div className="flex flex-wrap gap-1.5 pt-1">
                     {[
                       { path: '/', label: 'Home / Global (/)' },
-                      { path: '/about', label: 'About (/about)' },
-                      { path: '/services', label: 'Services (/services)' },
                       { path: '/projects', label: 'Projects (/projects)' },
+                      { path: '/services', label: 'Services (/services)' },
                       { path: '/tools', label: 'Tools Hub (/tools)' },
-                      { path: '/education', label: 'Education (/education)' },
-                      { path: '/certificates', label: 'Certificates (/certificates)' },
+                      { path: '/tools/remove-background', label: 'AI BG Remover (/tools/remove-background)' },
+                      { path: '/tools/image-compressor', label: 'Image Compressor (/tools/image-compressor)' },
+                      { path: '/tools/ip-lookup', label: 'IP Inspector (/tools/ip-lookup)' },
+                      { path: '/games', label: 'Games Hub (/games)' },
+                      { path: '/about', label: 'About (/about)' },
                       { path: '/skills', label: 'Skills (/skills)' },
                       { path: '/reviews', label: 'Reviews (/reviews)' },
                       { path: '/contact', label: 'Contact (/contact)' },
+                      { path: '/education', label: 'Education (/education)' },
+                      { path: '/certificates', label: 'Certificates (/certificates)' },
                     ].map((tab) => {
                       const isActive = selectedSeoPage === tab.path;
                       return (

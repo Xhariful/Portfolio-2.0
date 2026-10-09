@@ -55,7 +55,7 @@ export const PageLayout: React.FC<PageLayoutProps> = ({
     if (path.startsWith('/projects')) return 'projects';
     if (path.startsWith('/reviews') || path.startsWith('/testimonials')) return 'reviews';
     if (path.startsWith('/contact')) return 'contact';
-    if (path.startsWith('/tools')) return 'tools';
+    if (path.startsWith('/tools') || path.startsWith('/games')) return 'gadgets';
     return 'hero';
   };
 

@@ -11,6 +11,22 @@
     <meta name="google-site-verification" content="d9lq44buHQQVwwa0g35tnO2Lmu6ibpxBJsNkVww63gE" />
     <meta name="google-site-verification" content="WBIq-_bPcg7GwOa85A_AEL91wa8h4P0sSdC4W5czYcU" />
     <link rel="canonical" href="https://sharifulportfolio.vercel.app/" id="canonical-url" />
+    <script>
+      (function() {
+        try {
+          var origin = (window.location && window.location.origin && window.location.origin.indexOf('http') === 0)
+            ? window.location.origin
+            : 'https://sharifulportfolio.vercel.app';
+          var rawPath = (window.location && window.location.pathname) || '/';
+          var cleanPath = rawPath.replace(/\/+$/, '') || '/';
+          var targetUrl = origin + (cleanPath === '/' ? '/' : cleanPath);
+          var canonicalEl = document.getElementById('canonical-url');
+          if (canonicalEl) {
+            canonicalEl.setAttribute('href', targetUrl);
+          }
+        } catch(e) {}
+      })();
+    </script>
     <link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml" />
 
     <!-- Favicon & Icons -->
@@ -107,7 +123,129 @@
           "description": "Official portfolio of Shariful Islam (Shariful), Senior Shopify Liquid Developer & Full-Stack Developer. Delivering custom Liquid storefronts, theme architectures, Python APIs, and React web apps.",
           "publisher": {
             "@id": "https://sharifulportfolio.vercel.app/#person"
-          }
+          },
+          "potentialAction": {
+            "@type": "SearchAction",
+            "target": "https://sharifulportfolio.vercel.app/projects?search={search_term_string}",
+            "query-input": "required name=search_term_string"
+          },
+          "hasPart": [
+            {
+              "@type": "WebPage",
+              "name": "Projects",
+              "url": "https://sharifulportfolio.vercel.app/projects",
+              "description": "Featured Shopify stores, custom Liquid themes, and full-stack web applications."
+            },
+            {
+              "@type": "WebPage",
+              "name": "Services",
+              "url": "https://sharifulportfolio.vercel.app/services",
+              "description": "Shopify Liquid theme development, speed optimization, and full-stack engineering services."
+            },
+            {
+              "@type": "WebPage",
+              "name": "Free Tools Hub",
+              "url": "https://sharifulportfolio.vercel.app/tools",
+              "description": "Free web utilities including AI Background Remover, Image Compressor, and IP Network Inspector."
+            },
+            {
+              "@type": "WebPage",
+              "name": "AI Background Remover",
+              "url": "https://sharifulportfolio.vercel.app/tools/remove-background",
+              "description": "1-click AI background remover with lossless transparent PNG & WebP cutout."
+            },
+            {
+              "@type": "WebPage",
+              "name": "Image Compressor",
+              "url": "https://sharifulportfolio.vercel.app/tools/image-compressor",
+              "description": "Bulk image compression up to 85% storage reduction with ZIP export."
+            },
+            {
+              "@type": "WebPage",
+              "name": "My IP & Network Inspector",
+              "url": "https://sharifulportfolio.vercel.app/tools/ip-lookup",
+              "description": "Real-time public IP lookup, ISP provider, geolocation, ASN, and latency ping test."
+            },
+            {
+              "@type": "WebPage",
+              "name": "Our Games",
+              "url": "https://sharifulportfolio.vercel.app/games",
+              "description": "Retro arcade mini-games including Neon Snake Retro Arcade."
+            },
+            {
+              "@type": "WebPage",
+              "name": "About Shariful",
+              "url": "https://sharifulportfolio.vercel.app/about",
+              "description": "Bio, 4+ years of professional Shopify and full-stack experience."
+            },
+            {
+              "@type": "WebPage",
+              "name": "Technical Skills",
+              "url": "https://sharifulportfolio.vercel.app/skills",
+              "description": "Technology matrix in Shopify Liquid, React, Next.js, Python, and modern web stack."
+            },
+            {
+              "@type": "WebPage",
+              "name": "Client Reviews",
+              "url": "https://sharifulportfolio.vercel.app/reviews",
+              "description": "5-star testimonials and client ratings from international founders and agencies."
+            },
+            {
+              "@type": "WebPage",
+              "name": "Contact & Hire",
+              "url": "https://sharifulportfolio.vercel.app/contact",
+              "description": "Get in touch with Shariful Islam for freelance contracts or full-time roles."
+            }
+          ]
+        },
+        {
+          "@type": "ItemList",
+          "@id": "https://sharifulportfolio.vercel.app/#sitelinks",
+          "name": "Shariful Islam Portfolio Primary Navigation Links",
+          "itemListElement": [
+            {
+              "@type": "SiteNavigationElement",
+              "position": 1,
+              "name": "Projects",
+              "description": "Shopify stores & full-stack engineering portfolio case studies",
+              "url": "https://sharifulportfolio.vercel.app/projects"
+            },
+            {
+              "@type": "SiteNavigationElement",
+              "position": 2,
+              "name": "Services",
+              "description": "Shopify Liquid theme customization, speed optimization & APIs",
+              "url": "https://sharifulportfolio.vercel.app/services"
+            },
+            {
+              "@type": "SiteNavigationElement",
+              "position": 3,
+              "name": "Free Tools",
+              "description": "AI Background Remover, Image Compressor, and IP Network Inspector",
+              "url": "https://sharifulportfolio.vercel.app/tools"
+            },
+            {
+              "@type": "SiteNavigationElement",
+              "position": 4,
+              "name": "About Shariful",
+              "description": "4+ years of Shopify Liquid & full-stack development experience",
+              "url": "https://sharifulportfolio.vercel.app/about"
+            },
+            {
+              "@type": "SiteNavigationElement",
+              "position": 5,
+              "name": "Client Reviews",
+              "description": "Authentic client ratings and 5-star testimonials",
+              "url": "https://sharifulportfolio.vercel.app/reviews"
+            },
+            {
+              "@type": "SiteNavigationElement",
+              "position": 6,
+              "name": "Contact & Hire",
+              "description": "Direct project inquiry, WhatsApp, and email contact",
+              "url": "https://sharifulportfolio.vercel.app/contact"
+            }
+          ]
         }
       ]
     }
@@ -168,6 +306,8 @@
             <a href="/tools">Free Tools</a>
             <a href="/tools/remove-background">AI Background Remover</a>
             <a href="/tools/image-compressor">Image Compressor</a>
+            <a href="/tools/ip-lookup">My IP &amp; Network Inspector</a>
+            <a href="/games">Our Games</a>
             <a href="/education">Education</a>
             <a href="/certificates">Certificates</a>
             <a href="/skills">Skills</a>
@@ -211,6 +351,28 @@
             <p>
               Explore case studies of custom Shopify stores, SaaS applications, and enterprise web solutions delivered with clean architecture and modern performance standards.
             </p>
+          </section>
+
+          <section id="tools">
+            <h2>Free Interactive Developer &amp; Creator Tools Hub</h2>
+            <p>
+              High-performance browser-based tools with zero paywalls and complete privacy:
+            </p>
+            <ul>
+              <li><a href="/tools/remove-background">AI Background Remover</a>: 1-click lossless transparent PNG &amp; WebP cutout.</li>
+              <li><a href="/tools/image-compressor">Image Compressor &amp; WebP Optimizer</a>: Bulk compression reducing size up to 85% with 1-click ZIP export.</li>
+              <li><a href="/tools/ip-lookup">My IP &amp; Network Inspector</a>: Real-time public IP address detection, ISP provider, geolocation, ASN, and latency ping test.</li>
+            </ul>
+          </section>
+
+          <section id="games">
+            <h2>Retro Arcade &amp; Casual Mini-Games</h2>
+            <p>
+              Play retro classics directly in the browser with 60 FPS canvas physics and Web Audio:
+            </p>
+            <ul>
+              <li><a href="/games">Neon Snake Retro Arcade</a>: Classic 60 FPS neon snake with speed progression and high score tracking.</li>
+            </ul>
           </section>
 
           <section id="skills">

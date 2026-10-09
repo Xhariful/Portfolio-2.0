@@ -5,6 +5,7 @@ import multer from 'multer';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import sharp from 'sharp';
+import dns from 'dns/promises';
 
 dotenv.config();
 
@@ -16,6 +17,7 @@ const PORT = Number(process.env.PORT) || 3000;
 const HOST = '0.0.0.0';
 const REMOVE_BG_API_KEY =
   process.env.REMOVE_BG_API_KEY || 'Pi85bEV6S535Njz51tyNcFtf';
+const ABUSEIPDB_API_KEY = process.env.ABUSEIPDB_API_KEY || '';
 
 // CORS Middleware to allow requests from any origin / preview iframe
 app.use((req: Request, res: Response, next: NextFunction) => {
@@ -57,10 +59,117 @@ app.use(express.urlencoded({ extended: true, limit: '20mb' }));
 app.get('/api/health', (_req: Request, res: Response) => {
   res.json({
     status: 'ok',
-    service: 'Shariful Tools - remove.bg Background Remover API',
-    provider: 'remove.bg',
+    service: 'Shariful Tools - remove.bg & Network Inspector API',
+    provider: 'Shariful Network Inspector',
     apiKeyConfigured: Boolean(REMOVE_BG_API_KEY),
+    abuseIpDbConfigured: Boolean(ABUSEIPDB_API_KEY),
   });
+});
+
+// Network Inspector & Threat Check Endpoint
+app.get(['/api/network/lookup', '/api/network/lookup/'], async (req: Request, res: Response) => {
+  try {
+    let query = String(req.query.q || req.query.query || '').trim();
+
+    // If no query provided, detect caller IP
+    if (!query) {
+      const forwarded = req.headers['x-forwarded-for'];
+      const rawIp = (typeof forwarded === 'string' ? forwarded.split(',')[0] : req.socket.remoteAddress) || '';
+      query = rawIp.replace('::ffff:', '').trim();
+      if (!query || query === '::1' || query === '127.0.0.1') {
+        query = '8.8.8.8'; // default for local container
+      }
+    }
+
+    // Determine if query is IP or domain
+    const isIPv4 = /^(\d{1,3}\.){3}\d{1,3}$/.test(query);
+    const isIPv6 = query.includes(':');
+    const isIp = isIPv4 || isIPv6;
+
+    let targetIp = query;
+    let resolvedHostnames: string[] = [];
+    let resolvedIps: Array<{ address: string; family: number }> = [];
+
+    if (!isIp) {
+      // Domain lookup
+      try {
+        const cleanDomain = query.replace(/^https?:\/\//, '').split('/')[0].split(':')[0];
+        const lookups = await dns.lookup(cleanDomain, { all: true });
+        resolvedIps = lookups;
+        if (lookups.length > 0) {
+          const v4 = lookups.find((l) => l.family === 4);
+          targetIp = v4 ? v4.address : lookups[0].address;
+        }
+      } catch (dnsErr: any) {
+        console.warn('[DNS Lookup Error]', dnsErr?.message);
+      }
+    } else {
+      // Reverse DNS lookup (PTR)
+      try {
+        resolvedHostnames = await dns.reverse(targetIp);
+      } catch (_) {
+        // Reverse PTR not found
+      }
+    }
+
+    // Threat Check (AbuseIPDB if key configured)
+    let threatData: any = null;
+    if (ABUSEIPDB_API_KEY) {
+      try {
+        const abuseRes = await fetch(
+          `https://api.abuseipdb.com/api/v2/check?ipAddress=${encodeURIComponent(targetIp)}&maxAgeInDays=90`,
+          {
+            headers: {
+              Key: ABUSEIPDB_API_KEY,
+              Accept: 'application/json',
+            },
+          }
+        );
+        if (abuseRes.ok) {
+          const abuseJson: any = await abuseRes.json();
+          threatData = abuseJson.data;
+        }
+      } catch (abuseErr) {
+        console.warn('[AbuseIPDB Error]', abuseErr);
+      }
+    }
+
+    // Query IPQuery risk intelligence
+    let ipqueryData: any = null;
+    try {
+      const iqRes = await fetch(`https://api.ipquery.io/${encodeURIComponent(targetIp)}`);
+      if (iqRes.ok) {
+        ipqueryData = await iqRes.json();
+      }
+    } catch (_) {}
+
+    res.json({
+      success: true,
+      query,
+      targetIp,
+      isIp,
+      version: targetIp.includes(':') ? 'IPv6' : 'IPv4',
+      hostnames: resolvedHostnames,
+      resolvedIps,
+      risk: {
+        score: threatData?.abuseConfidenceScore ?? ipqueryData?.risk?.risk_score ?? 0,
+        isVpn: ipqueryData?.risk?.is_vpn ?? false,
+        isTor: ipqueryData?.risk?.is_tor ?? (threatData?.isTor ?? false),
+        isProxy: ipqueryData?.risk?.is_proxy ?? false,
+        isDatacenter: ipqueryData?.risk?.is_datacenter ?? false,
+        isMobile: ipqueryData?.risk?.is_mobile ?? false,
+        totalReports: threatData?.totalReports ?? 0,
+        lastReportedAt: threatData?.lastReportedAt ?? null,
+      },
+      ipquery: ipqueryData,
+      threatSource: threatData ? 'AbuseIPDB v2' : 'IPQuery Threat Intelligence',
+    });
+  } catch (err: any) {
+    res.status(500).json({
+      success: false,
+      error: err.message || 'Failed to inspect target IP or domain',
+    });
+  }
 });
 
 app.get(['/api/remove-background', '/api/remove-background/'], (_req: Request, res: Response) => {

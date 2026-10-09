@@ -308,6 +308,7 @@ function PortfolioApp() {
         >
           <IpLookup
             onBackToPortfolio={() => navigateTo('/tools')}
+            onNavigate={navigateTo}
             isDark={isDark}
             onToggleTheme={toggleTheme}
           />
@@ -329,6 +330,7 @@ function PortfolioApp() {
         >
           <RemoveBackground
             onBackToPortfolio={() => navigateTo('/tools')}
+            onNavigate={navigateTo}
             isDark={isDark}
             onToggleTheme={toggleTheme}
           />
@@ -350,6 +352,7 @@ function PortfolioApp() {
         >
           <ImageCompressor
             onBackToPortfolio={() => navigateTo('/tools')}
+            onNavigate={navigateTo}
             isDark={isDark}
             onToggleTheme={toggleTheme}
           />
