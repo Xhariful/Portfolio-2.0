@@ -1,5 +1,6 @@
 
 {
+  "cleanUrls": true,
   "redirects": [
     {
       "source": "/",
@@ -11,16 +12,7 @@
       "destination": "https://sharifulsoft.com/:path*",
       "permanent": true
     }
-  ]
-}
-
-
-
-
-
-
-{
-  "cleanUrls": true,
+  ],
   "rewrites": [
     {
       "source": "/((?!api/|.*\\..*).*)",
@@ -56,5 +48,3 @@
     }
   ]
 }
-
-
